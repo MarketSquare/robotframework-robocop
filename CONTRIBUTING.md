@@ -171,6 +171,16 @@ If you are adding or updating formatter, you need to add or modify a file at ``d
 If you are adding or updating a rule, you need to update the rule docstring and check how the rule documentation
 generates at [https://robocop.dev/stable/rules_list/](https://robocop.dev/stable/rules_list/).
 
+The rules list is also committed as ``docs/rules_list.md`` (a materialized copy of the generated page, so tools that
+read the raw repository sources, such as Context7, get the complete, up-to-date rule reference). Regenerate it after
+changing any rule with:
+
+```bash
+uv run python docs/update_rules_list.py
+```
+
+A pre-commit hook regenerates the file, and a CI job verifies it stays up to date.
+
 ### Build documentation locally
 
 If you have a Robocop development environment ready (with uv installed), run:

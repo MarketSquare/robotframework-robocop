@@ -1,0 +1,29 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Robocop",
+  "description": "Static code analysis tool (linter) and code formatter for Robot Framework",
+  "folders": ["docs"],
+  "excludeFolders": [
+    "docs/releasenotes",
+    "docs/images",
+    "docs/css",
+    "docs/public",
+    "docs/__pycache__"
+  ],
+  "excludeFiles": [],
+  "rules": [
+    "Robocop is both a linter AND a formatter for Robot Framework (.robot and .resource) files; the formatter replaced the standalone 'robotidy' project.",
+    "Requires Python 3.10+ and Robot Framework 5.0+.",
+    "Lint code with `robocop check` and format code with `robocop format`. `robocop list` shows rules/formatters and `robocop docs <name>` shows documentation.",
+    "Select rules or formatters with `--select` and configure them with `--configure <name>.<param>=<value>` (for example `--configure line-too-long.line_length=140`).",
+    "Configuration lives in pyproject.toml, robocop.toml, or robot.toml under [tool.robocop.lint] and [tool.robocop.format].",
+    "Rules have a name (kebab-case, e.g. `line-too-long`) and a rule id (category prefix + number, e.g. `LEN08`); both can be used with `--select`.",
+    "The full, always-current rule reference (ids, messages, parameters, examples) is in docs/rules_list.md.",
+    "For AI-generated Robot Framework code, extend the opinionated `robocop:minimal` ruleset for a less noisy baseline, e.g. `extends = [\"robocop:minimal\"]` under [tool.robocop.lint]."
+  ],
+  "previousVersions": [
+    {
+      "tag": "v8.8.0"
+    }
+  ]
+}

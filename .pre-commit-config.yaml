@@ -11,6 +11,15 @@ repos:
       - id: ruff
       - id: ruff-format
 
+  - repo: local
+    hooks:
+      - id: update-rules-list
+        name: update docs/rules_list.md
+        entry: python docs/update_rules_list.py
+        language: system
+        pass_filenames: false
+        files: ^(src/robocop/linter/rules/.*\.py|docs/(rules_list_generator|update_rules_list|rules_metadata)\.py)$
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.1
     hooks:

@@ -1,10 +1,9 @@
-
 # Rules list
 
 This is the complete list of all Robocop rules grouped by categories.
 If you want to learn more about the rules and their features, see [rules](linter/rules.md).
 
-There are over 170 rules available in Robocop and they are organized into the following categories:
+There are over 190 rules available in Robocop and they are organized into the following categories:
 
 * ARG: [Arguments](#arguments)
 * COM: [Comments](#comments)
@@ -12,6 +11,7 @@ There are over 170 rules available in Robocop and they are organized into the fo
 * DOC: [Documentation](#documentation)
 * DUP: [Duplications](#duplications)
 * ERR: [Errors](#errors)
+* GRP: [Groups](#groups)
 * IMP: [Imports](#imports)
 * KW: [Keywords](#keywords)
 * LEN: [Lengths](#lengths)
@@ -25,15 +25,11 @@ There are over 170 rules available in Robocop and they are organized into the fo
 
 Below is the list of all Robocop rules.
 
-
 ## Arguments
 
 Rules for keyword arguments.
 
-
 ### ARG01: unused-argument
-
-
 
 Added: `v3.2.0`
 
@@ -47,10 +43,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword argument '{name}' is not used`
 
-
-
 **Documentation**:
-
 
 Keyword argument was defined but not used:
 
@@ -65,12 +58,7 @@ Keyword argument was defined but not used:
     Keyword with ${embedded} and ${not_used}  # will report ${not_used}
         Log    ${embedded}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -95,16 +83,9 @@ Keyword argument was defined but not used:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ARG02: argument-overwritten-before-usage
-
-
 
 Added: `v3.2.0`
 
@@ -118,11 +99,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword argument '{name}' is overwritten before usage`
 
-
-
 **Documentation**:
-
-
 
 Keyword argument was overwritten before it is used:
 
@@ -131,12 +108,7 @@ Keyword argument was overwritten before it is used:
         [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
         ${overwritten}    Set Variable    value  # we only overwrite it
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -161,16 +133,9 @@ Keyword argument was overwritten before it is used:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ARG03: undefined-argument-default
-
-
 
 Added: `v5.7.0`
 
@@ -178,16 +143,13 @@ Supported RF version `All`
 
 Deprecated names: 0932
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Undefined argument default, use {arg_name}=${{EMPTY}} instead`
 
-
-
 **Documentation**:
-
 
 Keyword arguments can define a default value. Every time you call the keyword, you can
 optionally overwrite this default.
@@ -204,25 +166,22 @@ Example of a rule violation:
     My Amazing Keyword
         [Arguments]    ${argument_name}=
 
-
-
-
+The fix adds the explicit ``${EMPTY}`` default value.
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure undefined-argument-default.severity=E
+        robocop check --configure undefined-argument-default.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -230,20 +189,13 @@ Example of a rule violation:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "undefined-argument-default.severity=E"
+            "undefined-argument-default.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ARG04: undefined-argument-value
-
-
 
 Added: `v5.7.0`
 
@@ -257,10 +209,7 @@ Fix availability: There is no automatic fix.
 
 `Undefined argument value, use {arg_name}=${{EMPTY}} instead`
 
-
-
 **Documentation**:
-
 
 When calling a keyword, it can accept named arguments.
 
@@ -279,25 +228,20 @@ Example of a rule violation:
     Test case
         My Amazing Keyword    argument_name=
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure undefined-argument-value.severity=E
+        robocop check --configure undefined-argument-value.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -305,20 +249,13 @@ Example of a rule violation:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "undefined-argument-value.severity=E"
+            "undefined-argument-value.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ARG05: invalid-argument
-
-
 
 Added: `v1.11.0`
 
@@ -332,10 +269,7 @@ Fix availability: There is no automatic fix.
 
 `{error_msg}`
 
-
-
 **Documentation**:
-
 
 Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed
 in curly brackets (``{}``).
@@ -352,12 +286,7 @@ Invalid names:
     Keyword
         [Arguments]    {var}    @args}    var=default
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -382,16 +311,9 @@ Invalid names:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ARG06: duplicated-argument-name
-
-
 
 Added: `v1.11.0`
 
@@ -405,10 +327,7 @@ Fix availability: There is no automatic fix.
 
 `Argument name '{argument_name}' is already used`
 
-
-
 **Documentation**:
-
 
 Argument name is already used.
 
@@ -420,25 +339,20 @@ are duplicates:
         [Arguments]    ${var}  ${VAR}  ${v_ar}  ${v ar}
         Other Keyword
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure duplicated-argument-name.severity=E
+        robocop check --configure duplicated-argument-name.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -446,20 +360,13 @@ are duplicates:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "duplicated-argument-name.severity=E"
+            "duplicated-argument-name.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ARG07: arguments-per-line
-
-
 
 Added: `v\-`
 
@@ -473,10 +380,7 @@ Fix availability: There is no automatic fix.
 
 `There is too many arguments per continuation line ({arguments_count} / {max_arguments_count})`
 
-
-
 **Documentation**:
-
 
 Too many arguments per continuation line.
 
@@ -498,12 +402,7 @@ Correct code:
     ...    ${second_arg}
     ...    ${third_arg}=default
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -551,24 +450,20 @@ Correct code:
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### ARG08: invalid-argument-count
 
-
 > Rule is disabled by default. Enable it by using ``--select invalid-argument-count`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
-Added: `v8.9.0`
+Added: `v9.0.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -576,10 +471,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword_name}' expects {expected} but {provided} provided{missing}`
 
-
-
 **Documentation**:
-
 
 Keyword is called with a wrong number of arguments.
 
@@ -611,14 +503,7 @@ To avoid false positives, the call is not reported when:
 - the call expands a list (``@{args}``) or dictionary (``&{kwargs}``) variable,
 - the keyword is used as a test template.
 
-This rule is a project level rule and is only reported by the ``robocop check-project`` command.
-
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -643,21 +528,149 @@ This rule is a project level rule and is only reported by the ``robocop check-pr
         ]
         ```
 
+---
 
+### ARG09: missing-argument-name
 
+> Rule is disabled by default. Enable it by using ``--select missing-argument-name`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
+Added: `v9.0.0`
 
+Supported RF version `All`
 
+Fix availability: Fix is always available.
+
+**Message**:
+
+`Argument '{argument_name}' of the keyword '{keyword_name}' should be passed as a named argument`
+
+**Documentation**:
+
+Keyword is called with a positional argument instead of a named one.
+
+Optional rule for projects that require every keyword to be called with named arguments. Positional arguments
+are easy to mix up, especially with keywords that accept a lot of them:
+
+    *** Keywords ***
+    Create User
+        [Arguments]    ${name}    ${surname}    ${age}    ${city}
+        Log Many    ${name}    ${surname}    ${age}    ${city}
+
+    *** Test Cases ***
+    Test
+        Create User    Bob    Smith    30    Berlin  # will report 4 issues
+
+With this rule enabled, the call should be written as:
+
+    *** Test Cases ***
+    Test
+        Create User    name=Bob    surname=Smith    age=30    city=Berlin
+
+The rule is not enabled by default. Select it to use it:
+
+    robocop check --select missing-argument-name
+
+Argument names are taken from the keyword definition, so the whole project needs to be analyzed. Keywords
+coming from the libraries are ignored by default, since it is not always possible to call them with named
+arguments. Configure ``ignore_library_keywords`` to check them as well:
+
+    robocop check --select missing-argument-name --configure missing-argument-name.ignore_library_keywords=False
+
+Calls with only a few arguments are often clear enough. Use ``min_arguments`` to only report calls that use
+at least given number of positional arguments:
+
+    robocop check --select missing-argument-name --configure missing-argument-name.min_arguments=3
+
+To avoid false positives, the argument is not reported when:
+
+- the keyword name is built from a variable,
+- the keyword is not found in the project, or more than one definition matches the name,
+- the keyword uses embedded arguments,
+- the call expands a list (``@{args}``) or dictionary (``&{kwargs}``) variable,
+- the keyword is used as a test template,
+- the argument is passed to ``*varargs``, or the keyword does not accept it as a named argument.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-argument-name.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-argument-name.severity=W"
+        ]
+        ```
+
+??? example "ignore_library_keywords"
+
+    Do not report calls of the keywords imported from the libraries
+
+    **Default value:** True
+
+    **Type:** bool
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-argument-name.ignore_library_keywords=True
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-argument-name.ignore_library_keywords=True"
+        ]
+        ```
+
+??? example "min_arguments"
+
+    Minimal number of the positional arguments in the call required to report it
+
+    **Default value:** 1
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-argument-name.min_arguments=1
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-argument-name.min_arguments=1"
+        ]
+        ```
 
 ## Comments
 
 Rules for comments.
 
-
 ### COM01: todo-in-comment
-
-
 
 Added: `v1.0.0`
 
@@ -671,10 +684,7 @@ Fix availability: There is no automatic fix.
 
 `Found a marker '{marker}' in the comments`
 
-
-
 **Documentation**:
-
 
 TODO-like marker found in the comment.
 
@@ -689,12 +699,7 @@ Configuration example:
 
     robocop check --configure "todo-in-comment.markers=todo,Remove me,Fix this!"
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -742,16 +747,9 @@ Configuration example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### COM02: missing-space-after-comment
-
-
 
 Added: `v1.0.0`
 
@@ -759,16 +757,13 @@ Supported RF version `All`
 
 Deprecated names: 0702
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Missing blank space after comment character`
 
-
-
 **Documentation**:
-
 
 No space after the ``#`` character and comment body.
 
@@ -804,16 +799,14 @@ Allows commenting like:
     or
     #* Headers *#
 
-
-
+The fix adds the missing space. Comments that would still violate the rule after adding the space
+(such as ``##comment``, which is not recognized as a block comment) are not fixed.
 
 **Style guide**:
 
 - [#comments](https://docs.robotframework.org/docs/style_guide#comments)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -861,16 +854,9 @@ Allows commenting like:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### COM03: invalid-comment
-
-
 
 Added: `v1.0.0`
 
@@ -884,10 +870,7 @@ Fix availability: There is no automatic fix.
 
 `Comment starts from the second character in the line`
 
-
-
 **Documentation**:
-
 
 Invalid comment.
 
@@ -903,12 +886,7 @@ Example:
   # third cell so it's good
 ```
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -933,16 +911,9 @@ Example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### COM04: ignored-data
-
-
 
 Added: `v1.3.0`
 
@@ -950,16 +921,13 @@ Supported RF version `All`
 
 Deprecated names: 0704
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Ignored data found in file`
 
-
-
 **Documentation**:
-
 
 Ignored data found in the file.
 
@@ -982,12 +950,10 @@ Comment lines that should be inside ``*** Comments ***``:
 
     *** Test Cases ***
 
-
-
-
+The fix adds the ``*** Comments ***`` section header before the ignored data. Data containing the language
+header is not fixed, since the header would stop working inside the ``*** Comments ***`` section.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1012,18 +978,11 @@ Comment lines that should be inside ``*** Comments ***``:
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### COM05: bom-encoding-in-file
 
-
 > Rule is disabled by default. Enable it by using ``--select bom-encoding-in-file`` option.
-
 
 Added: `v1.7.0`
 
@@ -1037,10 +996,7 @@ Fix availability: There is no automatic fix.
 
 `BOM (Byte Order Mark) found in the file`
 
-
-
 **Documentation**:
-
 
 BOM (Byte Order Mark) found in the file.
 
@@ -1050,12 +1006,7 @@ Ensure that the file is saved in UTF-8 encoding.
 
 Changes in 8.0.0: Rule is now optional since Robot Framework now supports BOM encoding.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1080,24 +1031,15 @@ Changes in 8.0.0: Rule is now optional since Robot Framework now supports BOM en
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### COM06: commented-out-code
 
-
 > Rule is disabled by default. Enable it by using ``--select commented-out-code`` option.
-
 
 Added: `v7.1.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -1105,10 +1047,7 @@ Fix availability: There is no automatic fix.
 
 `Commented out code: '{snippet}'`
 
-
-
 **Documentation**:
-
 
 Commented out code detected.
 
@@ -1148,12 +1087,7 @@ Example of valid comments:
     # TODO: implement this feature
     # If you need help, ask
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1201,25 +1135,15 @@ Example of valid comments:
         ]
         ```
 
-
-
-
-
-
-
-
 ## Deprecated code
 
 Rules for deprecated code or code replacement recommendations.
 
-
 ### DEPR01: if-can-be-used
-
 
 > **Warning**
 >
 > Rule is deprecated.
-
 
 Added: `v1.4.0`
 
@@ -1233,24 +1157,16 @@ Fix availability: There is no automatic fix.
 
 `'{run_keyword}' can be replaced with IF block since Robot Framework 4.0`
 
-
-
 **Documentation**:
-
 
 ``Run Keyword If`` or ``Run Keyword Unless`` used instead of IF.
 
 Starting from Robot Framework 4.0 IF block can be used instead of those keywords.
 
-Changes in 8.8.0: Rule is deprecated. It only supported Robot Framework 4, while Robocop
+Changes in 8.9.0: Rule is deprecated. It only supported Robot Framework 4, while Robocop
 now requires Robot Framework 5.0+. Use ``deprecated-run-keyword-if`` (DEPR08) instead.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1275,20 +1191,13 @@ now requires Robot Framework 5.0+. Use ``deprecated-run-keyword-if`` (DEPR08) in
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR02: deprecated-statement
-
 
 > **Warning**
 >
 > Rule is deprecated.
-
 
 Added: `v2.0.0`
 
@@ -1302,10 +1211,7 @@ Fix availability: There is no automatic fix.
 
 `'{statement_name}' is deprecated since Robot Framework version {version}, use '{alternative}' instead`
 
-
-
 **Documentation**:
-
 
 Statement is deprecated.
 
@@ -1315,12 +1221,7 @@ For example, ``Run Keyword`` and ``Continue For Loop`` keywords or ``[Return]`` 
 
 Changes in 8.0.0: Rule is now split into separate deprecated-* rules and the original rule is deprecated.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1345,16 +1246,9 @@ Changes in 8.0.0: Rule is now split into separate deprecated-* rules and the ori
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR03: deprecated-with-name
-
-
 
 Added: `v2.5.0`
 
@@ -1362,16 +1256,13 @@ Supported RF version `>=6.0`
 
 Deprecated names: 0321
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Deprecated 'WITH NAME' alias marker used instead of 'AS'`
 
-
-
 **Documentation**:
-
 
 Deprecated 'WITH NAME' alias marker used instead of 'AS'.
 
@@ -1388,12 +1279,9 @@ Correct code:
     *** Settings ***
     Library    Collections    AS    AliasedName
 
-
-
-
+The fix replaces the ``WITH NAME`` marker with ``AS``.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1418,16 +1306,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR04: deprecated-singular-header
-
-
 
 Added: `v2.6.0`
 
@@ -1435,16 +1316,13 @@ Supported RF version `>=6.0`
 
 Deprecated names: 0322
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `'{singular_header}' deprecated singular header used instead of '{plural_header}'`
 
-
-
 **Documentation**:
-
 
 Deprecated singular header used instead of plural form.
 
@@ -1461,12 +1339,9 @@ Correct code:
     *** Settings ***
     *** Keywords ***
 
-
-
-
+The fix replaces the singular header with the plural one, keeping the original header formatting.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1491,16 +1366,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR05: replace-set-variable-with-var
-
-
 
 Added: `v5.0.0`
 
@@ -1514,10 +1382,7 @@ Fix availability: There is no automatic fix.
 
 `{set_variable_keyword} used instead of VAR`
 
-
-
 **Documentation**:
-
 
 Set X Variable used instead of VAR.
 
@@ -1544,12 +1409,7 @@ Correct code:
         VAR    ${SUITE_VAR}    value    scope=SUITE
         VAR    ${GLOBAL_VAR}    value    scope=GLOBAL
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1574,16 +1434,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR06: replace-create-with-var
-
-
 
 Added: `v5.0.0`
 
@@ -1597,10 +1450,7 @@ Fix availability: There is no automatic fix.
 
 `{create_keyword} used instead of VAR`
 
-
-
 **Documentation**:
-
 
 Create List/Dictionary used instead of VAR.
 
@@ -1621,12 +1471,7 @@ Correct code:
         VAR    @{list}    a  b
         VAR    &{dict}    key=value
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1651,22 +1496,13 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR07: deprecated-force-tags
-
-
 
 Added: `v8.0.0`
 
 Supported RF version `>=6.0`
-
-
 
 Fix availability: Fix is always available.
 
@@ -1674,10 +1510,7 @@ Fix availability: Fix is always available.
 
 `'Force Tags' is deprecated, use 'Test Tags' instead`
 
-
-
 **Documentation**:
-
 
 Force Tags setting is deprecated.
 
@@ -1691,12 +1524,7 @@ Use ``Test Tags`` instead:
     *** Settings ***
     Test Tags      tag
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1721,33 +1549,21 @@ Use ``Test Tags`` instead:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR08: deprecated-run-keyword-if
-
-
 
 Added: `v8.0.0`
 
 Supported RF version `>=4.0`
 
-
-
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `'{statement_name}' is deprecated, use 'IF' instead`
 
-
-
 **Documentation**:
-
 
 ``Run Keyword If`` and ``Run Keyword Unless`` keywords are deprecated.
 
@@ -1777,12 +1593,11 @@ Use ``IF`` instead:
                 Keyword3
             END
 
-
-
-
+The fix replaces the keyword call with an ``IF`` block. ``Run Keyword Unless`` conditions are wrapped in
+``not (...)``. Only keyword calls in the body are fixed - ``Run Keyword If`` used as a setting value
+(for example ``Suite Setup`` or ``[Template]``) or without arguments cannot be converted and is left as is.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1807,33 +1622,21 @@ Use ``IF`` instead:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR09: deprecated-loop-keyword
-
-
 
 Added: `v8.0.0`
 
 Supported RF version `>=5.0`
 
-
-
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `'{statement_name}' is deprecated, use '{alternative}' instead`
 
-
-
 **Documentation**:
-
 
 Loop keywords are deprecated.
 
@@ -1873,12 +1676,11 @@ Correct code:
             BREAK
         END
 
-
-
-
+The fix replaces ``Continue For Loop`` with ``CONTINUE`` and ``Exit For Loop`` with ``BREAK``. The
+``... If`` variants are wrapped in an ``IF`` block. Only body keyword calls are fixed - the keyword
+used as a setting value (for example ``[Setup]`` or ``[Template]``) is left as is.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1903,22 +1705,13 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR10: deprecated-return-keyword
-
-
 
 Added: `v8.0.0`
 
 Supported RF version `>=5.0`
-
-
 
 Fix availability: Fix is always available.
 
@@ -1926,20 +1719,13 @@ Fix availability: Fix is always available.
 
 `'{statement_name}' is deprecated, use '{alternative}' instead`
 
-
-
 **Documentation**:
-
 
 ``Return From Keyword`` and ``Return From Keyword If`` keywords are deprecated.
 
 Use ``RETURN`` or ``IF  <condition>  RETURN`` instead.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -1964,22 +1750,13 @@ Use ``RETURN`` or ``IF  <condition>  RETURN`` instead.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DEPR11: deprecated-return-setting
-
-
 
 Added: `v8.0.0`
 
 Supported RF version `>=5.0`
-
-
 
 Fix availability: Fix is always available.
 
@@ -1987,10 +1764,7 @@ Fix availability: Fix is always available.
 
 `'[Return]' is deprecated, use 'RETURN' instead`
 
-
-
 **Documentation**:
-
 
 ``[Return]`` settings is deprecated.
 
@@ -2012,25 +1786,20 @@ Correct code:
         ${value}    Convert To Upper Case    ${arg}
         RETURN    ${value}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** W
+    **Default value:** I
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure deprecated-return-setting.severity=W
+        robocop check --configure deprecated-return-setting.severity=I
         ```
 
     === ":material-file-cog-outline: toml"
@@ -2038,25 +1807,15 @@ Correct code:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "deprecated-return-setting.severity=W"
+            "deprecated-return-setting.severity=I"
         ]
         ```
-
-
-
-
-
-
-
 
 ## Documentation
 
 Rules for documentation.
 
-
 ### DOC01: missing-doc-keyword
-
-
 
 Added: `v1.0.0`
 
@@ -2070,10 +1829,7 @@ Fix availability: There is no automatic fix.
 
 `Missing documentation in '{name}' keyword`
 
-
-
 **Documentation**:
-
 
 Keyword without documentation.
 
@@ -2088,12 +1844,7 @@ You can add documentation to keyword using following syntax:
         Keyword Step
         Other Step
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2118,16 +1869,9 @@ You can add documentation to keyword using following syntax:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DOC02: missing-doc-test-case
-
-
 
 Added: `v1.0.0`
 
@@ -2141,10 +1885,7 @@ Fix availability: There is no automatic fix.
 
 `Missing documentation in '{name}' test case`
 
-
-
 **Documentation**:
-
 
 Test case without documentation.
 
@@ -2162,12 +1903,7 @@ The rule by default ignores templated test cases but it can be configured with:
 
 Possible values are: ``Yes`` / ``1`` / ``True`` (default) or ``No`` / ``False`` / ``0``.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2215,16 +1951,9 @@ Possible values are: ``Yes`` / ``1`` / ``True`` (default) or ``No`` / ``False`` 
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DOC03: missing-doc-suite
-
-
 
 Added: `v1.0.0`
 
@@ -2238,10 +1967,7 @@ Fix availability: There is no automatic fix.
 
 `Missing documentation in suite`
 
-
-
 **Documentation**:
-
 
 Test suite without documentation.
 
@@ -2250,12 +1976,7 @@ You can add documentation to suite using following syntax:
     *** Settings ***
     Documentation    Suite documentation
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2280,16 +2001,9 @@ You can add documentation to suite using following syntax:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DOC04: missing-doc-resource-file
-
-
 
 Added: `v2.8.0`
 
@@ -2303,10 +2017,7 @@ Fix availability: There is no automatic fix.
 
 `Missing documentation in resource file`
 
-
-
 **Documentation**:
-
 
 Resource file without documentation.
 
@@ -2315,12 +2026,7 @@ You can add documentation to resource file using following syntax:
     *** Settings ***
     Documentation    Resource file documentation
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2345,21 +2051,87 @@ You can add documentation to resource file using following syntax:
         ]
         ```
 
+---
 
+### DOC05: variable-in-documentation
 
+> Rule is disabled by default. Enable it by using ``--select variable-in-documentation`` option.
 
+Added: `v9.0.0`
 
+Supported RF version `All`
 
+Fix availability: There is no automatic fix.
 
+**Message**:
+
+`Unescaped variable '{variable}' in documentation`
+
+**Documentation**:
+
+Unescaped variable syntax in documentation.
+
+Robot Framework resolves variables in suite, test case and user keyword documentation when a suite is executed.
+This includes scalar (``${name}``), list (``@{items}``), dictionary (``&{mapping}``) and environment
+(``%{NAME}``) variable syntax. Defined variables are replaced with their values. Undefined variables are left
+unchanged, which can make an unescaped literal example appear correct until a variable with the same name becomes
+available.
+
+For example, this documentation changes at runtime if ``${value}`` exists:
+
+    *** Test Cases ***
+    Example
+        [Documentation]    The argument syntax is ${value}.
+        No Operation
+
+Escape syntax that should be displayed literally:
+
+    *** Test Cases ***
+    Example
+        [Documentation]    Scalar: \${value}; list: \@{items}; dictionary: \&{mapping}; environment: \%{HOME}.
+        No Operation
+
+The leading backslash prevents substitution and is removed from the rendered documentation. The rule checks suite,
+test case and user keyword documentation, including continuation lines.
+
+The rule is disabled by default. Enable it with:
+
+    robocop check --select variable-in-documentation
+
+There is no automatic fix. Robocop cannot determine whether interpolation is intentional, and escaping an
+intentionally dynamic value would change the rendered documentation. If interpolation is intended, leave the
+syntax unescaped and disable the rule locally where needed.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure variable-in-documentation.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "variable-in-documentation.severity=I"
+        ]
+        ```
 
 ## Duplications
 
 Rules for duplicated code such as settings or variables.
 
-
 ### DUP01: duplicated-test-case
-
-
 
 Added: `v1.0.0`
 
@@ -2373,10 +2145,7 @@ Fix availability: There is no automatic fix.
 
 `Multiple test cases with name '{name}' (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Multiple test cases with the same name in the suite.
 
@@ -2392,12 +2161,7 @@ Incorrect code example:
     test_with Name
         No Operation
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2422,16 +2186,9 @@ Incorrect code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP02: duplicated-keyword
-
-
 
 Added: `v1.0.0`
 
@@ -2445,10 +2202,7 @@ Fix availability: There is no automatic fix.
 
 `Multiple keywords with name '{name}' (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Multiple keywords with the same name in the file.
 
@@ -2467,12 +2221,7 @@ Incorrect code example:
     K_eywor d
         No Operation
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2497,16 +2246,9 @@ Incorrect code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP03: duplicated-variable
-
-
 
 Added: `v1.0.0`
 
@@ -2514,16 +2256,13 @@ Supported RF version `All`
 
 Deprecated names: 0803
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Multiple variables with name '{name}' in Variables section (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Multiple variables with the same name in the file.
 
@@ -2537,12 +2276,10 @@ are duplicates:
     ${v ariabl e}  c
     ${v_ariable}   d
 
-
-
-
+Only the first definition is used by Robot Framework, so the duplicated definitions can be safely removed
+with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2567,16 +2304,9 @@ are duplicates:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP04: duplicated-resource
-
-
 
 Added: `v1.0.0`
 
@@ -2584,16 +2314,13 @@ Supported RF version `All`
 
 Deprecated names: 0804
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Multiple resource imports with path '{name}' (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Duplicated resource imports.
 
@@ -2606,12 +2333,9 @@ Incorrect code example:
     Resource    other_path.resource
     Resource    path.resource
 
-
-
-
+The fix removes the duplicated import.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2636,16 +2360,9 @@ Incorrect code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP05: duplicated-library
-
-
 
 Added: `v1.0.0`
 
@@ -2653,16 +2370,13 @@ Supported RF version `All`
 
 Deprecated names: 0805
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Multiple library imports with name '{name}' and identical arguments (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Duplicated library imports.
 
@@ -2672,12 +2386,9 @@ If you need to reimport library use alias:
     Library  RobotLibrary
     Library  RobotLibrary  AS  OtherRobotLibrary
 
-
-
-
+The fix removes the duplicated import. Only imports with the same name, arguments and alias are reported.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2702,16 +2413,9 @@ If you need to reimport library use alias:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP06: duplicated-metadata
-
-
 
 Added: `v1.0.0`
 
@@ -2725,16 +2429,11 @@ Fix availability: There is no automatic fix.
 
 `Duplicated metadata '{name}' (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
 
 Duplicated metadata.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2759,16 +2458,9 @@ Duplicated metadata.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP07: duplicated-variables-import
-
-
 
 Added: `v1.0.0`
 
@@ -2776,22 +2468,19 @@ Supported RF version `All`
 
 Deprecated names: 0807
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Duplicated variables import with path '{name}' (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
 
 Duplicated variables import.
 
-
+The fix removes the duplicated import.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2816,16 +2505,9 @@ Duplicated variables import.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP08: section-already-defined
-
-
 
 Added: `v1.0.0`
 
@@ -2839,10 +2521,7 @@ Fix availability: There is no automatic fix.
 
 `'{section_name}' section header already defined in file (first occurrence in line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Section header already defined in the file.
 
@@ -2863,25 +2542,20 @@ Incorrect code example:
     Other Test
         Keyword
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** W
+    **Default value:** I
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure section-already-defined.severity=W
+        robocop check --configure section-already-defined.severity=I
         ```
 
     === ":material-file-cog-outline: toml"
@@ -2889,20 +2563,13 @@ Incorrect code example:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "section-already-defined.severity=W"
+            "section-already-defined.severity=I"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP09: both-tests-and-tasks
-
-
 
 Added: `v1.0.0`
 
@@ -2916,10 +2583,7 @@ Fix availability: There is no automatic fix.
 
 `Both Task(s) and Test Case(s) section headers defined in file`
 
-
-
 **Documentation**:
-
 
 Both Task(s) and Test Case(s) section headers defined in file.
 
@@ -2929,12 +2593,7 @@ The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Us
 
     *** Tasks ***
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -2959,16 +2618,9 @@ The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Us
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### DUP10: duplicated-setting
-
-
 
 Added: `v2.0`
 
@@ -2982,10 +2634,7 @@ Fix availability: There is no automatic fix.
 
 `{error_msg}`
 
-
-
 **Documentation**:
-
 
 Duplicated setting.
 
@@ -2997,12 +2646,7 @@ Example:
     Test Tags        F1
     Test Tags        F2  # this setting will be ignored
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3027,24 +2671,20 @@ Example:
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### DUP11: duplicated-variable-in-project
 
-
 > Rule is disabled by default. Enable it by using ``--select duplicated-variable-in-project`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
-Added: `v8.9.0`
+Added: `v9.0.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3052,10 +2692,7 @@ Fix availability: There is no automatic fix.
 
 `Variable '{name}' is also defined in '{first_source}' (line {first_occurrence_line})`
 
-
-
 **Documentation**:
-
 
 Variable with the same name defined in multiple files visible together.
 
@@ -3074,14 +2711,7 @@ Example of rule violation:
 Only variables defined in the ``*** Variables ***`` section are compared. Variable names are normalized, so
 ``${my var}``, ``${MY_VAR}`` and ``${myvar}`` are treated as the same variable.
 
-This rule is a project level rule and is only reported by the ``robocop check-project`` command.
-
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3106,27 +2736,15 @@ This rule is a project level rule and is only reported by the ``robocop check-pr
         ]
         ```
 
-
-
-
-
-
-
-
 ## Errors
 
 Rules for syntax errors and critical issues with the code.
 
-
 ### ERR01: parsing-error
-
-
 
 Added: `v1.0.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3134,10 +2752,7 @@ Fix availability: There is no automatic fix.
 
 `Robot Framework syntax error: {error_msg}`
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3162,22 +2777,13 @@ Fix availability: There is no automatic fix.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR03: missing-keyword-name
-
-
 
 Added: `v1.8.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3185,10 +2791,7 @@ Fix availability: There is no automatic fix.
 
 `Missing keyword name when calling some values`
 
-
-
 **Documentation**:
-
 
 Missing keyword name.
 
@@ -3199,12 +2802,7 @@ Example of rule violation:
         ${var}
         ${one}      ${two}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3229,22 +2827,13 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR04: variables-import-with-args
-
-
 
 Added: `v1.11.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3252,10 +2841,7 @@ Fix availability: There is no automatic fix.
 
 `YAML variable files do not take arguments`
 
-
-
 **Documentation**:
-
 
 YAML variables file import with arguments.
 
@@ -3266,12 +2852,7 @@ Example of rule violation:
     Variables    variables.yml    arg2
     Variables    module           arg3  # valid from RF > 5
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3296,22 +2877,13 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR05: invalid-continuation-mark
-
-
 
 Added: `v1.11.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3319,10 +2891,7 @@ Fix availability: There is no automatic fix.
 
 `Invalid continuation mark '{mark}'. It should be '...'`
 
-
-
 **Documentation**:
-
 
 Invalid continuation mark.
 
@@ -3333,12 +2902,7 @@ Example of rule violation:
     ...  1
     ....  2  # .... instead of ...
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3363,22 +2927,13 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR08: non-existing-setting
-
-
 
 Added: `v1.11.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3386,10 +2941,7 @@ Fix availability: There is no automatic fix.
 
 `{error_msg}`
 
-
-
 **Documentation**:
-
 
 Non-existing setting used in the code.
 
@@ -3400,12 +2952,7 @@ Example of rule violation:
        [Not Existing]  arg
        [Arguments]  ${arg}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3430,22 +2977,13 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR09: setting-not-supported
-
-
 
 Added: `v1.11.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3453,10 +2991,7 @@ Fix availability: There is no automatic fix.
 
 `Setting '[{setting_name}]' is not supported in {test_or_keyword}. Allowed are: {allowed_settings}`
 
-
-
 **Documentation**:
-
 
 Not supported setting.
 
@@ -3464,30 +2999,25 @@ The following settings are supported in Test Case or Task:
 
     *** Test Cases ***
     Test case
-        [Documentation]	 Used for specifying a test case documentation.
-        [Tags]	         Used for tagging test cases.
-        [Setup]	         Used for specifying a test setup.
-        [Teardown]	     Used for specifying a test teardown.
-        [Template]	     Used for specifying a template keyword.
-        [Timeout]	     Used for specifying a test case timeout.
+        [Documentation]      Used for specifying a test case documentation.
+        [Tags]               Used for tagging test cases.
+        [Setup]              Used for specifying a test setup.
+        [Teardown]       Used for specifying a test teardown.
+        [Template]       Used for specifying a template keyword.
+        [Timeout]        Used for specifying a test case timeout.
 
 The following settings are supported in Keyword:
 
     *** Keywords ***
     Keyword
-        [Documentation]	 Used for specifying a user keyword documentation.
-        [Tags]	         Used for specifying user keyword tags.
-        [Arguments]	     Used for specifying user keyword arguments.
-        [Return]	     Used for specifying user keyword return values.
-        [Teardown]	     Used for specifying user keyword teardown.
-        [Timeout]	     Used for specifying a user keyword timeout.
-
-
-
-
+        [Documentation]      Used for specifying a user keyword documentation.
+        [Tags]               Used for specifying user keyword tags.
+        [Arguments]      Used for specifying user keyword arguments.
+        [Return]         Used for specifying user keyword return values.
+        [Teardown]       Used for specifying user keyword teardown.
+        [Timeout]        Used for specifying a user keyword timeout.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3512,22 +3042,13 @@ The following settings are supported in Keyword:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR12: invalid-for-loop
-
-
 
 Added: `v1.0.0`
 
 Supported RF version `>=4.0`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3535,16 +3056,11 @@ Fix availability: There is no automatic fix.
 
 `Invalid for loop syntax: {error_msg}`
 
-
-
 **Documentation**:
 
 Invalid FOR loop syntax.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3569,22 +3085,13 @@ Invalid FOR loop syntax.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR13: invalid-if
-
-
 
 Added: `v1.0.0`
 
 Supported RF version `>=4.0`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3592,16 +3099,11 @@ Fix availability: There is no automatic fix.
 
 `Invalid IF syntax: {error_msg}`
 
-
-
 **Documentation**:
 
 Invalid IF syntax.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3626,22 +3128,13 @@ Invalid IF syntax.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR14: return-in-test-case
-
-
 
 Added: `v2.0.0`
 
 Supported RF version `>=5.0`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3649,16 +3142,11 @@ Fix availability: There is no automatic fix.
 
 `RETURN can only be used inside a user keyword`
 
-
-
 **Documentation**:
 
 RETURN used outside the user keyword.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3683,22 +3171,13 @@ RETURN used outside the user keyword.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR15: invalid-section-in-resource
-
-
 
 Added: `v3.1.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3706,22 +3185,14 @@ Fix availability: There is no automatic fix.
 
 `Resource file can't contain '{section_name}' section`
 
-
-
 **Documentation**:
-
 
 Resource file with a not supported section.
 
 The higher-level structure of resource files is the same as that of test case files,
 but they can't contain Test Cases or Tasks sections.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3746,22 +3217,13 @@ but they can't contain Test Cases or Tasks sections.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR16: invalid-setting-in-resource
-
-
 
 Added: `v3.3.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3769,21 +3231,14 @@ Fix availability: There is no automatic fix.
 
 `Settings section in resource file can't contain '{section_name}' setting`
 
-
-
 **Documentation**:
-
 
 Not supported setting in the `` *** Settings ***`` section in a resource file.
 
 The Setting section in resource files can contain only import settings (``Library``,
 ``Resource``, ``Variables``), ``Documentation`` and ``Keyword Tags``.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3808,22 +3263,13 @@ The Setting section in resource files can contain only import settings (``Librar
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ERR17: unsupported-setting-in-init-file
-
-
 
 Added: `v3.3.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -3831,20 +3277,13 @@ Fix availability: There is no automatic fix.
 
 `Setting '{setting}' is not supported in initialization files`
 
-
-
 **Documentation**:
-
 
 Not supported setting in a initialization file.
 
 Settings ``Default Tags`` and ``Test Template`` are not supported in initialization files.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -3869,21 +3308,358 @@ Settings ``Default Tags`` and ``Test Template`` are not supported in initializat
         ]
         ```
 
+## Groups
 
+Rules for the GROUP syntax.
 
+### GRP01: too-few-calls-in-group
 
+Added: `v9.0.0`
 
+Supported RF version `>=7.2`
 
+Fix availability: There is no automatic fix.
 
+**Message**:
+
+`GROUP '{group_name}' has too few keywords inside ({keyword_count}/{min_allowed_count})`
+
+**Documentation**:
+
+Too few keyword calls in a ``GROUP``.
+
+``GROUP`` blocks are meant to group several related steps together. A group with just a single keyword call
+usually does not add any value and only introduces an extra level of indentation. Consider inlining the keyword
+or adding the missing steps:
+
+    *** Test Cases ***
+    Test
+        GROUP    Login
+            Log In    ${user}    ${password}    # a single keyword does not need a group
+        END
+
+An empty ``GROUP`` is a Robot Framework syntax error and is reported by the ``parsing-error`` rule instead.
+
+The number of required keyword calls can be configured with the ``min_calls`` parameter:
+
+    robocop check --configure too-few-calls-in-group.min_calls=3
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `min_calls` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `min_calls` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-few-calls-in-group.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-few-calls-in-group.severity=W"
+        ]
+        ```
+
+??? example "min_calls"
+
+    Number of keyword calls required in a group
+
+    **Default value:** 2
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-few-calls-in-group.min_calls=2
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-few-calls-in-group.min_calls=2"
+        ]
+        ```
+
+---
+
+### GRP02: too-many-calls-in-group
+
+Added: `v9.0.0`
+
+Supported RF version `>=7.2`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`GROUP '{group_name}' has too many keywords inside ({keyword_count}/{max_allowed_count})`
+
+**Documentation**:
+
+Too many keyword calls in a ``GROUP``.
+
+A ``GROUP`` that contains a lot of keyword calls is hard to read. Consider splitting it into smaller groups or
+extracting the logic into a separate keyword.
+
+The number of allowed keyword calls can be configured with the ``max_calls`` parameter:
+
+    robocop check --configure too-many-calls-in-group.max_calls=20
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_calls` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_calls` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-many-calls-in-group.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-many-calls-in-group.severity=W"
+        ]
+        ```
+
+??? example "max_calls"
+
+    Number of keyword calls allowed in a group
+
+    **Default value:** 10
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-many-calls-in-group.max_calls=10
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-many-calls-in-group.max_calls=10"
+        ]
+        ```
+
+---
+
+### GRP03: group-without-name
+
+Added: `v9.0.0`
+
+Supported RF version `>=7.2`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`GROUP does not have a name`
+
+**Documentation**:
+
+``GROUP`` used without a name.
+
+A ``GROUP`` can be created without a name, but naming it documents the intent of the grouped steps and makes
+the log easier to read:
+
+    *** Test Cases ***
+    Test
+        GROUP    # will be reported
+            Log    message
+        END
+
+Correct code example:
+
+    *** Test Cases ***
+    Test
+        GROUP    Prepare data
+            Log    message
+        END
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure group-without-name.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "group-without-name.severity=W"
+        ]
+        ```
+
+---
+
+### GRP04: nested-group
+
+> Rule is disabled by default. Enable it by using ``--select nested-group`` option.
+
+Added: `v9.0.0`
+
+Supported RF version `>=7.2`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`GROUP '{group_name}' is nested in another GROUP`
+
+**Documentation**:
+
+``GROUP`` nested inside another ``GROUP``.
+
+Nesting groups makes the code harder to read and is rarely needed. Consider flattening the groups or extracting
+the nested group into a separate keyword:
+
+    *** Test Cases ***
+    Test
+        GROUP    Outer
+            GROUP    Inner    # will be reported
+                Log    message
+            END
+        END
+
+This rule is disabled by default. Enable it with ``--select nested-group``.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure nested-group.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "nested-group.severity=W"
+        ]
+        ```
+
+---
+
+### GRP05: group-not-allowed
+
+> Rule is disabled by default. Enable it by using ``--select group-not-allowed`` option.
+
+Added: `v9.0.0`
+
+Supported RF version `>=7.2`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`GROUP syntax is not allowed`
+
+**Documentation**:
+
+``GROUP`` syntax is not allowed.
+
+The ``GROUP`` syntax was introduced in Robot Framework 7.2. Use this rule to forbid it, for example when your
+project needs to stay compatible with older Robot Framework versions or when your team decided not to use groups:
+
+    *** Test Cases ***
+    Test
+        GROUP    Login    # will be reported
+            Log    message
+        END
+
+This rule is disabled by default. Enable it with ``--select group-not-allowed``.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure group-not-allowed.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "group-not-allowed.severity=W"
+        ]
+        ```
 
 ## Imports
 
 Rules for resources, variables and libraries imports.
 
-
 ### IMP01: wrong-import-order
-
-
 
 Added: `v1.7.0`
 
@@ -3891,16 +3667,13 @@ Supported RF version `All`
 
 Deprecated names: 0911
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `BuiltIn library import '{builtin_import}' should be placed before '{custom_import}'`
 
-
-
 **Documentation**:
-
 
 Built-in imports placed after custom imports.
 
@@ -3914,25 +3687,22 @@ Example of rule violation:
     Library    CustomLibrary
     Library    OperatingSystem  # BuiltIn library defined after custom CustomLibrary
 
-
-
-
+The import can be moved before the first custom import automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** W
+    **Default value:** I
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure wrong-import-order.severity=W
+        robocop check --configure wrong-import-order.severity=I
         ```
 
     === ":material-file-cog-outline: toml"
@@ -3940,20 +3710,13 @@ Example of rule violation:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "wrong-import-order.severity=W"
+            "wrong-import-order.severity=I"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### IMP02: builtin-imports-not-sorted
-
-
 
 Added: `v5.2.0`
 
@@ -3961,16 +3724,13 @@ Supported RF version `All`
 
 Deprecated names: 0926
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `BuiltIn library import '{builtin_import}' should be placed before '{previous_builtin_import}'`
 
-
-
 **Documentation**:
-
 
 Built-in imports are not sorted in alphabetical order.
 
@@ -3982,25 +3742,22 @@ Example of rule violation:
     Library    OperatingSystem
     Library    Collections  # BuiltIn libraries imported not in alphabetical order
 
-
-
-
+The imports can be sorted automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** W
+    **Default value:** I
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure builtin-imports-not-sorted.severity=W
+        robocop check --configure builtin-imports-not-sorted.severity=I
         ```
 
     === ":material-file-cog-outline: toml"
@@ -4008,22 +3765,15 @@ Example of rule violation:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "builtin-imports-not-sorted.severity=W"
+            "builtin-imports-not-sorted.severity=I"
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### IMP03: non-builtin-imports-not-sorted
 
-
 > Rule is disabled by default. Enable it by using ``--select non-builtin-imports-not-sorted`` option.
-
 
 Added: `v5.2.0`
 
@@ -4037,10 +3787,7 @@ Fix availability: There is no automatic fix.
 
 `Non builtin library import '{custom_import}' should be placed before '{previous_custom_import}'`
 
-
-
 **Documentation**:
-
 
 Custom imports are not sorted in alphabetical order.
 
@@ -4054,12 +3801,7 @@ Example of rule violation:
     Library    CustomLibrary
     Library    AnotherCustomLibrary  # AnotherCustomLibrary library defined after custom CustomLibrary
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4084,18 +3826,11 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### IMP04: resources-imports-not-sorted
 
-
 > Rule is disabled by default. Enable it by using ``--select resources-imports-not-sorted`` option.
-
 
 Added: `v5.2.0`
 
@@ -4109,10 +3844,7 @@ Fix availability: There is no automatic fix.
 
 `Resource import '{resource_import}' should be placed before '{previous_resource_import}'`
 
-
-
 **Documentation**:
-
 
 Resources imports are not sorted in alphabetical order.
 
@@ -4125,12 +3857,7 @@ Example of rule violation:
     Resource   CustomResource.resource
     Resource   AnotherFile.resource
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4155,24 +3882,20 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### IMP05: unused-resource-import
 
-
 > Rule is disabled by default. Enable it by using ``--select unused-resource-import`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
-Added: `v8.9.0`
+Added: `v9.0.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -4180,10 +3903,7 @@ Fix availability: There is no automatic fix.
 
 `Imported resource file '{import_name}' is not used`
 
-
-
 **Documentation**:
-
 
 Imported resource file is not used.
 
@@ -4209,14 +3929,7 @@ To avoid false positives, imports are not reported when:
 - the imported resource defines no keywords and no variables, because it may be imported only for the imports
   it makes itself.
 
-This rule is a project level rule and is only reported by the ``robocop check-project`` command.
-
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4241,24 +3954,99 @@ This rule is a project level rule and is only reported by the ``robocop check-pr
         ]
         ```
 
-
-
 ---
 
+### IMP06: unused-library-import
 
+> Rule is disabled by default. Enable it by using ``--select unused-library-import`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
-### IMP07: unresolved-resource-import
-
-
-> Rule is disabled by default. Enable it by using ``--select unresolved-resource-import`` option.
-
-
-Added: `v8.9.0`
+Added: `v9.0.0`
 
 Supported RF version `All`
 
+Fix availability: There is no automatic fix.
 
+**Message**:
+
+`Imported library '{import_name}' is not used`
+
+**Documentation**:
+
+Imported library is not used.
+
+Reports library imports whose keywords are never used in the importing file.
+
+Example of rule violation:
+
+    *** Settings ***
+    Library    Collections  # no keyword from this library is used
+
+    *** Test Cases ***
+    Test
+        Log    message
+
+Keywords from a library imported in a resource file are available in every file importing that resource,
+so the import is reported only when none of those files use any of its keywords.
+
+The library is imported to find out what keywords it provides, which means this rule is only reported when
+the library analysis is enabled (see the ``analyze-libraries`` option).
+
+To avoid false positives, imports are not reported when:
+
+- the library could not be imported, or is excluded with the ``ignored-libraries`` option,
+- the library provides no keywords, since it may be imported for its side effects, for example to register
+  a listener,
+- the importing file calls a keyword using a name built from a variable, because such call may come from any
+  library,
+- the import path or arguments could not be resolved.
+
+Libraries used only through ``Get Library Instance`` or imported dynamically with ``Import Library`` are
+reported, since such usage cannot be detected from the source code.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure unused-library-import.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "unused-library-import.severity=I"
+        ]
+        ```
+
+---
+
+### IMP07: unresolved-resource-import
+
+> Rule is disabled by default. Enable it by using ``--select unresolved-resource-import`` option.
+
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
+
+Added: `v9.0.0`
+
+Supported RF version `All`
 
 Fix availability: There is no automatic fix.
 
@@ -4266,10 +4054,7 @@ Fix availability: There is no automatic fix.
 
 `Imported resource file '{import_name}' does not exist`
 
-
-
 **Documentation**:
-
 
 Imported resource file does not exist.
 
@@ -4286,19 +4071,12 @@ Import paths are resolved relative to the file containing the import, exactly li
 Variables used in the import path are resolved using variables defined in the ``*** Variables ***`` section
 of the importing file and variables provided with the ``--variable`` option::
 
-    robocop check-project --variable RESOURCE_DIR:resources
+    robocop check --variable RESOURCE_DIR:resources
 
 If the path contains a variable that cannot be resolved, the import is ignored and not reported. Thanks to that,
 dynamically built paths do not cause false positives.
 
-This rule is a project level rule and is only reported by the ``robocop check-project`` command.
-
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4323,23 +4101,162 @@ This rule is a project level rule and is only reported by the ``robocop check-pr
         ]
         ```
 
+---
 
+### IMP08: circular-import
 
+> Rule is disabled by default. Enable it by using ``--select circular-import`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
+Added: `v9.0.0`
 
+Supported RF version `All`
 
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Circular import: {cycle}`
+
+**Documentation**:
+
+Resource file is a part of a circular import.
+
+Reports resource imports that import, directly or indirectly, the file they are used in.
+
+Example of rule violation:
+
+    # keywords.resource
+    *** Settings ***
+    Resource    helpers.resource
+
+    # helpers.resource
+    *** Settings ***
+    Resource    keywords.resource  # keywords.resource imports this file already
+
+Robot Framework does not fail on circular imports, but they make it harder to tell where a keyword comes from
+and often mean that the files should be split differently. Move the shared keywords to a separate resource file
+imported by both files to break the cycle.
+
+Every import taking part in the cycle is reported, together with the path leading back to the importing file.
+A file importing itself is reported as well.
+
+Imports that could not be resolved are not reported, since it is not known what they point to.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure circular-import.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "circular-import.severity=W"
+        ]
+        ```
+
+---
+
+### IMP09: unresolved-library-import
+
+> Rule is disabled by default. Enable it by using ``--select unresolved-library-import`` option.
+
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
+
+Added: `v9.0.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Imported library '{import_name}' could not be imported: {error}`
+
+**Documentation**:
+
+Imported library could not be imported.
+
+Reports library imports that Robot Framework would not be able to import during the execution.
+
+Example of rule violation:
+
+    *** Settings ***
+    Library    libs/does_not_exist.py  # file is not found next to the importing file
+    Library    NotInstalledLibrary  # module is not installed and is not found in the search paths
+
+Library imports pointing to a file are always validated. Imports using a module name are only validated when
+Robocop imports the libraries, which it does by default and which can be disabled with the
+``--no-analyze-libraries`` option::
+
+    robocop check --no-analyze-libraries
+
+Extra directories with the libraries can be provided with the ``--pythonpath`` option::
+
+    robocop check --pythonpath libs
+
+Following imports are never reported, since it is not known if they can be imported:
+
+- imports with a name or arguments containing a variable that cannot be resolved,
+- libraries excluded from the analysis with the ``--ignored-library`` option,
+- the ``Remote`` library, which connects to the remote server already during the import.
+
+Libraries that require a running service or a special environment can be excluded from the analysis::
+
+    robocop check --ignored-library CustomServiceLibrary
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure unresolved-library-import.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "unresolved-library-import.severity=W"
+        ]
+        ```
 
 ## Keywords
 
 Rules for keywords.
 
-
 ### KW01: sleep-keyword-used
 
-
 > Rule is disabled by default. Enable it by using ``--select sleep-keyword-used`` option.
-
 
 Added: `v5.0.0`
 
@@ -4353,10 +4270,7 @@ Fix availability: There is no automatic fix.
 
 `Sleep keyword with '{duration_time}' sleep time found`
 
-
-
 **Documentation**:
-
 
 ``Sleep`` keyword used.
 
@@ -4383,12 +4297,7 @@ It is also possible to report only if ``Sleep`` exceeds given time limit using `
 
     robocop check -c sleep-keyword-used.max_time=1min .
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4436,18 +4345,11 @@ It is also possible to report only if ``Sleep`` exceeds given time limit using `
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### KW02: not-allowed-keyword
 
-
 > Rule is disabled by default. Enable it by using ``--select not-allowed-keyword`` option.
-
 
 Added: `v5.1.0`
 
@@ -4461,10 +4363,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword}' is not allowed`
 
-
-
 **Documentation**:
-
 
 Reports usage of not allowed keywords.
 
@@ -4486,12 +4385,7 @@ For example:
 If keyword call contains possible library name (i.e. Library.Keyword Name), Robocop checks if it matches
 the not allowed keywords and if not, it will remove library part and check again.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4539,18 +4433,11 @@ the not allowed keywords and if not, it will remove library part and check again
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### KW03: no-embedded-keyword-arguments
 
-
 > Rule is disabled by default. Enable it by using ``--select no-embedded-keyword-arguments`` option.
-
 
 Added: `v5.5.0`
 
@@ -4564,10 +4451,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword with embedded arguments: {arguments}`
 
-
-
 **Documentation**:
-
 
 Embedded arguments in keyword found.
 
@@ -4607,12 +4491,7 @@ drink:
         [Arguments]    ${size}
         # Do something wonderful
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4637,18 +4516,16 @@ drink:
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### KW04: unused-keyword
 
-
 > Rule is disabled by default. Enable it by using ``--select unused-keyword`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
 Added: `v5.3.0`
 
@@ -4662,10 +4539,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword_name}' is not used`
 
-
-
 **Documentation**:
-
 
 Keyword is not used.
 
@@ -4695,14 +4569,7 @@ For example, a call to ``Login ${type}`` marks both ``Login Admin`` and ``Login 
 Keywords are only searched for in the files scanned by Robocop. If the project is a shared library of keywords
 used by other projects, all of its keywords are reported as not used.
 
-This rule is a project level rule and is only reported by the ``robocop check-project`` command.
-
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4727,21 +4594,272 @@ This rule is a project level rule and is only reported by the ``robocop check-pr
         ]
         ```
 
+---
 
+### KW05: keyword-not-found
 
+> Rule is disabled by default. Enable it by using ``--select keyword-not-found`` option.
 
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
 
+Added: `v9.0.0`
 
+Supported RF version `All`
 
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{keyword_name}' not found`
+
+**Documentation**:
+
+Keyword is not defined anywhere.
+
+Reports keyword calls that do not match any keyword defined in the file, in the imported resource files or in
+the imported libraries. Robot Framework fails such call with the ``No keyword with name 'X' found`` error.
+
+Example of rule violation:
+
+    *** Settings ***
+    Resource    login.resource   # defines Login
+
+    *** Test Cases ***
+    Test
+        Login    user    password
+        Logout                    # Logout is not defined anywhere
+
+Keywords come from libraries more often than not, so this rule requires the library analysis and is only
+executed together with the ``--analyze-libraries`` option::
+
+    robocop check --select keyword-not-found --analyze-libraries
+
+To avoid false positives, calls are not reported when the keywords available in the file are not fully known:
+
+- the keyword name is built from a variable,
+- any import of the file or of the resources it imports could not be resolved,
+- any imported library could not be imported, for example because it is not installed or its arguments could
+  not be resolved,
+- the file or any of the imported resources imports libraries or resources dynamically, using the
+  ``Import Library`` or ``Import Resource`` keywords.
+
+Libraries excluded with the ``--ignored-library`` option make all files importing them skipped as well.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** E
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure keyword-not-found.severity=E
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "keyword-not-found.severity=E"
+        ]
+        ```
+
+---
+
+### KW06: ambiguous-keyword-name
+
+> Rule is disabled by default. Enable it by using ``--select ambiguous-keyword-name`` option.
+
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
+
+Added: `v9.0.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{keyword_name}' matches keywords from multiple sources: {sources}`
+
+**Documentation**:
+
+Keyword name matches more than one keyword.
+
+Reports keyword calls that match keywords defined in more than one place. Robot Framework fails such call
+with the ``Multiple keywords with name 'X' found`` error, unless the call uses the full name of the keyword.
+
+Example of rule violation:
+
+    *** Settings ***
+    Resource    login.resource      # defines Login
+    Resource    admin.resource      # defines Login as well
+
+    *** Test Cases ***
+    Test
+        Login    user    password   # it is not known which keyword should be used
+
+Robot Framework resolves conflicts using the following order, which the rule follows as well:
+
+- a keyword defined in the file containing the call is always used,
+- keywords from resource files are used before keywords from libraries,
+- a keyword from a custom library is used before a keyword from a standard library.
+
+Calls using the full name of the keyword (``login.Login``) are not reported, since the prefix already
+selects the keyword. Calls with a name built from a variable are not reported either.
+
+Keywords defined twice in the same file are reported by the ``duplicated-keyword-name`` rule instead.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure ambiguous-keyword-name.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "ambiguous-keyword-name.severity=W"
+        ]
+        ```
+
+---
+
+### KW07: missing-keyword-prefix
+
+> Rule is disabled by default. Enable it by using ``--select missing-keyword-prefix`` option.
+
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
+
+Added: `v9.0.0`
+
+Supported RF version `All`
+
+Fix availability: Fix is always available.
+
+**Message**:
+
+`Keyword '{keyword_name}' should be called with the '{prefix}' prefix`
+
+**Documentation**:
+
+Keyword is called without the name of the resource file or library it comes from.
+
+Optional rule for projects that require every keyword call to be prefixed with the source of the keyword.
+Such calls are unambiguous and it is immediately clear where the keyword comes from:
+
+    *** Settings ***
+    Resource       login.resource
+    Library        SeleniumLibrary
+
+    *** Test Cases ***
+    Test
+        Login    user    password        # will be reported
+        Click Element    id:submit       # will be reported
+
+        login.Login    user    password  # explicit, not reported
+        SeleniumLibrary.Click Element    id:submit
+
+The rule is not enabled by default. Select it to use it:
+
+    robocop check --select missing-keyword-prefix
+
+Libraries imported with the ``AS`` (``WITH NAME``) syntax are expected to be called using the alias.
+Keywords defined in the file with the call are never reported, since there is nothing to prefix them with.
+
+``BuiltIn`` keywords are not reported by default. Configure ``ignored_sources`` with a comma separated list of
+resource file, library and alias names to change it:
+
+    robocop check --select missing-keyword-prefix -c missing-keyword-prefix.ignored_sources=BuiltIn,Collections
+
+To avoid false positives, the call is not reported when:
+
+- the keyword name is built from a variable,
+- the keyword name already contains a dot, since it may be prefixed already,
+- the keyword is not found in the project, or more than one definition matches the name.
+
+Keywords coming from libraries are only reported if the library analysis is enabled (it is by default).
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-keyword-prefix.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-keyword-prefix.severity=W"
+        ]
+        ```
+
+??? example "ignored_sources"
+
+    Comma separated list of the resource files and libraries that do not require the prefix
+
+    **Default value:** BuiltIn
+
+    **Type:** str
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-keyword-prefix.ignored_sources=BuiltIn
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-keyword-prefix.ignored_sources=BuiltIn"
+        ]
+        ```
 
 ## Lengths
 
 Rules for lengths, such as length of the test case or the file.
 
-
 ### LEN01: too-long-keyword
-
-
 
 Added: `v1.0.0`
 
@@ -4755,17 +4873,11 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword_name}' is too long ({keyword_length}/{allowed_length})`
 
-
-
 **Documentation**:
-
 
 Keyword is too long.
 
 Avoid too long keywords for readability and maintainability.
-
-
-
 
 > **Note: Severity thresholds**
 >
@@ -4775,10 +4887,7 @@ Avoid too long keywords for readability and maintainability.
 > When configuring thresholds remember to also set `max_len` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4849,16 +4958,9 @@ Avoid too long keywords for readability and maintainability.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN02: too-few-calls-in-keyword
-
-
 
 Added: `v1.0.0`
 
@@ -4872,10 +4974,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword_name}' has too few keywords inside ({keyword_count}/{min_allowed_count})`
 
-
-
 **Documentation**:
-
 
 Too few keyword calls in keyword.
 
@@ -4897,10 +4996,6 @@ Correct code example:
     Test
         Other Keyword    ${arg}
 
-
-
-
-
 > **Note: Severity thresholds**
 >
 > This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
@@ -4909,10 +5004,7 @@ Correct code example:
 > When configuring thresholds remember to also set `min_calls` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -4960,16 +5052,9 @@ Correct code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN03: too-many-calls-in-keyword
-
-
 
 Added: `v1.0.0`
 
@@ -4983,17 +5068,11 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword_name}' has too many keywords inside ({keyword_count}/{max_allowed_count})`
 
-
-
 **Documentation**:
-
 
 Too many keyword calls in keyword.
 
 Avoid too long keywords for readability and maintainability.
-
-
-
 
 > **Note: Severity thresholds**
 >
@@ -5003,10 +5082,7 @@ Avoid too long keywords for readability and maintainability.
 > When configuring thresholds remember to also set `max_calls` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5054,16 +5130,9 @@ Avoid too long keywords for readability and maintainability.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN04: too-long-test-case
-
-
 
 Added: `v1.0.0`
 
@@ -5077,17 +5146,11 @@ Fix availability: There is no automatic fix.
 
 `Test case '{test_name}' is too long ({test_length}/{allowed_length})`
 
-
-
 **Documentation**:
-
 
 Test case is too long.
 
 Avoid too long test cases for readability and maintainability.
-
-
-
 
 > **Note: Severity thresholds**
 >
@@ -5097,10 +5160,7 @@ Avoid too long test cases for readability and maintainability.
 > When configuring thresholds remember to also set `max_len` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5194,16 +5254,9 @@ Avoid too long test cases for readability and maintainability.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN05: too-few-calls-in-test-case
-
-
 
 Added: `v2.4.0`
 
@@ -5217,10 +5270,7 @@ Fix availability: There is no automatic fix.
 
 `Test case '{test_name}' has too few keywords inside ({keyword_count}/{min_allowed_count})`
 
-
-
 **Documentation**:
-
 
 Too few keyword calls in test cases.
 
@@ -5232,12 +5282,7 @@ Test without keywords will fail. Add more keywords or set results using ``Fail``
         [Tags]    smoke
         Skip    Test case draft
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5308,22 +5353,13 @@ Test without keywords will fail. Add more keywords or set results using ``Fail``
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN06: too-many-calls-in-test-case
-
-
 
 Added: `v1.0.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -5331,17 +5367,11 @@ Fix availability: There is no automatic fix.
 
 `Test case '{test_name}' has too many keywords inside ({keyword_count}/{max_allowed_count})`
 
-
-
 **Documentation**:
-
 
 Too many keyword calls in test case.
 
 Redesign the test and move complex logic to separate keywords to increase readability.
-
-
-
 
 > **Note: Severity thresholds**
 >
@@ -5351,10 +5381,7 @@ Redesign the test and move complex logic to separate keywords to increase readab
 > When configuring thresholds remember to also set `max_calls` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5425,16 +5452,9 @@ Redesign the test and move complex logic to separate keywords to increase readab
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN07: too-many-arguments
-
-
 
 Added: `v1.0.0`
 
@@ -5448,17 +5468,13 @@ Fix availability: There is no automatic fix.
 
 `Keyword '{keyword_name}' has too many arguments ({arguments_count}/{max_allowed_count})`
 
-
-
 **Documentation**:
 
 Keyword has too many arguments.
 
-
 **Style guide**:
 
 - [#arguments](https://docs.robotframework.org/docs/style_guide#arguments)
-
 
 > **Note: Severity thresholds**
 >
@@ -5468,10 +5484,7 @@ Keyword has too many arguments.
 > When configuring thresholds remember to also set `max_args` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5519,16 +5532,9 @@ Keyword has too many arguments.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN08: line-too-long
-
-
 
 Added: `v1.0.0`
 
@@ -5542,10 +5548,7 @@ Fix availability: There is no automatic fix.
 
 `Line is too long ({line_length}/{allowed_length})`
 
-
-
 **Documentation**:
-
 
 The line is too long.
 
@@ -5556,13 +5559,17 @@ It is possible to ignore lines that match the regex pattern. Configure it using 
 
     robocop check --configure line-too-long.ignore_pattern=pattern
 
+Lines that are part of a documentation (the ``Documentation`` setting or the ``[Documentation]`` setting of a
+test case or keyword, together with their ``...`` continuation lines) can be ignored using the following option:
 
+    robocop check --configure line-too-long.ignore_docs=True
 
+This rule is not fixed by ``robocop check --fix``. Use the ``SplitTooLongLine`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#line-length](https://docs.robotframework.org/docs/style_guide#line-length)
-
 
 > **Note: Severity thresholds**
 >
@@ -5572,10 +5579,7 @@ It is possible to ignore lines that match the regex pattern. Configure it using 
 > When configuring thresholds remember to also set `line_length` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5646,16 +5650,32 @@ It is possible to ignore lines that match the regex pattern. Configure it using 
         ]
         ```
 
+??? example "ignore_docs"
 
+    Ignore lines that are part of a documentation
+
+    **Default value:** False
+
+    **Type:** bool
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure line-too-long.ignore_docs=False
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "line-too-long.ignore_docs=False"
+        ]
+        ```
 
 ---
 
-
-
-
 ### LEN09: empty-section
-
-
 
 Added: `v1.0.0`
 
@@ -5663,22 +5683,37 @@ Supported RF version `All`
 
 Deprecated names: 0509
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Section '{section_name}' is empty`
 
-
-
 **Documentation**:
 
 Section is empty.
 
+Empty section does not have any effect and can be removed.
 
+Incorrect code example:
+
+    *** Variables ***
+
+
+    *** Test Cases ***
+    Test
+        Keyword Call
+
+Correct code:
+
+    *** Test Cases ***
+    Test
+        Keyword Call
+
+Sections that contain only comments are also reported, but they are not removed by the fix -
+it is not possible to tell whether such comments are still relevant.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5703,16 +5738,9 @@ Section is empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN10: number-of-returned-values
-
-
 
 Added: `v1.0.0`
 
@@ -5726,13 +5754,9 @@ Fix availability: There is no automatic fix.
 
 `Too many return values ({return_count}/{max_allowed_count})`
 
-
-
 **Documentation**:
 
 Too many return values.
-
-
 
 > **Note: Severity thresholds**
 >
@@ -5742,10 +5766,7 @@ Too many return values.
 > When configuring thresholds remember to also set `max_returns` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5793,16 +5814,9 @@ Too many return values.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN11: empty-metadata
-
-
 
 Added: `v1.0.0`
 
@@ -5810,35 +5824,40 @@ Supported RF version `All`
 
 Deprecated names: 0511
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Metadata settings does not have any value set`
 
-
-
 **Documentation**:
 
-
 Metadata settings do not have any value set.
+
+Metadata can be defined in the ``*** Settings ***`` section for the whole suite, and - with
+Robot Framework 7.5 and newer - also inside a test case using the ``[Metadata]`` setting.
 
 Incorrect code example:
 
     *** Settings ***
     Metadata
 
+    *** Test Cases ***
+    Test
+        [Metadata]
+        Keyword
+
 Correct code example:
 
     *** Settings ***
     Metadata    Platform    ${PLATFORM}
 
-
-
-
+    *** Test Cases ***
+    Test
+        [Metadata]    Owner    Team Robot
+        Keyword
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5863,16 +5882,9 @@ Correct code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN12: empty-documentation
-
-
 
 Added: `v1.0.0`
 
@@ -5880,22 +5892,17 @@ Supported RF version `All`
 
 Deprecated names: 0512
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Documentation of {block_name} is empty`
 
-
-
 **Documentation**:
 
 Documentation is empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5920,16 +5927,9 @@ Documentation is empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN13: empty-force-tags
-
-
 
 Added: `v1.0.0`
 
@@ -5937,22 +5937,17 @@ Supported RF version `All`
 
 Deprecated names: 0513
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Force Tags are empty`
 
-
-
 **Documentation**:
 
 Force Tags are empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -5977,16 +5972,9 @@ Force Tags are empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN14: empty-default-tags
-
-
 
 Added: `v1.0.0`
 
@@ -5994,22 +5982,17 @@ Supported RF version `All`
 
 Deprecated names: 0514
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Default Tags are empty`
 
-
-
 **Documentation**:
 
 Default Tags are empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6034,16 +6017,9 @@ Default Tags are empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN15: empty-variables-import
-
-
 
 Added: `v1.0.0`
 
@@ -6051,22 +6027,17 @@ Supported RF version `All`
 
 Deprecated names: 0515
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Import variables path is empty`
 
-
-
 **Documentation**:
 
 Import variables path is empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6091,16 +6062,9 @@ Import variables path is empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN16: empty-resource-import
-
-
 
 Added: `v1.0.0`
 
@@ -6108,22 +6072,17 @@ Supported RF version `All`
 
 Deprecated names: 0516
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Import resource path is empty`
 
-
-
 **Documentation**:
 
 Import resources path is empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6148,16 +6107,9 @@ Import resources path is empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN17: empty-library-import
-
-
 
 Added: `v1.0.0`
 
@@ -6165,22 +6117,17 @@ Supported RF version `All`
 
 Deprecated names: 0517
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Import library path is empty`
 
-
-
 **Documentation**:
 
 Import library path is empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6205,16 +6152,9 @@ Import library path is empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN18: empty-setup
-
-
 
 Added: `v1.0.0`
 
@@ -6222,35 +6162,41 @@ Supported RF version `All`
 
 Deprecated names: 0518
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Setup of {block_name} does not have any keywords`
 
-
-
 **Documentation**:
 
 Empty setup.
 
+``[Setup]`` without a value does not have any effect and can be removed.
+If the intention is to overwrite the ``Test Setup`` from the settings section, use the explicit ``NONE`` value:
 
+    *** Settings ***
+    Test Setup    Open Application
+
+    *** Test Cases ***
+    Test without setup
+        [Setup]    NONE
+        Keyword Call
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-setup.severity=E
+        robocop check --configure empty-setup.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6258,20 +6204,13 @@ Empty setup.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-setup.severity=E"
+            "empty-setup.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN19: empty-suite-setup
-
-
 
 Added: `v1.0.0`
 
@@ -6279,35 +6218,30 @@ Supported RF version `All`
 
 Deprecated names: 0519
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Suite Setup does not have any keywords`
 
-
-
 **Documentation**:
 
 Empty Suite Setup.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-suite-setup.severity=E
+        robocop check --configure empty-suite-setup.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6315,20 +6249,13 @@ Empty Suite Setup.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-suite-setup.severity=E"
+            "empty-suite-setup.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN20: empty-test-setup
-
-
 
 Added: `v1.0.0`
 
@@ -6336,35 +6263,30 @@ Supported RF version `All`
 
 Deprecated names: 0520
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Test Setup does not have any keywords`
 
-
-
 **Documentation**:
 
 Empty Test Setup.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-test-setup.severity=E
+        robocop check --configure empty-test-setup.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6372,20 +6294,13 @@ Empty Test Setup.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-test-setup.severity=E"
+            "empty-test-setup.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN21: empty-teardown
-
-
 
 Added: `v1.0.0`
 
@@ -6393,22 +6308,28 @@ Supported RF version `All`
 
 Deprecated names: 0521
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Teardown of {block_name} does not have any keywords`
 
-
-
 **Documentation**:
 
 Empty Teardown.
 
+``[Teardown]`` without a value does not have any effect and can be removed.
+If the intention is to overwrite the ``Test Teardown`` from the settings section, use the explicit ``NONE`` value:
 
+    *** Settings ***
+    Test Teardown    Close Application
+
+    *** Test Cases ***
+    Test without teardown
+        [Teardown]    NONE
+        Keyword Call
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6433,16 +6354,9 @@ Empty Teardown.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN22: empty-suite-teardown
-
-
 
 Added: `v1.0.0`
 
@@ -6450,35 +6364,30 @@ Supported RF version `All`
 
 Deprecated names: 0522
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Suite Teardown does not have any keywords`
 
-
-
 **Documentation**:
 
 Empty Suite Teardown.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-suite-teardown.severity=E
+        robocop check --configure empty-suite-teardown.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6486,20 +6395,13 @@ Empty Suite Teardown.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-suite-teardown.severity=E"
+            "empty-suite-teardown.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN23: empty-test-teardown
-
-
 
 Added: `v1.0.0`
 
@@ -6507,35 +6409,30 @@ Supported RF version `All`
 
 Deprecated names: 0523
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Test Teardown does not have any keywords`
 
-
-
 **Documentation**:
 
 Empty Test Teardown.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-test-teardown.severity=E
+        robocop check --configure empty-test-teardown.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6543,20 +6440,13 @@ Empty Test Teardown.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-test-teardown.severity=E"
+            "empty-test-teardown.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN24: empty-timeout
-
-
 
 Added: `v1.0.0`
 
@@ -6564,22 +6454,28 @@ Supported RF version `All`
 
 Deprecated names: 0524
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Timeout of {block_name} is empty`
 
-
-
 **Documentation**:
 
 Empty Timeout.
 
+``[Timeout]`` without a value does not have any effect and can be removed.
+If the intention is to overwrite the ``Test Timeout`` from the settings section, use the explicit ``NONE`` value:
 
+    *** Settings ***
+    Test Timeout    1 min
+
+    *** Test Cases ***
+    Test without timeout
+        [Timeout]    NONE
+        Keyword Call
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6604,16 +6500,9 @@ Empty Timeout.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN25: empty-test-timeout
-
-
 
 Added: `v1.0.0`
 
@@ -6621,22 +6510,17 @@ Supported RF version `All`
 
 Deprecated names: 0525
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Test Timeout is empty`
 
-
-
 **Documentation**:
 
 Empty Test Timeout.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6661,16 +6545,9 @@ Empty Test Timeout.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN26: empty-arguments
-
-
 
 Added: `v1.0.0`
 
@@ -6678,35 +6555,30 @@ Supported RF version `All`
 
 Deprecated names: 0526
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Arguments of {block_name} are empty`
 
-
-
 **Documentation**:
 
 Empty ``[Arguments]`` setting.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-arguments.severity=E
+        robocop check --configure empty-arguments.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6714,20 +6586,13 @@ Empty ``[Arguments]`` setting.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-arguments.severity=E"
+            "empty-arguments.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN27: too-many-test-cases
-
-
 
 Added: `v1.10.0`
 
@@ -6741,13 +6606,9 @@ Fix availability: There is no automatic fix.
 
 `Too many test cases ({test_count}/{max_allowed_count})`
 
-
-
 **Documentation**:
 
 Too many test cases.
-
-
 
 > **Note: Severity thresholds**
 >
@@ -6757,10 +6618,7 @@ Too many test cases.
 > When configuring thresholds remember to also set `max_testcases or max_templated_testcases` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6831,16 +6689,9 @@ Too many test cases.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN28: file-too-long
-
-
 
 Added: `v1.0.0`
 
@@ -6854,13 +6705,9 @@ Fix availability: There is no automatic fix.
 
 `File has too many lines ({lines_count}/{max_allowed_count})`
 
-
-
 **Documentation**:
 
 File has too many lines.
-
-
 
 > **Note: Severity thresholds**
 >
@@ -6870,10 +6717,7 @@ File has too many lines.
 > When configuring thresholds remember to also set `max_lines` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -6921,33 +6765,21 @@ File has too many lines.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN29: empty-test-template
-
-
 
 Added: `v3.1.0`
 
 Supported RF version `All`
 
-
-
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Test Template is empty`
 
-
-
 **Documentation**:
-
 
 Test Template is empty.
 
@@ -6955,24 +6787,20 @@ Test Template is empty.
 because it leads the users to wrong impression on how the suite operates.
 Without value, the setting is ignored and the tests are not templated.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-test-template.severity=E
+        robocop check --configure empty-test-template.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -6980,20 +6808,13 @@ Without value, the setting is ignored and the tests are not templated.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-test-template.severity=E"
+            "empty-test-template.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN30: empty-template
-
-
 
 Added: `v3.1.0`
 
@@ -7001,16 +6822,13 @@ Supported RF version `All`
 
 Deprecated names: 0530
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Template of {block_name} is empty. To overwrite suite Test Template use more explicit [Template]  NONE`
 
-
-
 **Documentation**:
-
 
 ``[Template]`` is empty.
 
@@ -7030,12 +6848,7 @@ Test Template:
     Not templated test
         [Template]    NONE
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7060,16 +6873,9 @@ Test Template:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN31: empty-keyword-tags
-
-
 
 Added: `v3.3.0`
 
@@ -7077,22 +6883,17 @@ Supported RF version `>=6`
 
 Deprecated names: 0531
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Keyword Tags are empty`
 
-
-
 **Documentation**:
 
 Keyword Tags are empty.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7117,22 +6918,13 @@ Keyword Tags are empty.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### LEN32: too-long-variable-name
-
-
 
 Added: `v6.7.0`
 
 Supported RF version `All`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -7140,17 +6932,11 @@ Fix availability: There is no automatic fix.
 
 `Variable name '{variable_name}' is too long ({variable_name_length}/{allowed_length})`
 
-
-
 **Documentation**:
-
 
 Variable name is too long.
 
 Avoid too long variable names for readability and maintainability.
-
-
-
 
 > **Note: Severity thresholds**
 >
@@ -7160,10 +6946,7 @@ Avoid too long variable names for readability and maintainability.
 > When configuring thresholds remember to also set `max_len` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7211,21 +6994,80 @@ Avoid too long variable names for readability and maintainability.
         ]
         ```
 
+---
 
+### LEN33: metadata-without-value
 
+Added: `v9.0.0`
 
+Supported RF version `All`
 
+Fix availability: There is no automatic fix.
 
+**Message**:
 
+`Metadata '{metadata_name}' does not have a value`
+
+**Documentation**:
+
+Metadata name is defined without a value.
+
+Metadata with only a name is recorded with an empty value, which is rarely intended and shows up as
+an empty entry in the report and log. Provide a value, or remove the metadata altogether.
+
+Metadata can be defined in the ``*** Settings ***`` section for the whole suite, and - with
+Robot Framework 7.5 and newer - also inside a test case using the ``[Metadata]`` setting.
+
+Incorrect code example:
+
+    *** Settings ***
+    Metadata    Platform
+
+    *** Test Cases ***
+    Test
+        [Metadata]    Owner
+        Keyword
+
+Correct code example:
+
+    *** Settings ***
+    Metadata    Platform    ${PLATFORM}
+
+    *** Test Cases ***
+    Test
+        [Metadata]    Owner    Team Robot
+        Keyword
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure metadata-without-value.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "metadata-without-value.severity=W"
+        ]
+        ```
 
 ## Miscellaneous
 
 Miscellaneous rules.
 
-
 ### MISC01: keyword-after-return
-
-
 
 Added: `v1.0.0`
 
@@ -7239,10 +7081,7 @@ Fix availability: There is no automatic fix.
 
 `{error_msg}`
 
-
-
 **Documentation**:
-
 
 Keyword call after the `` [Return]`` setting.
 
@@ -7266,12 +7105,7 @@ Correct code:
         ${variable}    Other Step
         [Return]    ${variable}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7296,16 +7130,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC02: empty-return
-
-
 
 Added: `v1.0.0`
 
@@ -7313,16 +7140,13 @@ Supported RF version `All`
 
 Deprecated names: 0903
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `[Return] is empty`
 
-
-
 **Documentation**:
-
 
 ``[Return]`` is empty.
 
@@ -7344,12 +7168,9 @@ Correct code:
         Gather Results
         Assert Results
 
-
-
-
+The fix removes the empty ``[Return]`` setting. Comments are not removed.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7374,16 +7195,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC03: nested-for-loop
-
-
 
 Added: `v1.0.0`
 
@@ -7397,10 +7211,7 @@ Fix availability: There is no automatic fix.
 
 `Not supported nested for loop`
 
-
-
 **Documentation**:
-
 
 Not supported nested for loop.
 
@@ -7414,12 +7225,7 @@ Older versions of Robot Framework did not support nested for loops:
             END
         END
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7444,16 +7250,9 @@ Older versions of Robot Framework did not support nested for loops:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC04: inconsistent-assignment
-
-
 
 Added: `v1.7.0`
 
@@ -7461,20 +7260,19 @@ Supported RF version `All`
 
 Deprecated names: 0909
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `The assignment sign is not consistent within the file. Expected '{expected_sign}' but got '{actual_sign}' instead`
 
-
-
 **Documentation**:
-
 
 Not consistent assignment sign in the file.
 
-Use only one type of assignment sign in a file.
+Use only one type of assignment sign in a file. Assignment signs are checked in the keyword calls and in the
+``VAR`` syntax (Robot Framework 7 and newer). The ``*** Variables ***`` section is handled by the
+``inconsistent-assignment-in-variables`` rule.
 
 Incorrect code example:
 
@@ -7523,12 +7321,9 @@ You can choose between the following assignment signs:
 - 'equal_sign' (``=``)
 - 'space_and_equal_sign' (`` =``).
 
-
-
-
+The assignment sign can be replaced with the expected one automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7576,16 +7371,9 @@ You can choose between the following assignment signs:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC05: inconsistent-assignment-in-variables
-
-
 
 Added: `v1.7.0`
 
@@ -7593,16 +7381,13 @@ Supported RF version `All`
 
 Deprecated names: 0910
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `The assignment sign is not consistent inside the variables section. Expected '{expected_sign}' but got '{actual_sign}' instead`
 
-
-
 **Documentation**:
-
 
 Not consistent assignment sign in the ``*** Variables ***`` section.
 
@@ -7638,12 +7423,9 @@ You can choose between the following signs:
 - 'equal_sign' (``=``)
 - 'space_and_equal_sign' (`` =``).
 
-
-
-
+The assignment sign can be replaced with the expected one automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7691,16 +7473,9 @@ You can choose between the following signs:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC06: can-be-resource-file
-
-
 
 Added: `v1.10.0`
 
@@ -7714,20 +7489,13 @@ Fix availability: There is no automatic fix.
 
 `No tests in '{file_name}' file, consider renaming to '{file_name_stem}.resource'`
 
-
-
 **Documentation**:
-
 
 No tests in the file, consider renaming the file extension to ``.resource``.
 
 If the Robot file contains only keywords or variables, it's a good practice to use ``.resource`` extension.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7752,16 +7520,9 @@ If the Robot file contains only keywords or variables, it's a good practice to u
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC07: if-can-be-merged
-
-
 
 Added: `v2.0.0`
 
@@ -7775,10 +7536,7 @@ Fix availability: There is no automatic fix.
 
 `IF statement can be merged with previous IF (defined in line {line})`
 
-
-
 **Documentation**:
-
 
 IF statement can be merged with the previous IF.
 
@@ -7811,12 +7569,7 @@ Similar but not identical ``IF``:
             Keyword
         END
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7841,16 +7594,9 @@ Similar but not identical ``IF``:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC08: statement-outside-loop
-
-
 
 Added: `v2.0.0`
 
@@ -7864,10 +7610,7 @@ Fix availability: There is no automatic fix.
 
 `{name} {statement_type} used outside a loop`
 
-
-
 **Documentation**:
-
 
 Loop statement used outside loop.
 
@@ -7879,12 +7622,7 @@ Following keywords and statements should only be used inside loop (``WHILE`` or 
     - ``CONTINUE``
     - ``BREAK``
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -7909,16 +7647,9 @@ Following keywords and statements should only be used inside loop (``WHILE`` or 
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC09: inline-if-can-be-used
-
-
 
 Added: `v2.0.0`
 
@@ -7926,16 +7657,13 @@ Supported RF version `>=5.0`
 
 Deprecated names: 0916
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `IF can be replaced with inline IF`
 
-
-
 **Documentation**:
-
 
 IF can be replaced with inline IF.
 
@@ -7951,10 +7679,7 @@ can be replaced with:
 
     IF    $condition    BREAK
 
-
-
-
-
+The fix replaces the ``IF`` block with an ``inline IF``.
 
 > **Note: Severity thresholds**
 >
@@ -7964,10 +7689,7 @@ can be replaced with:
 > When configuring thresholds remember to also set `max_width` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8015,16 +7737,9 @@ can be replaced with:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC10: unreachable-code
-
-
 
 Added: `v3.1.0`
 
@@ -8038,10 +7753,7 @@ Fix availability: There is no automatic fix.
 
 `Unreachable code after {statement} statement`
 
-
-
 **Documentation**:
-
 
 Unreachable code.
 
@@ -8062,12 +7774,7 @@ For example:
         RETURN
         Log    Unreachable log
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8092,16 +7799,9 @@ For example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC11: multiline-inline-if
-
-
 
 Added: `v3.1.0`
 
@@ -8115,10 +7815,7 @@ Fix availability: There is no automatic fix.
 
 `Inline IF split to multiple lines`
 
-
-
 **Documentation**:
-
 
 Multi-line inline IF.
 
@@ -8148,12 +7845,9 @@ or IF block can be used:
             Log  hi!
         END
 
-
-
-
+Use the ``InlineIf`` formatter (``robocop format``) to reformat the inline IF.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8178,20 +7872,13 @@ or IF block can be used:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC12: unnecessary-string-conversion
-
 
 > **Warning**
 >
 > Rule is deprecated.
-
 
 Added: `v4.0.0`
 
@@ -8205,10 +7892,7 @@ Fix availability: There is no automatic fix.
 
 `Variable '{name}' in '{block_name}' condition has unnecessary string conversion`
 
-
-
 **Documentation**:
-
 
 Variable in the condition has unnecessary string conversion.
 
@@ -8248,12 +7932,7 @@ You can use  ``$variable`` syntax instead:
 
 It will put the actual variable in the evaluated expression without converting it to string.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8278,16 +7957,9 @@ It will put the actual variable in the evaluated expression without converting i
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC13: expression-can-be-simplified
-
-
 
 Added: `v4.0.0`
 
@@ -8301,10 +7973,7 @@ Fix availability: There is no automatic fix.
 
 `'{block_name}' condition can be simplified`
 
-
-
 **Documentation**:
-
 
 Condition can be simplified.
 
@@ -8342,12 +8011,7 @@ Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can b
         Should Be True     ${string} != ""  # equivalent of '${string}'
         Should Be True     len(${sequence}))  # equivalent of '${sequence}'
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8372,16 +8036,9 @@ Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can b
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC14: misplaced-negative-condition
-
-
 
 Added: `v4.0.0`
 
@@ -8389,16 +8046,13 @@ Supported RF version `>=4.0`
 
 Deprecated names: 0925
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `'{block_name}' condition '{original_condition}' can be rewritten to '{proposed_condition}'`
 
-
-
 **Documentation**:
-
 
 The position of not operator can be changed for better readability.
 
@@ -8428,12 +8082,9 @@ Correct code:
             Fail    Did not receive codes from API.
         END
 
-
-
-
+The condition can be rewritten automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8458,33 +8109,21 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### MISC15: unused-disabler
-
-
 
 Added: `v6.8.0`
 
 Supported RF version `All`
 
-
-
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Disabler directive found for '{rule_name}' rule(s) but no violation found`
 
-
-
 **Documentation**:
-
 
 Robocop disabler directive is not used.
 
@@ -8506,12 +8145,11 @@ In the above examples we disable unused-variable rule, but no violation is raise
 Also, we define disablers for all rules and some-rule in FOR loop, and all rules disabler overlaps second disabler
 which is never used.
 
-
-
-
+Unused disablers can be removed automatically with the ``--fix`` option. Only the unused rule name is removed
+if the directive disables more rules. Disablers that share the comment with any other content are not
+removed automatically.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8536,21 +8174,85 @@ which is never used.
         ]
         ```
 
+---
 
+### MISC16: not-enough-whitespace-around-operator
 
+Added: `v9.0.0`
 
+Supported RF version `>=4.0`
 
+Fix availability: Fix is always available.
 
+**Message**:
 
+`Not enough whitespace around '{operator}' operator in '{block_name}' condition`
+
+**Documentation**:
+
+Not enough whitespace around a comparison operator.
+
+Comparison operators (``==``, ``!=``, ``>``, ``<``, ``>=``, ``<=``) used in conditions are easier to read
+when they are surrounded by spaces. The rule inspects conditions of ``IF`` and ``WHILE`` blocks together with
+the conditions passed to the BuiltIn keywords that evaluate an expression
+(such as ``Should Be True`` or ``Skip If``).
+
+Incorrect code example:
+
+    *** Test Cases ***
+    Test
+        IF    ${variable}==5
+            Log    Robocop
+        END
+        WHILE    ${counter}>=${LIMIT}
+            ${counter}    Evaluate    ${counter} + 1
+        END
+        Should Be True    ${left}!=${right}
+
+Correct code:
+
+    *** Test Cases ***
+    Test
+        IF    ${variable} == 5
+            Log    Robocop
+        END
+        WHILE    ${counter} >= ${LIMIT}
+            ${counter}    Evaluate    ${counter} + 1
+        END
+        Should Be True    ${left} != ${right}
+
+The missing whitespace can be added automatically with the ``--fix`` option.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure not-enough-whitespace-around-operator.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "not-enough-whitespace-around-operator.severity=I"
+        ]
+        ```
 
 ## Naming
 
 Naming rules.
 
-
 ### NAME01: not-allowed-char-in-name
-
-
 
 Added: `v1.0.0`
 
@@ -8564,10 +8266,7 @@ Fix availability: There is no automatic fix.
 
 `Not allowed character '{character}' found in {block_name} name`
 
-
-
 **Documentation**:
-
 
 Not allowed character found.
 
@@ -8579,12 +8278,7 @@ configure what patterns are reported by calling:
 ``regex_pattern`` should define a regex pattern not allowed in names. For example, ``[@\[]`` pattern
 would report any occurrence of ``@[`` characters.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8632,16 +8326,9 @@ would report any occurrence of ``@[`` characters.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME02: wrong-case-in-keyword-name
-
-
 
 Added: `v1.0.0`
 
@@ -8649,16 +8336,13 @@ Supported RF version `All`
 
 Deprecated names: 0302
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Keyword name '{keyword_name}' does not follow case convention`
 
-
-
 **Documentation**:
-
 
 Keyword name does not follow case convention.
 
@@ -8696,11 +8380,10 @@ would make the following keyword legal:
 See the sibling rule [wrong-case-in-keyword-call](#name18-wrong-case-in-keyword-call) that checks keyword call
 naming convention.
 
-
-
+Keyword names are case-insensitive in Robot Framework, so the name can be capitalized automatically with the
+``--fix`` option. Names matching the configured ``pattern`` are reported, but not fixed.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8771,16 +8454,9 @@ naming convention.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME03: keyword-name-is-reserved-word
-
-
 
 Added: `v1.0.0`
 
@@ -8794,10 +8470,7 @@ Fix availability: There is no automatic fix.
 
 `'{keyword_name}' is a reserved keyword{error_msg}`
 
-
-
 **Documentation**:
-
 
 Keyword name is a reserved word.
 
@@ -8815,25 +8488,20 @@ Do not use reserved names for keyword names. The following names are reserved:
   - EXCEPT
   - FINALLY
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure keyword-name-is-reserved-word.severity=E
+        robocop check --configure keyword-name-is-reserved-word.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -8841,20 +8509,13 @@ Do not use reserved names for keyword names. The following names are reserved:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "keyword-name-is-reserved-word.severity=E"
+            "keyword-name-is-reserved-word.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME04: underscore-in-keyword-name
-
-
 
 Added: `v1.0.0`
 
@@ -8868,10 +8529,7 @@ Fix availability: There is no automatic fix.
 
 `Underscores in keyword name '{keyword_name}'`
 
-
-
 **Documentation**:
-
 
 Underscores in keyword name.
 
@@ -8885,12 +8543,7 @@ Correct code:
 
     Keyword Without Underscores
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8915,16 +8568,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME05: setting-name-not-in-title-case
-
-
 
 Added: `v1.0.0`
 
@@ -8932,16 +8578,13 @@ Supported RF version `All`
 
 Deprecated names: 0306
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Setting name '{setting_name}' not in title or uppercase`
 
-
-
 **Documentation**:
-
 
 Setting name not in the title or upper case.
 
@@ -8965,13 +8608,11 @@ Correct code:
         [DOCUMENTATION]  Some documentation
         Step
 
-
-
-
-
+The setting name can be converted to the title case automatically with the ``--fix`` option.
+Use the ``NormalizeSettingName`` formatter (``robocop format``) if you also want to normalize
+the whitespace inside the setting name.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -8996,16 +8637,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME06: section-name-invalid
-
-
 
 Added: `v1.0.0`
 
@@ -9013,16 +8647,13 @@ Supported RF version `All`
 
 Deprecated names: 0307
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Section name should be in format '{section_title_case}' or '{section_upper_case}'`
 
-
-
 **Documentation**:
-
 
 Section name does not follow convention.
 
@@ -9038,12 +8669,9 @@ Correct code:
     *** SETTINGS ***
     *** Keywords ***
 
-
-
-
+The section name can be replaced with its title case version automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9068,16 +8696,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME07: not-capitalized-test-case-title
-
-
 
 Added: `v1.4.0`
 
@@ -9091,10 +8712,7 @@ Fix availability: There is no automatic fix.
 
 `Test case '{test_name}' title does not start with capital letter`
 
-
-
 **Documentation**:
-
 
 Test case title does not start with a capital letter.
 
@@ -9108,12 +8726,7 @@ Correct code example:
     *** Test Cases ***
     Validate user details
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9138,16 +8751,9 @@ Correct code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME08: section-variable-not-uppercase
-
-
 
 Added: `v1.4.0`
 
@@ -9161,10 +8767,7 @@ Fix availability: There is no automatic fix.
 
 `Section variable '{variable_name}' name is not uppercase`
 
-
-
 **Documentation**:
-
 
 Section variable name is not uppercase.
 
@@ -9178,18 +8781,12 @@ Correct code:
     *** Variables ***
     ${SECTION_VARIABLE}    value
 
-
-
-
 **Style guide**:
 
 - [#variables-section](https://docs.robotframework.org/docs/style_guide#variables-section)
-
 - [#variable-scope-and-casing](https://docs.robotframework.org/docs/style_guide#variable-scope-and-casing)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9214,16 +8811,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME09: else-not-upper-case
-
-
 
 Added: `v1.5.0`
 
@@ -9231,16 +8821,13 @@ Supported RF version `All`
 
 Deprecated names: 0311
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `ELSE and ELSE IF is not uppercase`
 
-
-
 **Documentation**:
-
 
 ELSE and ELSE IF is not uppercase.
 
@@ -9268,12 +8855,9 @@ Correct code:
         ELSE
             RETURN  Cold
 
-
-
-
+The fix replaces the ``ELSE`` and ``ELSE IF`` names with their uppercase versions.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9298,16 +8882,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME10: keyword-name-is-empty
-
-
 
 Added: `v1.8.0`
 
@@ -9321,10 +8898,7 @@ Fix availability: There is no automatic fix.
 
 `Keyword name is empty`
 
-
-
 **Documentation**:
-
 
 Keyword name is empty.
 
@@ -9334,12 +8908,7 @@ Remember to always add a keyword name and avoid such code:
     # no keyword name here!!!
         Log To Console  hi
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9364,16 +8933,9 @@ Remember to always add a keyword name and avoid such code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME11: test-case-name-is-empty
-
-
 
 Added: `v1.8.0`
 
@@ -9387,10 +8949,7 @@ Fix availability: There is no automatic fix.
 
 `Test case name is empty`
 
-
-
 **Documentation**:
-
 
 Test case name is empty.
 
@@ -9400,12 +8959,7 @@ Remember to always add a test case name and avoid such code:
     # no test case name here!!!
         Log To Console  hello
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9430,16 +8984,9 @@ Remember to always add a test case name and avoid such code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME12: empty-library-alias
-
-
 
 Added: `v1.10.0`
 
@@ -9447,16 +8994,13 @@ Supported RF version `All`
 
 Deprecated names: 0314
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Library alias is empty`
 
-
-
 **Documentation**:
-
 
 Library alias is empty.
 
@@ -9472,25 +9016,23 @@ Correct code:
     *** Settings ***
     Library  CustomLibrary  AS  AnotherName
 
-
-
-
+The fix removes the alias marker without the name. Imports with the alias split into multiple lines
+are not fixed.
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** E
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-library-alias.severity=E
+        robocop check --configure empty-library-alias.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -9498,20 +9040,13 @@ Correct code:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-library-alias.severity=E"
+            "empty-library-alias.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME13: duplicated-library-alias
-
-
 
 Added: `v1.10.0`
 
@@ -9519,16 +9054,13 @@ Supported RF version `All`
 
 Deprecated names: 0315
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Library alias is the same as original name`
 
-
-
 **Documentation**:
-
 
 Library alias is the same as the original name.
 
@@ -9538,12 +9070,9 @@ Examples of rule violation:
      Library  CustomLibrary  AS  CustomLibrary   # same as library name
      Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
 
-
-
-
+The fix removes the redundant alias. Imports with the alias split into multiple lines are not fixed.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9568,16 +9097,9 @@ Examples of rule violation:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME14: bdd-without-keyword-call
-
-
 
 Added: `v1.11.0`
 
@@ -9591,10 +9113,7 @@ Fix availability: There is no automatic fix.
 
 `BDD reserved keyword '{keyword_name}' not followed by any keyword{error_msg}`
 
-
-
 **Documentation**:
-
 
 BDD keyword isn't followed by any keyword.
 
@@ -9619,12 +9138,7 @@ Correct code:
 
 Since those words are used for BDD style, it's also recommended not to use them within the user keyword name.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9649,16 +9163,9 @@ Since those words are used for BDD style, it's also recommended not to use them 
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME15: not-allowed-char-in-filename
-
-
 
 Added: `v2.1.0`
 
@@ -9672,10 +9179,7 @@ Fix availability: There is no automatic fix.
 
 `Not allowed character '{character}' found in {block_name} name`
 
-
-
 **Documentation**:
-
 
 Not allowed character found in filename.
 
@@ -9687,12 +9191,7 @@ You can configure what characters are reported by running:
 where ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]`
 pattern would report any occurrence of ``@[`` characters.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9740,16 +9239,9 @@ pattern would report any occurrence of ``@[`` characters.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME16: invalid-section
-
-
 
 Added: `v3.2.0`
 
@@ -9763,10 +9255,7 @@ Fix availability: There is no automatic fix.
 
 `Invalid section '{invalid_section}'`
 
-
-
 **Documentation**:
-
 
 Invalid section found.
 
@@ -9781,12 +9270,7 @@ It is also possible to configure language in the file:
     Wypisz dyrektywę 4
         Log   Błąd dostępu
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9811,16 +9295,9 @@ It is also possible to configure language in the file:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME17: mixed-task-test-settings
-
-
 
 Added: `v3.3.0`
 
@@ -9834,10 +9311,7 @@ Fix availability: There is no automatic fix.
 
 `Use {task_or_test}-related setting '{setting}' if {tasks_or_tests} section is used`
 
-
-
 **Documentation**:
-
 
 Task related setting used with ``*** Test Cases ***`` or Test related setting used with the `` *** Tasks ***``
 section.
@@ -9847,12 +9321,7 @@ If the `` *** Tasks ***`` section is present in the file, use task-related setti
 
 Similarly, use test-related settings when using the `` *** Test Cases ***`` section.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -9877,33 +9346,21 @@ Similarly, use test-related settings when using the `` *** Test Cases ***`` sect
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### NAME18: wrong-case-in-keyword-call
-
-
 
 Added: `v7.0.0`
 
 Supported RF version `All`
 
-
-
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Keyword name '{keyword_name}' does not follow case convention`
 
-
-
 **Documentation**:
-
 
 Keyword call name does not follow case convention.
 
@@ -9941,11 +9398,11 @@ would make the following keyword legal:
 See the sibling rule [wrong-case-in-keyword-name](#name02-wrong-case-in-keyword-name) that checks keyword definition
 naming convention.
 
-
-
+Keyword names are case-insensitive in Robot Framework, so the name can be capitalized automatically with the
+``--fix`` option. The optional library name prefix is not modified. Names matching the configured ``pattern``
+are reported, but not fixed.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10016,21 +9473,11 @@ naming convention.
         ]
         ```
 
-
-
-
-
-
-
-
 ## Order
 
 Ordering rules.
 
-
 ### ORD01: test-case-section-out-of-order
-
-
 
 Added: `v5.3.0`
 
@@ -10044,15 +9491,12 @@ Fix availability: There is no automatic fix.
 
 `'{section_name}' is in wrong place of Test Case. Recommended order of elements in Test Cases: {recommended_order}`
 
-
-
 **Documentation**:
-
 
 Settings or body in the test case are out of order.
 
 Sections should be defined in order set by the ``sections_order`` parameter.
-Default order: ``documentation,tags,timeout,setup,template,keyword,teardown``.
+Default order: ``documentation,metadata,tags,timeout,setup,template,keyword,teardown``.
 
 To change the default order, use the following option:
 
@@ -10061,6 +9505,7 @@ To change the default order, use the following option:
 where section should be a case-insensitive name from the list:
 
 - documentation
+- metadata
 - tags
 - timeout
 - setup
@@ -10069,6 +9514,8 @@ where section should be a case-insensitive name from the list:
 - teardown
 
 Order of not configured sections is ignored.
+
+``metadata`` refers to the test case ``[Metadata]`` setting, which requires Robot Framework 7.5 or newer.
 
 Incorrect code example:
 
@@ -10088,16 +9535,11 @@ Correct code:
         Keyword1
         [Teardown]    Log    abc
 
-
-
-
 **Style guide**:
 
 - [#test-cases-or-tasks](https://docs.robotframework.org/docs/style_guide#test-cases-or-tasks)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10126,14 +9568,14 @@ Correct code:
 
     Order of sections in comma-separated list
 
-    **Default value:** documentation,tags,timeout,setup,template,keyword,teardown
+    **Default value:** documentation,metadata,tags,timeout,setup,template,keyword,teardown
 
     **Type:** str
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure test-case-section-out-of-order.sections_order=documentation,tags,timeout,setup,template,keyword,teardown
+        robocop check --configure test-case-section-out-of-order.sections_order=documentation,metadata,tags,timeout,setup,template,keyword,teardown
         ```
 
     === ":material-file-cog-outline: toml"
@@ -10141,20 +9583,13 @@ Correct code:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "test-case-section-out-of-order.sections_order=documentation,tags,timeout,setup,template,keyword,teardown"
+            "test-case-section-out-of-order.sections_order=documentation,metadata,tags,timeout,setup,template,keyword,teardown"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ORD02: keyword-section-out-of-order
-
-
 
 Added: `v5.3.0`
 
@@ -10168,10 +9603,7 @@ Fix availability: There is no automatic fix.
 
 `'{section_name}' is in wrong place of Keyword. Recommended order of elements in Keyword: {recommended_order}`
 
-
-
 **Documentation**:
-
 
 Settings or body in keyword are out of order.
 
@@ -10204,16 +9636,11 @@ Correct code example:
         Keyword1
         [Teardown]    Log    abc
 
-
-
-
 **Style guide**:
 
 - [#keyword](https://docs.robotframework.org/docs/style_guide#keyword)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10261,16 +9688,9 @@ Correct code example:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ORD03: section-out-of-order
-
-
 
 Added: `v1.0.0`
 
@@ -10284,10 +9704,7 @@ Fix availability: There is no automatic fix.
 
 `'{section_name}' section header is defined in wrong order: {recommended_order}`
 
-
-
 **Documentation**:
-
 
 Section does not follow the recommended order.
 
@@ -10317,16 +9734,11 @@ Correct code:
 
     *** Keywords ***
 
-
-
-
 **Style guide**:
 
 - [#sections](https://docs.robotframework.org/docs/style_guide#sections)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10374,21 +9786,11 @@ Correct code:
         ]
         ```
 
-
-
-
-
-
-
-
 ## Spacing
 
 Spacing and whitespace related rules.
 
-
 ### SPC01: trailing-whitespace
-
-
 
 Added: `v1.0.0`
 
@@ -10402,10 +9804,7 @@ Fix availability: Fix is always available.
 
 `Trailing whitespace at the end of line`
 
-
-
 **Documentation**:
-
 
 Trailing whitespace at the end of the line.
 
@@ -10425,16 +9824,11 @@ Correct code:
     [Arguments]    ${variable}\n
         Should Be True    ${variable}\n
 
-
-
-
 **Style guide**:
 
 - [#trailing-whitespaces](https://docs.robotframework.org/docs/style_guide#trailing-whitespaces)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10459,16 +9853,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC02: missing-trailing-blank-line
-
-
 
 Added: `v1.0.0`
 
@@ -10482,20 +9869,18 @@ Fix availability: There is no automatic fix.
 
 `Missing trailing blank line at the end of file`
 
-
-
 **Documentation**:
 
 Missing trailing blank line at the end of file.
 
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-after-sections](https://docs.robotframework.org/docs/style_guide#spacing-after-sections)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10520,16 +9905,9 @@ Missing trailing blank line at the end of file.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC03: empty-lines-between-sections
-
-
 
 Added: `v1.0.0`
 
@@ -10543,10 +9921,7 @@ Fix availability: There is no automatic fix.
 
 `Invalid number of empty lines between sections ({empty_lines}/{allowed_empty_lines})`
 
-
-
 **Documentation**:
-
 
 Invalid number of empty lines between sections.
 
@@ -10571,16 +9946,14 @@ Correct code:
     Keyword Definition
         No Operation
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-after-sections](https://docs.robotframework.org/docs/style_guide#spacing-after-sections)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10628,16 +10001,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC04: empty-lines-between-test-cases
-
-
 
 Added: `v1.0.0`
 
@@ -10651,10 +10017,7 @@ Fix availability: There is no automatic fix.
 
 `Invalid number of empty lines between test cases ({empty_lines}/{allowed_empty_lines})`
 
-
-
 **Documentation**:
-
 
 Invalid number of empty lines between test cases.
 
@@ -10679,16 +10042,14 @@ Correct code:
     Second test case
         No Operation
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-after-test-cases-or-tasks](https://docs.robotframework.org/docs/style_guide#spacing-after-test-cases-or-tasks)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10736,16 +10097,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC05: empty-lines-between-keywords
-
-
 
 Added: `v1.0.0`
 
@@ -10759,10 +10113,7 @@ Fix availability: There is no automatic fix.
 
 `Invalid number of empty lines between keywords ({empty_lines}/{allowed_empty_lines})`
 
-
-
 **Documentation**:
-
 
 Invalid number of empty lines between keywords.
 
@@ -10787,16 +10138,14 @@ Correct code:
     Second Keyword
         No Operation
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-after-keywords](https://docs.robotframework.org/docs/style_guide#spacing-after-keywords)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10844,16 +10193,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC06: mixed-tabs-and-spaces
-
-
 
 Added: `v1.1.0`
 
@@ -10867,20 +10209,16 @@ Fix availability: There is no automatic fix.
 
 `Inconsistent use of tabs and spaces in file`
 
-
-
 **Documentation**:
-
 
 Mixed tabs and spaces in the file.
 
 File contains both spaces and tabs. Use only one type of separators - preferably spaces.
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+(``robocop format``) to fix it.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -10905,16 +10243,9 @@ File contains both spaces and tabs. Use only one type of separators - preferably
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC08: bad-indent
-
-
 
 Added: `v3.0.0`
 
@@ -10928,10 +10259,7 @@ Fix availability: There is no automatic fix.
 
 `{bad_indent_msg}`
 
-
-
 **Documentation**:
-
 
 Line is misaligned or indent is invalid.
 
@@ -10957,20 +10285,16 @@ Correct code:
         IF    $condition    RETURN
         Keyword Call
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#indentation](https://docs.robotframework.org/docs/style_guide#indentation)
-
 - [#block-indentation](https://docs.robotframework.org/docs/style_guide#block-indentation)
-
 - [#indentation-within-test-cases-tasks-and-keywords-section](https://docs.robotframework.org/docs/style_guide#indentation-within-test-cases-tasks-and-keywords-section)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11018,16 +10342,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC09: empty-line-after-section
-
-
 
 Added: `v1.2.0`
 
@@ -11041,10 +10358,7 @@ Fix availability: There is no automatic fix.
 
 `Too many empty lines after '{section_name}' section header ({empty_lines}/{allowed_empty_lines})`
 
-
-
 **Documentation**:
-
 
 Too many empty lines after the section header.
 
@@ -11061,13 +10375,12 @@ Correct code:
      *** Test Cases ***
      Test case name
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-after-the-section-header-line](https://docs.robotframework.org/docs/style_guide#spacing-after-the-section-header-line)
-
 
 > **Note: Severity thresholds**
 >
@@ -11077,10 +10390,7 @@ Correct code:
 > When configuring thresholds remember to also set `empty_lines` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11128,16 +10438,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC10: too-many-trailing-blank-lines
-
-
 
 Added: `v1.4.0`
 
@@ -11151,24 +10454,20 @@ Fix availability: There is no automatic fix.
 
 `Too many blank lines at the end of file`
 
-
-
 **Documentation**:
-
 
 Too many blank lines at the end of the file.
 
 There should be exactly one blank line at the end of the file.
 
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-after-sections](https://docs.robotframework.org/docs/style_guide#spacing-after-sections)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11193,16 +10492,9 @@ There should be exactly one blank line at the end of the file.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC11: misaligned-continuation
-
-
 
 Added: `v1.6.0`
 
@@ -11216,10 +10508,7 @@ Fix availability: There is no automatic fix.
 
 `Continuation marker is not aligned with starting row`
 
-
-
 **Documentation**:
-
 
 Misaligned continuation marker.
 
@@ -11245,16 +10534,14 @@ Correct code:
         Do X    first argument    second argument    third argument
         ...    fourth argument    fifth argument    sixth argument
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#variables-section-line-continuation](https://docs.robotframework.org/docs/style_guide#variables-section-line-continuation)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11279,16 +10566,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC12: consecutive-empty-lines
-
-
 
 Added: `v1.8.0`
 
@@ -11302,10 +10582,7 @@ Fix availability: There is no automatic fix.
 
 `Too many consecutive empty lines ({empty_lines}/{allowed_empty_lines})`
 
-
-
 **Documentation**:
-
 
 Too many consecutive empty lines.
 
@@ -11337,17 +10614,14 @@ Correct code:
         Step 1
         Step 2  # 1 empty line is also fine, but no more
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#settings-1](https://docs.robotframework.org/docs/style_guide#settings-1)
-
 - [#spacing-between-code-blocks-within-test-cases-or-tasks](https://docs.robotframework.org/docs/style_guide#spacing-between-code-blocks-within-test-cases-or-tasks)
-
 - [#spacing-between-code-blocks-within-keyword-calls](https://docs.robotframework.org/docs/style_guide#spacing-between-code-blocks-within-keyword-calls)
-
 
 > **Note: Severity thresholds**
 >
@@ -11357,10 +10631,7 @@ Correct code:
 > When configuring thresholds remember to also set `empty_lines` - its value should be lower or
 > equal to the lowest value in the threshold.
 
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11408,16 +10679,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC13: empty-lines-in-statement
-
-
 
 Added: `v1.8.0`
 
@@ -11431,10 +10695,7 @@ Fix availability: There is no automatic fix.
 
 `Multi-line statement with empty lines`
 
-
-
 **Documentation**:
-
 
 Multi-line statement with empty lines.
 
@@ -11460,16 +10721,14 @@ Correct code:
         ...  2
         ...  3
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#spacing-of-line-continuations](https://docs.robotframework.org/docs/style_guide#spacing-of-line-continuations)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11494,16 +10753,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC14: variable-not-left-aligned
-
-
 
 Added: `v1.8.0`
 
@@ -11517,10 +10769,7 @@ Fix availability: There is no automatic fix.
 
 `Variable in Variables section is not left aligned`
 
-
-
 **Documentation**:
-
 
 Variable in ``*** Variables ***`` section should be left aligned.
 
@@ -11536,16 +10785,14 @@ Correct code:
     ${VAR}  1
     ${VAR2}  2
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``AlignVariablesSection`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#indentation-within-variables-section](https://docs.robotframework.org/docs/style_guide#indentation-within-variables-section)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11570,16 +10817,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC15: misaligned-continuation-row
-
-
 
 Added: `v1.11.0`
 
@@ -11593,10 +10833,7 @@ Fix availability: There is no automatic fix.
 
 `Continuation line is not aligned with the previous one`
 
-
-
 **Documentation**:
-
 
 The continuation marker should be aligned with the previous one.
 
@@ -11626,12 +10863,10 @@ Correct code:
         ...    arg1
         ...    arg2  # misaligned
 
-
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+(``robocop format``) to fix it.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11702,16 +10937,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC16: suite-setting-not-left-aligned
-
-
 
 Added: `v2.4.0`
 
@@ -11725,10 +10953,7 @@ Fix availability: There is no automatic fix.
 
 `Setting in Settings section is not left aligned`
 
-
-
 **Documentation**:
-
 
 Settings in the ``*** Settings ***`` section should be left aligned.
 
@@ -11746,16 +10971,11 @@ Correct code:
     Resource  data.resource
     Variables  vars.robot
 
-
-
-
 **Style guide**:
 
 - [#indentation-within-settings-section](https://docs.robotframework.org/docs/style_guide#indentation-within-settings-section)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11780,16 +11000,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC17: bad-block-indent
-
-
 
 Added: `v3.0.0`
 
@@ -11803,10 +11016,7 @@ Fix availability: There is no automatic fix.
 
 `Not enough indentation inside block`
 
-
-
 **Documentation**:
-
 
 Not enough indentation.
 
@@ -11833,16 +11043,14 @@ Correct code:
             # bad comment
         END
 
-
-
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+(``robocop format``) to fix it.
 
 **Style guide**:
 
 - [#indentation](https://docs.robotframework.org/docs/style_guide#indentation)
 
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11867,16 +11075,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC18: first-argument-in-new-line
-
-
 
 Added: `v5.3.0`
 
@@ -11890,10 +11091,7 @@ Fix availability: There is no automatic fix.
 
 `First argument: '{argument_name}' is not placed on the same line as [Arguments] setting`
 
-
-
 **Documentation**:
-
 
 The first argument is not in the same level as the ``[Arguments]`` setting.
 
@@ -11912,12 +11110,7 @@ Correct code:
     [Arguments]    ${name}
     ...    ${surname}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -11942,16 +11135,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC19: not-enough-whitespace-after-setting
-
-
 
 Added: `v1.0.0`
 
@@ -11959,16 +11145,13 @@ Supported RF version `All`
 
 Deprecated names: 0402
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Not enough whitespace after '{setting_name}' setting`
 
-
-
 **Documentation**:
-
 
 Not enough whitespace after setting.
 
@@ -12000,12 +11183,9 @@ Correct code:
         [Arguments]    ${var}
         Should Be True  ${var}
 
-
-
-
+The separator can be expanded automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12030,16 +11210,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC20: not-enough-whitespace-after-newline-marker
-
-
 
 Added: `v1.11.0`
 
@@ -12047,16 +11220,13 @@ Supported RF version `All`
 
 Deprecated names: 0406
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Not enough whitespace after '...' marker`
 
-
-
 **Documentation**:
-
 
 Not enough whitespace after a newline marker.
 
@@ -12076,12 +11246,9 @@ Correct code:
     ...  2
     ...  3
 
-
-
-
+The separator can be expanded automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12106,16 +11273,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC21: not-enough-whitespace-after-variable
-
-
 
 Added: `v1.11.0`
 
@@ -12123,16 +11283,13 @@ Supported RF version `>=4.0`
 
 Deprecated names: 0410
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Not enough whitespace after '{variable_name}' variable name`
 
-
-
 **Documentation**:
-
 
 Not enough whitespace after variable.
 
@@ -12150,12 +11307,9 @@ Correct code:
     ${variable}  1
     ${other_var}  2
 
-
-
-
+The separator can be expanded automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12180,16 +11334,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### SPC22: not-enough-whitespace-after-suite-setting
-
-
 
 Added: `v1.11.0`
 
@@ -12197,16 +11344,13 @@ Supported RF version `All`
 
 Deprecated names: 0411
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Not enough whitespace after '{setting_name}' setting`
 
-
-
 **Documentation**:
-
 
 Not enough whitespace after suite setting.
 
@@ -12228,12 +11372,9 @@ Correct code:
     ...  tag2
     Suite Setup    Keyword
 
-
-
-
+The separator can be expanded automatically with the ``--fix`` option.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12258,21 +11399,181 @@ Correct code:
         ]
         ```
 
+---
 
+### SPC23: empty-line-in-test-template
 
+Added: `v9.0.0`
 
+Supported RF version `>=5.0`
 
+Fix availability: Fix is always available.
 
+**Message**:
 
+`Empty line in test template data`
+
+**Documentation**:
+
+Empty line in test template data.
+
+Robot Framework ignores empty lines between data rows in templated tests. Remove these lines so that the test data
+does not contain rows that have no effect.
+
+Incorrect code example:
+
+    *** Test Cases ***
+    Example
+        [Template]    Template Keyword
+        first argument
+
+        second argument
+
+Correct code:
+
+    *** Test Cases ***
+    Example
+        [Template]    Template Keyword
+        first argument
+        second argument
+
+The rule reports only empty lines between consecutive template data rows, including rows nested in control
+structures. Blank lines next to settings or comments and blank lines separating test cases are preserved.
+
+The fix removes the ignored empty line.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure empty-line-in-test-template.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "empty-line-in-test-template.severity=W"
+        ]
+        ```
+
+---
+
+### SPC24: empty-lines-inside-block
+
+Added: `v9.0.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Empty lines {block_position} ({empty_lines}/{allowed_empty_lines})`
+
+**Documentation**:
+
+Empty lines after a block header or before the block end.
+
+Empty lines directly after a block header (``FOR``, ``WHILE``, ``IF``/``ELSE``, ``TRY``/``EXCEPT`` or ``GROUP``)
+or directly before the block end are not allowed by default.
+
+Incorrect code example:
+
+    *** Keywords ***
+    Iterate
+        FOR    ${var}    IN    1    2
+
+            Keyword Call
+
+        END
+
+Correct code:
+
+    *** Keywords ***
+    Iterate
+        FOR    ${var}    IN    1    2
+            Keyword Call
+        END
+
+The number of allowed empty lines can be configured using the ``empty_lines`` parameter::
+
+    robocop check --configure empty-lines-inside-block.empty_lines=1
+
+This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+(``robocop format``) to fix it.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `empty_lines` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `empty_lines` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure empty-lines-inside-block.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "empty-lines-inside-block.severity=I"
+        ]
+        ```
+
+??? example "empty_lines"
+
+    Number of allowed empty lines after a block header or before the block end
+
+    **Default value:** 0
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure empty-lines-inside-block.empty_lines=0
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "empty-lines-inside-block.empty_lines=0"
+        ]
+        ```
 
 ## Tags
 
 Rules for  tags.
 
-
 ### TAG01: tag-with-space
-
-
 
 Added: `v1.0.0`
 
@@ -12286,10 +11587,7 @@ Fix availability: There is no automatic fix.
 
 `Tag '{tag}' contains spaces`
 
-
-
 **Documentation**:
-
 
 Tag with space.
 
@@ -12302,12 +11600,7 @@ Example of rule violation:
     Test
         [Tags]  tag with space    ${tag with space}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12332,16 +11625,9 @@ Example of rule violation:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG02: tag-with-or-and
-
-
 
 Added: `v1.0.0`
 
@@ -12355,10 +11641,7 @@ Fix availability: There is no automatic fix.
 
 `Tag '{tag}' with reserved word OR/AND`
 
-
-
 **Documentation**:
-
 
 ``OR`` or ``AND`` keyword found in the tag.
 
@@ -12374,12 +11657,7 @@ for more information.
 Tag matching is case-insensitive. If your tag contains ``OR`` or ``AND`` you can use lowercase to match it.
 For example, if your tag is ``PORT``, you can match it with ``port``.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12404,16 +11682,9 @@ For example, if your tag is ``PORT``, you can match it with ``port``.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG03: tag-with-reserved-word
-
-
 
 Added: `v1.0.0`
 
@@ -12427,10 +11698,7 @@ Fix availability: There is no automatic fix.
 
 `Tag '{tag}' prefixed with reserved word `robot:``
 
-
-
 **Documentation**:
-
 
 Tag is prefixed with reserved work ``robot:``.
 
@@ -12450,13 +11718,7 @@ Special tags that are currently in use:
     - robot:exclude
     - robot:private
 
-
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12481,16 +11743,9 @@ Special tags that are currently in use:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG05: could-be-test-tags
-
-
 
 Added: `v1.0.0`
 
@@ -12504,10 +11759,7 @@ Fix availability: There is no automatic fix.
 
 `All tests in suite share these tags: '{tags}'`
 
-
-
 **Documentation**:
-
 
 All tests share the same tags which can be moved to the ``Test Tags`` setting.
 
@@ -12528,25 +11780,20 @@ This rule was renamed from ``could-be-force-tags`` to ``could-be-test-tags`` in 
 
 Will ignore `robot:*` tags.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure could-be-test-tags.severity=I
+        robocop check --configure could-be-test-tags.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -12554,20 +11801,13 @@ Will ignore `robot:*` tags.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "could-be-test-tags.severity=I"
+            "could-be-test-tags.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG06: tag-already-set-in-test-tags
-
-
 
 Added: `v1.0.0`
 
@@ -12575,16 +11815,13 @@ Supported RF version `All`
 
 Deprecated names: 0606
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Tag '{tag}' is already set by {test_force_tags} in suite settings`
 
-
-
 **Documentation**:
-
 
 Tag is already set in the ``Test Tags`` setting.
 
@@ -12602,25 +11839,24 @@ Example of rule violation:
 This rule was renamed from ``tag-already-set-in-force-tags`` to ``tag-already-set-in-test-tags`` in
 Robocop 2.6.0.
 
-
-
-
+The fix removes the redundant tag. If it is the only tag in the ``[Tags]`` setting, the whole setting is
+removed - unless the suite defines ``Default Tags``, in which case the explicit ``NONE`` value is used
+instead. Comments are never removed by the fix.
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure tag-already-set-in-test-tags.severity=I
+        robocop check --configure tag-already-set-in-test-tags.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -12628,20 +11864,13 @@ Robocop 2.6.0.
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "tag-already-set-in-test-tags.severity=I"
+            "tag-already-set-in-test-tags.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG07: unnecessary-default-tags
-
-
 
 Added: `v1.0.0`
 
@@ -12649,16 +11878,13 @@ Supported RF version `All`
 
 Deprecated names: 0607
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Tags defined in Default Tags are always overwritten`
 
-
-
 **Documentation**:
-
 
 ``Default Tags`` setting is always overwritten and is unnecessary.
 
@@ -12678,12 +11904,9 @@ Example of rule violation:
 
 Since ``Test`` and ``Test 2`` have the ``[Tags]`` section, the ``Default Tags`` setting is never used.
 
-
-
-
+The fix removes the ``Default Tags`` setting. Comments are not removed.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12708,16 +11931,9 @@ Since ``Test`` and ``Test 2`` have the ``[Tags]`` section, the ``Default Tags`` 
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG08: empty-tags
-
-
 
 Added: `v2.0.0`
 
@@ -12725,28 +11941,46 @@ Supported RF version `All`
 
 Deprecated names: 0608
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `[Tags] setting without values{optional_warning}`
 
-
-
 **Documentation**:
-
 
 ``[Tags]`` setting without any value.
 
 If you want to use empty ``[Tags]`` (for example, to overwrite ``Default Tags``), then use the ``NONE`` value
 to be explicit.
 
+Incorrect code example:
+
+    *** Settings ***
+    Default Tags    tag
 
 
+    *** Test Cases ***
+    Test without tags
+        [Tags]
+        Keyword Call
 
+Correct code example:
+
+    *** Settings ***
+    Default Tags    tag
+
+
+    *** Test Cases ***
+    Test without tags
+        [Tags]    NONE
+        Keyword Call
+
+The fix removes the empty ``[Tags]`` setting. If the suite defines ``Default Tags``, the test case ``[Tags]``
+is not removed but filled with the explicit ``NONE`` value instead, since the empty ``[Tags]`` overwrites the
+``Default Tags``. Comments are never removed by the fix.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12771,16 +12005,9 @@ to be explicit.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG09: duplicated-tags
-
-
 
 Added: `v2.0.0`
 
@@ -12788,16 +12015,13 @@ Supported RF version `All`
 
 Deprecated names: 0609
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is sometimes available.
 
 **Message**:
 
 `Multiple tags with name '{name}' (first occurrence at line {line} column {column})`
 
-
-
 **Documentation**:
-
 
 Duplicated tags found.
 
@@ -12810,12 +12034,10 @@ Example of duplicated tags:
     Test
         [Tags]    Tag    TAG    tag    t a g
 
-
-
-
+The fix removes the duplicated tags and leaves only the first occurrence. Tags defined in the keyword
+documentation are not fixed. Comments are never removed by the fix.
 
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12840,16 +12062,9 @@ Example of duplicated tags:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG10: could-be-keyword-tags
-
-
 
 Added: `v3.3.0`
 
@@ -12863,10 +12078,7 @@ Fix availability: There is no automatic fix.
 
 `All keywords in suite share these tags: '{tags}'`
 
-
-
 **Documentation**:
-
 
 All keywords share the same tags which can be moved to the ``Keyword Tags`` setting.
 
@@ -12886,12 +12098,7 @@ In this example all keywords share one common tag ``featureX``.It can be declare
 
 Will ignore `robot:*` tags.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -12916,16 +12123,9 @@ Will ignore `robot:*` tags.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### TAG11: tag-already-set-in-keyword-tags
-
-
 
 Added: `v3.3.0`
 
@@ -12933,16 +12133,13 @@ Supported RF version `>=6`
 
 Deprecated names: 0611
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Tag '{tag}' is already set by {keyword_tags} in suite settings`
 
-
-
 **Documentation**:
-
 
 Tag is already set in the ``Test Keyword`` setting.
 
@@ -12956,12 +12153,74 @@ Example of rule violation:
     Keyword
         [Tags]  sanity  common_tag
 
-
-
-
+The fix removes the redundant tag. If it is the only tag in the ``[Tags]`` setting, the whole setting is
+removed. Comments are never removed by the fix.
 
 **Parameters**:
 
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure tag-already-set-in-keyword-tags.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "tag-already-set-in-keyword-tags.severity=W"
+        ]
+        ```
+
+---
+
+### TAG12: unnecessary-continue-on-failure
+
+Added: `v8.9.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`'{keyword_name}' is not needed when the '{tag}' tag is used`
+
+**Documentation**:
+
+``Run Keyword And Continue On Failure`` is not needed when the continue on failure tag is set.
+
+``robot:continue-on-failure`` and ``robot:recursive-continue-on-failure`` tags already make all the keywords
+in the test or keyword body run even if one of them fails. Wrapping such calls in
+``Run Keyword And Continue On Failure`` only adds noise.
+
+Example of rule violation:
+
+    *** Test Cases ***
+    Test
+        [Tags]    robot:continue-on-failure
+        Run Keyword And Continue On Failure    Should Be Equal    ${expected}    ${actual}
+
+It can be rewritten to:
+
+    *** Test Cases ***
+    Test
+        [Tags]    robot:continue-on-failure
+        Should Be Equal    ${expected}    ${actual}
+
+Keyword calls nested inside ``FOR``, ``WHILE``, ``IF`` or ``TRY`` blocks are reported as well, since the tag
+also makes them continue on failure. Calls that assign a return value are ignored.
+
+**Parameters**:
 
 ??? example "severity"
 
@@ -12974,7 +12233,7 @@ Example of rule violation:
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure tag-already-set-in-keyword-tags.severity=I
+        robocop check --configure unnecessary-continue-on-failure.severity=I
         ```
 
     === ":material-file-cog-outline: toml"
@@ -12982,25 +12241,118 @@ Example of rule violation:
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "tag-already-set-in-keyword-tags.severity=I"
+            "unnecessary-continue-on-failure.severity=I"
         ]
         ```
 
+---
 
+### TAG13: could-be-continue-on-failure-tag
 
+Added: `v8.9.0`
 
+Supported RF version `All`
 
+Fix availability: There is no automatic fix.
 
+**Message**:
 
+`{block_name} '{name}' uses 'Run Keyword And Continue On Failure' {call_count} times and could use the 'robot:continue-on-failure' tag instead`
+
+**Documentation**:
+
+Every keyword call is wrapped in ``Run Keyword And Continue On Failure``.
+
+If all the keyword calls in the test or keyword body are wrapped in ``Run Keyword And Continue On Failure``,
+the ``robot:continue-on-failure`` tag can be used instead. It makes the data shorter and easier to read.
+
+Example of rule violation:
+
+    *** Keywords ***
+    Validate Stuff
+        Run Keyword And Continue On Failure    Should Be Equal    ${expected_id}    ${actual_id}
+        Run Keyword And Continue On Failure    Should Be Equal    ${expected_name}    ${actual_name}
+
+It can be rewritten to:
+
+    *** Keywords ***
+    Validate Stuff
+        [Tags]    robot:continue-on-failure
+        Should Be Equal    ${expected_id}    ${actual_id}
+        Should Be Equal    ${expected_name}    ${actual_name}
+
+Note that ``robot:continue-on-failure`` is not applied to the keywords called from the body.
+Use ``robot:recursive-continue-on-failure`` if the continue on failure mode should be inherited.
+
+Configure ``min_calls`` to set how many wrapped calls are required to report the rule:
+
+    robocop check --configure could-be-continue-on-failure-tag.min_calls=3
+
+The rule is only reported if every keyword call in the body is wrapped. Calls nested inside ``FOR``, ``WHILE``,
+``IF`` or ``TRY`` blocks are taken into account, since the tag affects them as well. Calls that assign a return
+value are not equivalent to the tag and prevent the rule from being reported.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `min_calls` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `min_calls` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure could-be-continue-on-failure-tag.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "could-be-continue-on-failure-tag.severity=I"
+        ]
+        ```
+
+??? example "min_calls"
+
+    Number of 'run keyword and continue on failure' calls required to report the rule
+
+    **Default value:** 2
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure could-be-continue-on-failure-tag.min_calls=2
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "could-be-continue-on-failure-tag.min_calls=2"
+        ]
+        ```
 
 ## Variables
 
 Rules for variables.
 
-
 ### VAR01: empty-variable
-
-
 
 Added: `v1.10.0`
 
@@ -13008,16 +12360,13 @@ Supported RF version `All`
 
 Deprecated names: 0912
 
-Fix availability: There is no automatic fix.
+Fix availability: Fix is always available.
 
 **Message**:
 
 `Empty variable value`
 
-
-
 **Documentation**:
-
 
 Variable without value.
 
@@ -13059,25 +12408,24 @@ Correct code:
 You can configure ``empty-variable`` rule to run only in ```*** Variables ***``` section or on
 ``VAR`` statements using ``variable_source`` parameter.
 
-
-
-
+The fix adds the explicit empty value, using the variable type to select it: ``${EMPTY}`` for scalars,
+``@{EMPTY}`` for lists and ``&{EMPTY}`` for dictionaries. Empty values in a list and the ``\`` values are
+always replaced with ``${EMPTY}``.
 
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure empty-variable.severity=I
+        robocop check --configure empty-variable.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -13085,7 +12433,7 @@ You can configure ``empty-variable`` rule to run only in ```*** Variables ***```
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "empty-variable.severity=I"
+            "empty-variable.severity=W"
         ]
         ```
 
@@ -13112,16 +12460,9 @@ You can configure ``empty-variable`` rule to run only in ```*** Variables ***```
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR02: unused-variable
-
-
 
 Added: `v3.2.0`
 
@@ -13135,10 +12476,7 @@ Fix availability: There is no automatic fix.
 
 `Variable '{name}' is assigned but not used`
 
-
-
 **Documentation**:
-
 
 Unused variable.
 
@@ -13174,25 +12512,20 @@ or variable files:
 
 Variable names are matched case-insensitively following Robot Framework conventions.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure unused-variable.severity=I
+        robocop check --configure unused-variable.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -13200,7 +12533,7 @@ Variable names are matched case-insensitively following Robot Framework conventi
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "unused-variable.severity=I"
+            "unused-variable.severity=W"
         ]
         ```
 
@@ -13227,16 +12560,9 @@ Variable names are matched case-insensitively following Robot Framework conventi
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR03: variable-overwritten-before-usage
-
-
 
 Added: `v3.2.0`
 
@@ -13250,10 +12576,7 @@ Fix availability: There is no automatic fix.
 
 `Local variable '{name}' is overwritten before usage`
 
-
-
 **Documentation**:
-
 
 Local variable is overwritten before usage.
 
@@ -13273,12 +12596,7 @@ In case the value of the variable is not important, it is possible to use ``${_}
             Log    Run this code 10 times.
         END
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13303,16 +12621,9 @@ In case the value of the variable is not important, it is possible to use ``${_}
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR04: no-global-variable
-
-
 
 Added: `v5.6.0`
 
@@ -13326,10 +12637,7 @@ Fix availability: There is no automatic fix.
 
 `Variable with global scope defined outside variables section`
 
-
-
 **Documentation**:
-
 
 Global variable defined outside the ``*** Variables ***`` section.
 
@@ -13376,11 +12684,7 @@ Using the VAR-syntax:
 In some specific situations, global variables are a great tool. But most of the time, it
 makes code needlessly hard to understand.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13405,16 +12709,9 @@ makes code needlessly hard to understand.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR05: no-suite-variable
-
-
 
 Added: `v5.6.0`
 
@@ -13428,10 +12725,7 @@ Fix availability: There is no automatic fix.
 
 `Variable defined with suite scope`
 
-
-
 **Documentation**:
-
 
 Using suite variables in a test/keyword often leads to hard-to-understand code. In most
 cases, you're better off using local variables.
@@ -13472,11 +12766,7 @@ Using the VAR-syntax:
 In some specific situations, suite variables are a great tool. But most of the time, it
 makes code needlessly hard to understand.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13501,16 +12791,9 @@ makes code needlessly hard to understand.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR06: no-test-variable
-
-
 
 Added: `v5.6.0`
 
@@ -13524,10 +12807,7 @@ Fix availability: There is no automatic fix.
 
 `Variable defined with test/task scope`
 
-
-
 **Documentation**:
-
 
 Using test/task variables in a test/keyword often leads to hard-to-understand code. In most
 cases, you're better off using local variables.
@@ -13568,11 +12848,7 @@ Using the VAR-syntax:
 In some specific situations, test/task variables are a great tool. But most of the time, it
 makes code needlessly hard to understand.
 
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13597,16 +12873,9 @@ makes code needlessly hard to understand.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR07: non-local-variables-should-be-uppercase
-
-
 
 Added: `v1.4.0`
 
@@ -13620,10 +12889,7 @@ Fix availability: There is no automatic fix.
 
 `Non local variable is not uppercase`
 
-
-
 **Documentation**:
-
 
 Non-local variable is not uppercase.
 
@@ -13647,12 +12913,7 @@ Correct code:
         Set Test Variable    ${MY_VAR}           1
         Set Global Variable  ${MY VAR${nested}}  1
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13677,16 +12938,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR08: possible-variable-overwriting
-
-
 
 Added: `v1.10.0`
 
@@ -13700,10 +12954,7 @@ Fix availability: There is no automatic fix.
 
 `Variable '{variable_name}' may overwrite similar variable inside '{block_name}' {block_type}`
 
-
-
 **Documentation**:
-
 
 Variable may overwrite similar variable inside code block.
 
@@ -13718,25 +12969,20 @@ Following assignments overwrite the same variable:
 
 Use consistent variable naming guidelines to avoid unintended variable overwriting.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure possible-variable-overwriting.severity=I
+        robocop check --configure possible-variable-overwriting.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -13744,20 +12990,13 @@ Use consistent variable naming guidelines to avoid unintended variable overwriti
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "possible-variable-overwriting.severity=I"
+            "possible-variable-overwriting.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR09: hyphen-in-variable-name
-
-
 
 Added: `v1.10.0`
 
@@ -13771,10 +13010,7 @@ Fix availability: There is no automatic fix.
 
 `Hyphen in variable name '{variable_name}'`
 
-
-
 **Documentation**:
-
 
 Hyphen in the variable name.
 
@@ -13798,25 +13034,20 @@ Correct code:
 
 Hyphens in ``*** Variables ***`` section or in ``[Arguments]`` are also reported for consistency reason.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure hyphen-in-variable-name.severity=I
+        robocop check --configure hyphen-in-variable-name.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -13824,20 +13055,13 @@ Hyphens in ``*** Variables ***`` section or in ``[Arguments]`` are also reported
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "hyphen-in-variable-name.severity=I"
+            "hyphen-in-variable-name.severity=W"
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR10: inconsistent-variable-name
-
-
 
 Added: `v3.2.0`
 
@@ -13851,10 +13075,7 @@ Fix availability: There is no automatic fix.
 
 `Variable '{name}' has inconsistent naming. First used as '{first_use}'`
 
-
-
 **Documentation**:
-
 
 Variable with inconsistent naming.
 
@@ -13886,12 +13107,7 @@ Correct code:
             Log    ${username} is not an admin
         END
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13916,16 +13132,9 @@ Correct code:
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR11: overwriting-reserved-variable
-
-
 
 Added: `v3.2.0`
 
@@ -13939,10 +13148,7 @@ Fix availability: There is no automatic fix.
 
 `{var_or_arg} '{variable_name}' overwrites reserved variable '{reserved_variable}'`
 
-
-
 **Documentation**:
-
 
 Variable overwrites reserved variable.
 
@@ -13951,12 +13157,7 @@ For example, overwriting a variable with the name ``${LOG_LEVEL}`` can break Rob
 See the full list of reserved variables at
 [Robot Framework User Guide](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables).
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -13981,16 +13182,9 @@ See the full list of reserved variables at
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### VAR12: duplicated-assigned-var-name
-
-
 
 Added: `v1.12.0`
 
@@ -14004,10 +13198,7 @@ Fix availability: There is no automatic fix.
 
 `Assigned variable name '{variable_name}' is already used`
 
-
-
 **Documentation**:
-
 
 Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables
 are duplicates:
@@ -14024,25 +13215,20 @@ It is possible to use `${_}` to note that variable name is not important and wil
         ${_}    ${middle}    ${_}    Split List    ${list}
         RETURN    ${middle}
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
     Rule severity (e = error, w = warning, i = info)
 
-    **Default value:** I
+    **Default value:** W
 
     **Type:** severity
 
     === ":octicons-command-palette-24: cli"
 
         ``` bash
-        robocop check --configure duplicated-assigned-var-name.severity=I
+        robocop check --configure duplicated-assigned-var-name.severity=W
         ```
 
     === ":material-file-cog-outline: toml"
@@ -14050,33 +13236,104 @@ It is possible to use `${_}` to note that variable name is not important and wil
         ``` toml
         [tool.robocop.lint]
         configure = [
-            "duplicated-assigned-var-name.severity=I"
+            "duplicated-assigned-var-name.severity=W"
         ]
         ```
 
+---
 
+### VAR13: automatic-variable-not-available
 
+Added: `v9.0.0`
 
+Supported RF version `All`
 
+Fix availability: There is no automatic fix.
 
+**Message**:
 
+`Automatic variable '{variable}' is not available in {context}; it is only available in {available_in}`
+
+**Documentation**:
+
+Automatic variable used in a context where Robot Framework does not provide it.
+
+Robot Framework has several automatic variables whose availability is limited to a specific execution context:
+
+- ``${TEST NAME}``, ``@{TEST TAGS}``, and ``${TEST DOCUMENTATION}`` are available while a test is running.
+- ``${TEST STATUS}`` and ``${TEST MESSAGE}`` are available only in a test teardown.
+- ``${SUITE STATUS}`` and ``${SUITE MESSAGE}`` are available only in a suite teardown.
+- ``${KEYWORD STATUS}`` and ``${KEYWORD MESSAGE}`` are available only in a user keyword teardown.
+
+Using one of these variables directly in another context fails at runtime:
+
+    *** Test Cases ***
+    Invalid automatic variables
+        Log    ${KEYWORD STATUS}
+        Log    ${TEST STATUS}
+        [Teardown]    Log    ${SUITE STATUS}
+
+Use each variable in the context where Robot Framework makes it available:
+
+    *** Settings ***
+    Suite Teardown    Log    ${SUITE STATUS}
+    Test Teardown     Log    ${TEST STATUS}
+
+    *** Test Cases ***
+    Valid automatic variables
+        Log    ${TEST NAME}
+
+    *** Keywords ***
+    Keyword with teardown
+        No Operation
+        [Teardown]    Log    ${KEYWORD STATUS}
+
+Robocop deliberately does not report these variables inside user keyword definitions. A user keyword can be called
+from a test, test teardown, suite teardown, or another user keyword teardown, so its actual execution context cannot
+be determined reliably from the file where it is defined. For example, ``${TEST NAME}`` in a user keyword can be
+valid when called by a test but invalid when called by a suite setup. This conservative behavior avoids presenting
+call-context guesses as certain errors.
+
+See the official
+[automatic variable scope table](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables).
+The rule has no automatic fix because choosing a replacement or moving code requires understanding its intent.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure automatic-variable-not-available.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "automatic-variable-not-available.severity=W"
+        ]
+        ```
 
 ## Annotations
 
 Rules for typing and annotations.
 
-
 ### ANN01: missing-section-variable-type
 
-
 > Rule is disabled by default. Enable it by using ``--select missing-section-variable-type`` option.
-
 
 Added: `v7.1.0`
 
 Supported RF version `>=7.3`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -14084,10 +13341,7 @@ Fix availability: There is no automatic fix.
 
 `Variable '{variable_name}' is missing type annotation`
 
-
-
 **Documentation**:
-
 
 Section variable without type annotation.
 
@@ -14120,12 +13374,7 @@ Correct code:
 
 This rule is disabled by default.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -14150,24 +13399,15 @@ This rule is disabled by default.
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### ANN02: missing-argument-type
 
-
 > Rule is disabled by default. Enable it by using ``--select missing-argument-type`` option.
-
 
 Added: `v7.1.0`
 
 Supported RF version `>=7.3`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -14175,10 +13415,7 @@ Fix availability: There is no automatic fix.
 
 `Argument '{variable_name}' is missing type annotation`
 
-
-
 **Documentation**:
-
 
 Keyword argument without type annotation.
 
@@ -14202,12 +13439,7 @@ Correct code:
 
 This rule is disabled by default.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -14232,24 +13464,15 @@ This rule is disabled by default.
         ]
         ```
 
-
-
 ---
-
-
-
 
 ### ANN03: missing-for-loop-variable-type
 
-
 > Rule is disabled by default. Enable it by using ``--select missing-for-loop-variable-type`` option.
-
 
 Added: `v7.1.0`
 
 Supported RF version `>=7.3`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -14257,10 +13480,7 @@ Fix availability: There is no automatic fix.
 
 `FOR loop variable '{variable_name}' is missing type annotation`
 
-
-
 **Documentation**:
-
 
 FOR loop variable without type annotation.
 
@@ -14286,12 +13506,7 @@ Correct code:
 
 This rule is disabled by default.
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -14316,22 +13531,13 @@ This rule is disabled by default.
         ]
         ```
 
-
-
 ---
 
-
-
-
 ### ANN04: set-keyword-with-type
-
-
 
 Added: `v8.0.0`
 
 Supported RF version `>=7.3`
-
-
 
 Fix availability: There is no automatic fix.
 
@@ -14339,10 +13545,7 @@ Fix availability: There is no automatic fix.
 
 `Set variable keyword with variable type`
 
-
-
 **Documentation**:
-
 
 Set Test/Suite/Global Variable keyword with variable type.
 
@@ -14366,12 +13569,7 @@ The VAR syntax needs to be used instead:
         VAR    ${variable: int}    2
         VAR    ${variable: int}    3
 
-
-
-
-
 **Parameters**:
-
 
 ??? example "severity"
 
@@ -14395,10 +13593,3 @@ The VAR syntax needs to be used instead:
             "set-keyword-with-type.severity=E"
         ]
         ```
-
-
-
-
-
-
-

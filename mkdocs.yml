@@ -70,7 +70,6 @@ nav:
           - AlignTemplatedTestCases: formatter/formatters/AlignTemplatedTestCases.md
           - AlignTestCasesSection: formatter/formatters/AlignTestCasesSection.md
           - AlignVariablesSection: formatter/formatters/AlignVariablesSection.md
-          - DiscardEmptySections: formatter/formatters/DiscardEmptySections.md
           - GenerateDocumentation: formatter/formatters/GenerateDocumentation.md
           - IndentNestedKeywords: formatter/formatters/IndentNestedKeywords.md
           - InlineIf: formatter/formatters/InlineIf.md

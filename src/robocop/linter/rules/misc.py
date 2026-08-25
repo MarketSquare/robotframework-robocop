@@ -274,7 +274,9 @@ class InconsistentAssignmentRule(FixableRule):
     """
     Not consistent assignment sign in the file.
 
-    Use only one type of assignment sign in a file.
+    Use only one type of assignment sign in a file. Assignment signs are checked in the keyword calls and in the
+    ``VAR`` syntax (Robot Framework 7 and newer). The ``*** Variables ***`` section is handled by the
+    ``inconsistent-assignment-in-variables`` rule.
 
     Incorrect code example:
 

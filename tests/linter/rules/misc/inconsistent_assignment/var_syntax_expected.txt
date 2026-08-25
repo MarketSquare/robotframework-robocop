@@ -1,0 +1,7 @@
+var_syntax.robot:3:12 [W] MISC04 The assignment sign is not consistent within the file. Expected '' but got ' =' instead
+var_syntax.robot:5:12 [W] MISC04 The assignment sign is not consistent within the file. Expected '' but got '=' instead
+var_syntax.robot:6:5 [W] MISC04 The assignment sign is not consistent within the file. Expected '' but got ' =' instead
+var_syntax.robot:11:12 [W] MISC04 The assignment sign is not consistent within the file. Expected '' but got ' =' instead
+
+Found 4 issues.
+4 fixable with the '--fix' option.

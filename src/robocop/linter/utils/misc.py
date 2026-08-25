@@ -173,6 +173,12 @@ class AssignmentTypeDetector(ast.NodeVisitor):
             sign = self.get_assignment_sign(node.assign[-1])
             self.keyword_sign_counter[sign] += 1
 
+    def visit_Var(self, node: Var) -> None:
+        """Count assignment signs from the ``VAR`` syntax (Robot Framework 7+)."""
+        for token in node.get_tokens(Token.VARIABLE):
+            sign = self.get_assignment_sign(token.value)
+            self.keyword_sign_counter[sign] += 1
+
     def visit_VariableSection(self, node: VariableSection) -> VariableSection:
         for child in node.body:
             if not isinstance(child, Variable):

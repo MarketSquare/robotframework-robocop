@@ -37,3 +37,19 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_fix(self):
         self.check_rule_fix(src_files=["test.robot"])
+
+    def test_var_syntax(self):
+        self.check_rule(
+            configure=["inconsistent-assignment.assignment_sign_type=none"],
+            src_files=["var_syntax.robot"],
+            expected_file="var_syntax_expected.txt",
+            test_on_version=">=7",
+        )
+
+    def test_var_syntax_fix(self):
+        self.check_rule_fix(
+            src_files=["var_syntax.robot"],
+            expected_dir="expected_fixed_var",
+            configure=["inconsistent-assignment.assignment_sign_type=none"],
+            test_on_version=">=7",
+        )

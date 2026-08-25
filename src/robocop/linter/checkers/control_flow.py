@@ -38,6 +38,7 @@ class ControlFlowChecker(VisitorChecker):
     statement_outside_loop: misc.StatementOutsideLoopRule
     expression_can_be_simplified: misc.ExpressionCanBeSimplifiedRule
     misplaced_negative_condition: misc.MisplacedNegativeConditionRule
+    not_enough_whitespace_around_operator: misc.NotEnoughWhitespaceAroundOperatorRule
 
     condition_keywords = frozenset(
         {
@@ -142,6 +143,7 @@ class ControlFlowChecker(VisitorChecker):
     def check_condition(self, node_name: str, condition_token: Token, condition: str) -> None:
         if not condition:
             return
+        self.not_enough_whitespace_around_operator.check(condition_token, node_name, condition)
         try:
             variables = list(VariableMatches(condition))
         except VariableError:  # for example ${variable which wasn't closed properly

@@ -1,0 +1,107 @@
+test.robot:3:22 MISC16 Not enough whitespace around '==' operator in 'IF' condition
+   |
+ 1 | *** Test Cases ***
+ 2 | If condition
+ 3 |     IF    ${variable}==5
+   |                      ^^ MISC16
+ 4 |         Log    ${variable}
+ 5 |     ELSE IF    ${variable} !=5
+   |
+
+test.robot:5:28 MISC16 Not enough whitespace around '!=' operator in 'ELSE IF' condition
+   |
+ 3 |     IF    ${variable}==5
+ 4 |         Log    ${variable}
+ 5 |     ELSE IF    ${variable} !=5
+   |                            ^^ MISC16
+ 6 |         Log    ${variable}
+ 7 |     ELSE IF    ${variable}> 5
+   |
+
+test.robot:7:27 MISC16 Not enough whitespace around '>' operator in 'ELSE IF' condition
+   |
+ 5 |     ELSE IF    ${variable} !=5
+ 6 |         Log    ${variable}
+ 7 |     ELSE IF    ${variable}> 5
+   |                           ^ MISC16
+ 8 |         Log    ${variable}
+ 9 |     END
+   |
+
+test.robot:15:21 MISC16 Not enough whitespace around '<=' operator in 'INLINE IF' condition
+    |
+ 13 |
+ 14 | Inline if
+ 15 |     IF    ${counter}<=${LIMIT}    Log    ${counter}
+    |                     ^^ MISC16
+ 16 |     ${assign}    IF    ${x}>${y}    Set Variable    big    ELSE    Set Variable    small
+    |
+
+test.robot:16:28 MISC16 Not enough whitespace around '>' operator in 'INLINE IF' condition
+    |
+ 14 | Inline if
+ 15 |     IF    ${counter}<=${LIMIT}    Log    ${counter}
+ 16 |     ${assign}    IF    ${x}>${y}    Set Variable    big    ELSE    Set Variable    small
+    |                            ^ MISC16
+    |
+
+test.robot:19:24 MISC16 Not enough whitespace around '>=' operator in 'WHILE' condition
+    |
+ 17 |
+ 18 | While condition
+ 19 |     WHILE    ${counter}>=${LIMIT}
+    |                        ^^ MISC16
+ 20 |         ${counter}    Evaluate    ${counter} + 1
+ 21 |     END
+    |
+
+test.robot:27:12 MISC16 Not enough whitespace around '<' operator in 'IF' condition
+    |
+ 25 |
+ 26 | Chained condition
+ 27 |     IF    5<${a}<10
+    |            ^ MISC16
+ 28 |         Log    ${a}
+ 29 |     END
+    |
+
+test.robot:27:17 MISC16 Not enough whitespace around '<' operator in 'IF' condition
+    |
+ 25 |
+ 26 | Chained condition
+ 27 |     IF    5<${a}<10
+    |                 ^ MISC16
+ 28 |         Log    ${a}
+ 29 |     END
+    |
+
+test.robot:32:30 MISC16 Not enough whitespace around '!=' operator in 'Should Be True' condition
+    |
+ 30 |
+ 31 | Keywords with conditions
+ 32 |     Should Be True    ${left}!=${right}
+    |                              ^^ MISC16
+ 33 |     Skip If    ${status}==${FALSE}
+ 34 |     Pass Execution If    ${left} > ${right}    message
+    |
+
+test.robot:33:25 MISC16 Not enough whitespace around '==' operator in 'Skip If' condition
+    |
+ 31 | Keywords with conditions
+ 32 |     Should Be True    ${left}!=${right}
+ 33 |     Skip If    ${status}==${FALSE}
+    |                         ^^ MISC16
+ 34 |     Pass Execution If    ${left} > ${right}    message
+ 35 |     Set Variable If    ${x}<${y}    small    ${x} > ${y}    big
+    |
+
+test.robot:35:28 MISC16 Not enough whitespace around '<' operator in 'Set Variable If' condition
+    |
+ 33 |     Skip If    ${status}==${FALSE}
+ 34 |     Pass Execution If    ${left} > ${right}    message
+ 35 |     Set Variable If    ${x}<${y}    small    ${x} > ${y}    big
+    |                            ^ MISC16
+    |
+
+Found 11 issues.
+11 fixable with the '--fix' option.

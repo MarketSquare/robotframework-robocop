@@ -75,7 +75,6 @@ nav:
           - IndentNestedKeywords: formatter/formatters/IndentNestedKeywords.md
           - InlineIf: formatter/formatters/InlineIf.md
           - MergeAndOrderSections: formatter/formatters/MergeAndOrderSections.md
-          - NormalizeAssignments: formatter/formatters/NormalizeAssignments.md
           - NormalizeNewLines: formatter/formatters/NormalizeNewLines.md
           - NormalizeSectionHeaderName: formatter/formatters/NormalizeSectionHeaderName.md
           - NormalizeSeparators: formatter/formatters/NormalizeSeparators.md

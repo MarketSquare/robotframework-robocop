@@ -1,0 +1,15 @@
+# Normalize line endings to LF for all text files in the repository.
+# Git auto-detects text vs binary; text files are stored as LF in the repo
+# and checked out as LF on every platform (including Windows), regardless of
+# a contributor's core.autocrlf / core.eol settings.
+* text=auto eol=lf
+
+# Explicitly treat common binary assets as binary so they are never altered.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+*.woff binary
+*.woff2 binary

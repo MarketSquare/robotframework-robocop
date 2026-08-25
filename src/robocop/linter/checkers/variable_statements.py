@@ -94,6 +94,12 @@ class VariablesChecker(VisitorChecker):
         variable = node.get_token(Token.VARIABLE)
         if variable:
             self.missing_section_variable_type.check(node, variable)
+            self.check_var_assignment_sign(variable)
+
+    def check_var_assignment_sign(self, variable: Token) -> None:
+        if self.keyword_expected_sign_type is None:
+            return
+        self.inconsistent_assignment.check(variable, self.keyword_expected_sign_type)
 
     def check_var_scope(self, node: Var) -> None:
         if not node.scope:

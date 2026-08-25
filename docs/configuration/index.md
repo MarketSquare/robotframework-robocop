@@ -135,3 +135,28 @@ value.
 [tool.robocop]
 extends = ["example.config.strict"]
 ```
+
+### Built-in rulesets
+
+Robocop ships with built-in rulesets that can be referenced using the ``robocop:<name>`` syntax in ``extends``:
+
+```toml
+[tool.robocop]
+extends = ["robocop:minimal"]
+```
+
+Available built-in rulesets:
+
+- ``robocop:minimal`` - a curated, minimal set of rules focused on correctness and runtime issues. It selects only
+  the rules from this set and overrides their default severity with the one defined by the ruleset.
+
+Just like any other configuration, a built-in ruleset can be extended and overridden. For example, to use the
+``minimal`` ruleset but add an extra rule:
+
+```toml
+[tool.robocop]
+extends = ["robocop:minimal"]
+
+[tool.robocop.lint]
+select = ["line-too-long"]
+```

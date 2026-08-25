@@ -275,7 +275,7 @@ class CouldBeTestTagsRule(Rule):
     rule_id = "TAG05"
     message = "All tests in suite share these tags: '{tags}'"
     file_wide_rule = True
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -316,7 +316,7 @@ class TagAlreadySetInTestTagsRule(FixableRule):  # TODO: support -tag
     name = "tag-already-set-in-test-tags"
     rule_id = "TAG06"
     message = "Tag '{tag}' is already set by {test_force_tags} in suite settings"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -578,7 +578,7 @@ class TagAlreadySetInKeywordTagsRule(FixableRule):
     name = "tag-already-set-in-keyword-tags"
     rule_id = "TAG11"
     message = "Tag '{tag}' is already set by {keyword_tags} in suite settings"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     version = ">=6"
     added_in_version = "3.3.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(

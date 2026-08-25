@@ -253,7 +253,7 @@ class SectionAlreadyDefinedRule(Rule):
     message = (
         "'{section_name}' section header already defined in file (first occurrence in line {first_occurrence_line})"
     )
-    severity = RuleSeverity.WARNING
+    severity = RuleSeverity.INFO
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL

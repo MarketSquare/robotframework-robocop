@@ -847,7 +847,7 @@ class EmptySetupRule(EmptySettingRule):
     name = "empty-setup"
     rule_id = "LEN18"
     message = "Setup of {block_name} does not have any keywords"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -865,7 +865,7 @@ class EmptySuiteSetupRule(EmptySettingRule):
     name = "empty-suite-setup"
     rule_id = "LEN19"
     message = "Suite Setup does not have any keywords"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -883,7 +883,7 @@ class EmptyTestSetupRule(EmptySettingRule):
     name = "empty-test-setup"
     rule_id = "LEN20"
     message = "Test Setup does not have any keywords"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -933,7 +933,7 @@ class EmptySuiteTeardownRule(EmptySettingRule):
     name = "empty-suite-teardown"
     rule_id = "LEN22"
     message = "Suite Teardown does not have any keywords"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -951,7 +951,7 @@ class EmptyTestTeardownRule(EmptySettingRule):
     name = "empty-test-teardown"
     rule_id = "LEN23"
     message = "Test Teardown does not have any keywords"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -1021,7 +1021,7 @@ class EmptyArgumentsRule(EmptySettingRule):
     name = "empty-arguments"
     rule_id = "LEN26"
     message = "Arguments of {block_name} are empty"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -1085,7 +1085,7 @@ class EmptyTestTemplateRule(EmptySettingRule):
     name = "empty-test-template"
     rule_id = "LEN29"
     message = "Test Template is empty"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "3.1.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG

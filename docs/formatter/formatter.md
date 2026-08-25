@@ -118,7 +118,6 @@ To see the list of formatters included with `Robocop` use ``robocop list formatt
 │ DiscardEmptySections       │ Yes     │
 │ MergeAndOrderSections      │ Yes     │
 │ ReplaceWithVAR             │ No      │
-│ NormalizeAssignments       │ Yes     │
 │ GenerateDocumentation      │ No      │
 │ OrderSettings              │ Yes     │
 │ OrderSettingsSection       │ Yes     │

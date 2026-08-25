@@ -45,10 +45,8 @@ FormatterArgs = dict[str, dict[str, Any]]  # Maps formatter name to its configur
 
 FORMATTERS = [
     "NormalizeSeparators",
-    "DiscardEmptySections",
     "MergeAndOrderSections",
     "ReplaceWithVAR",
-    "NormalizeAssignments",
     "GenerateDocumentation",
     "OrderSettings",
     "OrderSettingsSection",

@@ -1,5 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/marketsquare/robotframework-robocop",
+  "public_key": "pk_oD2T1uAaCx7gs6z8qeDot",
   "projectTitle": "Robocop",
   "description": "Static code analysis tool (linter) and code formatter for Robot Framework",
   "folders": ["docs"],

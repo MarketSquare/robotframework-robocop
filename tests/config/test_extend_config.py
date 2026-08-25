@@ -203,3 +203,45 @@ class TestExtendConfig:
             read_toml_config(config_path)
         # Assert
         assert "Error reading configuration file: [Errno 2] No such file or directory:" in exc_info.value.message
+
+    def test_extends_builtin_minimal_ruleset(self, tmp_path):
+        # Arrange
+        config_path = generate_config(
+            tmp_path / "robocop.toml",
+            """
+            [tool.robocop]
+            extends = ["robocop:minimal"]
+
+            [tool.robocop.lint]
+            select = ["line-too-long"]
+            """,
+        )
+        # Act
+        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
+        # Assert
+        assert raw_config.config_source == str(config_path)
+        # rules from the built-in ruleset are merged with the local select
+        assert "invalid-argument" in raw_config.linter.select
+        assert raw_config.linter.select[-1] == "line-too-long"
+        # default severity is overridden with the one from the ruleset
+        assert "invalid-argument.severity=E" in raw_config.linter.configure
+        assert "unused-argument.severity=I" in raw_config.linter.configure
+
+    def test_extends_unknown_builtin_ruleset(self, tmp_path, capsys):
+        # Arrange
+        config_path = generate_config(
+            tmp_path / "robocop.toml",
+            """
+            [tool.robocop]
+            extends = ["robocop:idontexist"]
+            """,
+        )
+        # Act
+        with pytest.raises(typer.Exit) as exit_status:
+            read_toml_config(config_path)
+        _, err = capsys.readouterr()
+        normalized_err = "".join(err.splitlines())
+        # Assert
+        assert exit_status.value.exit_code == 2
+        assert "Unknown built-in Robocop configuration: 'robocop:idontexist'." in normalized_err
+        assert "minimal" in normalized_err

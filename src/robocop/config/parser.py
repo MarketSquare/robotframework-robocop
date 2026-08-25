@@ -59,6 +59,30 @@ def parse_rule_severity(value: str) -> RuleSeverity:
 
 VERBATIM_CONFIG_KEYS = frozenset({"variables", "per_file_ignores"})
 
+BUILTIN_CONFIG_PREFIX = "robocop:"
+"""Prefix used in the ``extends`` option to reference a built-in Robocop configuration (e.g. ``robocop:minimal``)."""
+
+BUILTIN_CONFIG_DIR = Path(__file__).parent / "builtin"
+"""Directory with the built-in Robocop configurations shipped with the package."""
+
+
+def resolve_builtin_config(reference: str) -> Path:
+    """
+    Resolve a ``robocop:<name>`` reference to a built-in configuration file shipped with Robocop.
+
+    Returns:
+        Path to the built-in configuration file.
+
+    """
+    name = reference[len(BUILTIN_CONFIG_PREFIX) :]
+    config_path = BUILTIN_CONFIG_DIR / f"{name}.toml"
+    if not name or not config_path.is_file():
+        available = ", ".join(sorted(path.stem for path in BUILTIN_CONFIG_DIR.glob("*.toml")))
+        raise exceptions.ConfigurationError(
+            f"Unknown built-in Robocop configuration: '{reference}'. Available built-in configurations: {available}."
+        )
+    return config_path
+
 
 def normalize_config_keys(config: dict[str, Any]) -> dict[str, Any]:
     """
@@ -213,7 +237,9 @@ def extend_configs(config: dict[str, Any], config_path: Path, seen: set[Path]) -
                 f"Invalid 'extends' parameter value in the configuration file: '{config_path}'. "
                 f"{base_config} is not a string."
             )
-        if not base_config.endswith(".toml"):
+        if base_config.startswith(BUILTIN_CONFIG_PREFIX):
+            extended_path = resolve_builtin_config(base_config)
+        elif not base_config.endswith(".toml"):
             extended_path = plugins.resolve_path_reference(base_config)
             if not extended_path.is_file():
                 raise exceptions.ConfigurationError(

@@ -65,6 +65,8 @@ FOR_LOOP_KEYWORDS = frozenset(
 COMPARISON_SIGNS = frozenset({"==", "!="})
 EMPTY_COMPARISON = frozenset({"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()"})
 NEGATIVE_CONDITION_PARTS = 4  # not ${variable} is None
+# Two character operators need to be listed before the single character ones sharing a prefix (e.g. '>=' before '>').
+COMPARISON_OPERATORS = ("==", "!=", ">=", "<=", ">", "<")
 
 
 def tokens_length(tokens: list[Token]) -> int:
@@ -1076,6 +1078,129 @@ class MisplacedNegativeConditionRule(FixableRule):
         return Fix(
             edits=[edit],
             message=f"Rewrite '{original}' to '{proposed}'",
+            applicability=FixApplicability.SAFE,
+        )
+
+
+def find_unspaced_operators(condition: str) -> list[tuple[str, int]]:
+    """
+    Find comparison operators that are missing surrounding whitespace.
+
+    Returns a list of ``(operator, index)`` tuples where ``index`` is the 0-based position of the operator inside
+    the condition string. Operators found inside string literals are ignored to avoid false positives.
+    """
+    found: list[tuple[str, int]] = []
+    quote: str | None = None
+    index = 0
+    length = len(condition)
+    while index < length:
+        char = condition[index]
+        if quote is not None:
+            if char == quote:
+                quote = None
+            index += 1
+            continue
+        if char in "\"'":
+            quote = char
+            index += 1
+            continue
+        operator = next((op for op in COMPARISON_OPERATORS if condition.startswith(op, index)), None)
+        if operator is None:
+            index += 1
+            continue
+        end = index + len(operator)
+        space_before = index == 0 or condition[index - 1] == " "
+        space_after = end >= length or condition[end] == " "
+        if not (space_before and space_after):
+            found.append((operator, index))
+        index = end
+    return found
+
+
+class NotEnoughWhitespaceAroundOperatorRule(FixableRule):
+    """
+    Not enough whitespace around a comparison operator.
+
+    Comparison operators (``==``, ``!=``, ``>``, ``<``, ``>=``, ``<=``) used in conditions are easier to read
+    when they are surrounded by spaces. The rule inspects conditions of ``IF`` and ``WHILE`` blocks together with
+    the conditions passed to the BuiltIn keywords that evaluate an expression
+    (such as ``Should Be True`` or ``Skip If``).
+
+    Incorrect code example:
+
+        *** Test Cases ***
+        Test
+            IF    ${variable}==5
+                Log    Robocop
+            END
+            WHILE    ${counter}>=${LIMIT}
+                ${counter}    Evaluate    ${counter} + 1
+            END
+            Should Be True    ${left}!=${right}
+
+    Correct code:
+
+        *** Test Cases ***
+        Test
+            IF    ${variable} == 5
+                Log    Robocop
+            END
+            WHILE    ${counter} >= ${LIMIT}
+                ${counter}    Evaluate    ${counter} + 1
+            END
+            Should Be True    ${left} != ${right}
+
+    The missing whitespace can be added automatically with the ``--fix`` option.
+
+    """
+
+    name = "not-enough-whitespace-around-operator"
+    rule_id = "MISC16"
+    message = "Not enough whitespace around '{operator}' operator in '{block_name}' condition"
+    severity = RuleSeverity.INFO
+    version = ">=4.0"
+    added_in_version = "9.0.0"
+    fix_availability = FixAvailability.ALWAYS
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
+    )
+
+    def check(self, condition_token: Token, node_name: str, condition: str) -> None:
+        """Report comparison operators used in the condition without surrounding whitespace."""
+        for operator, index in find_unspaced_operators(condition):
+            col = condition_token.col_offset + index + 1
+            self.report(
+                operator=operator,
+                block_name=node_name,
+                node=condition_token,
+                col=col,
+                end_col=col + len(operator),
+            )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Insert the missing spaces around the comparison operator."""
+        operator = str(diag.reported_arguments["operator"])
+        line = source_lines[diag.range.start.line - 1]
+        start = diag.range.start.character - 1
+        end = diag.range.end.character - 1
+        if line[start:end] != operator:
+            return None
+        space_before = start == 0 or line[start - 1] == " "
+        space_after = end >= len(line) or line[end] == " "
+        replacement = f"{'' if space_before else ' '}{operator}{'' if space_after else ' '}"
+        edit = TextEdit(
+            rule_id=self.rule_id,
+            rule_name=self.name,
+            start_line=diag.range.start.line,
+            start_col=start + 1,
+            end_line=diag.range.start.line,
+            end_col=end + 1,
+            replacement=replacement,
+        )
+        return Fix(
+            edits=[edit],
+            message=f"Add missing whitespace around '{operator}' operator",
             applicability=FixApplicability.SAFE,
         )
 

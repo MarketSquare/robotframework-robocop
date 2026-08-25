@@ -1,0 +1,14 @@
+test.robot:3:22 [I] MISC16 Not enough whitespace around '==' operator in 'IF' condition
+test.robot:5:28 [I] MISC16 Not enough whitespace around '!=' operator in 'ELSE IF' condition
+test.robot:7:27 [I] MISC16 Not enough whitespace around '>' operator in 'ELSE IF' condition
+test.robot:15:21 [I] MISC16 Not enough whitespace around '<=' operator in 'INLINE IF' condition
+test.robot:16:28 [I] MISC16 Not enough whitespace around '>' operator in 'INLINE IF' condition
+test.robot:19:24 [I] MISC16 Not enough whitespace around '>=' operator in 'WHILE' condition
+test.robot:27:12 [I] MISC16 Not enough whitespace around '<' operator in 'IF' condition
+test.robot:27:17 [I] MISC16 Not enough whitespace around '<' operator in 'IF' condition
+test.robot:32:30 [I] MISC16 Not enough whitespace around '!=' operator in 'Should Be True' condition
+test.robot:33:25 [I] MISC16 Not enough whitespace around '==' operator in 'Skip If' condition
+test.robot:35:28 [I] MISC16 Not enough whitespace around '<' operator in 'Set Variable If' condition
+
+Found 11 issues.
+11 fixable with the '--fix' option.

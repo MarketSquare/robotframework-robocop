@@ -1,0 +1,5 @@
+Fixed 11 issues:
+- actual_fixed${/}test.robot:
+    11 x MISC16 (not-enough-whitespace-around-operator)
+
+Found 11 issues (11 fixed, 0 remaining).

@@ -11,6 +11,8 @@ from robocop.linter.utils.misc import normalize_robot_name
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
+    from robot.parsing.model import File
+    from robot.parsing.model.blocks import For
     from robot.parsing.model.statements import EmptyLine, KeywordCall, Node, Return, Setup, Template
 
 
@@ -29,6 +31,21 @@ class KeywordCallChecker(VisitorChecker):
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
     undefined_argument_value: arguments.UndefinedArgumentValueRule
 
+    def __init__(self) -> None:
+        self.loops = 0
+        super().__init__()
+
+    def visit_File(self, node: File) -> None:  # noqa: N802
+        self.loops = 0
+        self.generic_visit(node)
+
+    def visit_For(self, node: For) -> None:  # noqa: N802
+        self.loops += 1
+        self.generic_visit(node)
+        self.loops -= 1
+
+    visit_While = visit_ForLoop = visit_For  # noqa: N815
+
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self.missing_keyword_name.check(node)
         self.undefined_argument_value.check(node)
@@ -42,7 +59,7 @@ class KeywordCallChecker(VisitorChecker):
         normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
         self.sleep_keyword_used.check(node, normalized_name)
         self.number_of_returned_values.check_keyword_call(node, normalized_name)
-        self.check_if_keyword_is_deprecated(node.keyword, node, normalized_name)
+        self.check_if_keyword_is_deprecated(node.keyword, node, normalized_name, in_loop=self.loops > 0)
         self.check_keyword_can_be_replaced_with_var(node.keyword, node, normalized_name)
 
     def visit_Setup(self, node: Setup) -> None:  # noqa: N802
@@ -71,10 +88,12 @@ class KeywordCallChecker(VisitorChecker):
 
     visit_ReturnStatement = visit_ReturnSetting = visit_Return  # noqa: N815
 
-    def check_if_keyword_is_deprecated(self, keyword_name: str, node: Node, normalized_name: str) -> None:
+    def check_if_keyword_is_deprecated(
+        self, keyword_name: str, node: Node, normalized_name: str, in_loop: bool = False
+    ) -> None:
         if not self.deprecated_run_keyword_if.check(node, keyword_name, normalized_name):
             return
-        if not self.deprecated_loop_keyword.check(node, keyword_name, normalized_name):
+        if not self.deprecated_loop_keyword.check(node, keyword_name, normalized_name, in_loop):
             return
         self.deprecated_return_keyword.check(node, keyword_name, normalized_name)
 

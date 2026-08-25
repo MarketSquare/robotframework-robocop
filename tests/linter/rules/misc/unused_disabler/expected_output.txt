@@ -6,11 +6,11 @@ test.robot:17:21 [I] MISC15 Disabler directive found for 'NAME01' rule(s) but no
 test.robot:17:21 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
 test.robot:20:40 [I] MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
 test.robot:23:7 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
-test.robot:27:5 [I] VAR02 Variable '${var2}' is assigned but not used
+test.robot:27:5 [W] VAR02 Variable '${var2}' is assigned but not used
 test.robot:29:11 [I] MISC15 Disabler directive found for 'SPC10' rule(s) but no violation found
-test.robot:37:5 [I] VAR02 Variable '${var2}' is assigned but not used
+test.robot:37:5 [W] VAR02 Variable '${var2}' is assigned but not used
 test.robot:45:7 [I] MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
-test.robot:48:5 [I] VAR02 Variable '${var2}' is assigned but not used
+test.robot:48:5 [W] VAR02 Variable '${var2}' is assigned but not used
 test.robot:51:38 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
 test.robot:58:86 [I] MISC15 Disabler directive found for 'too-many-arguments' rule(s) but no violation found
 test.robot:62:7 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found

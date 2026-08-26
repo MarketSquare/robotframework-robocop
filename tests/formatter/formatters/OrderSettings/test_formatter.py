@@ -66,6 +66,20 @@ class TestOrderSettings(FormatterAcceptanceTest):
     def test_disablers(self):
         self.compare(source="disablers.robot", not_modified=True)
 
+    def test_custom_order_with_spaces(self):
+        configure = [
+            f"{self.FORMATTER_NAME}.keyword_before=documentation, tags, arguments, timeout, setup",
+            f"{self.FORMATTER_NAME}.keyword_after=teardown, return",
+            f"{self.FORMATTER_NAME}.test_before=documentation, tags, timeout, setup, template",
+            f"{self.FORMATTER_NAME}.test_after=teardown",
+        ]
+        expected = "custom_order_default"
+        if ROBOT_VERSION.major < 7:
+            expected += "_pre_rf7.robot"
+        else:
+            expected += ".robot"
+        self.compare(source="test.robot", expected=expected, configure=configure)
+
     # def test_custom_order_setting_twice_in_one(self):  # TODO check error output test
     #     result = self.run_tidy(
     #         select=[self.FORMATTER_NAME],

@@ -69,6 +69,7 @@ class AlignVariablesSection(Formatter):
         if not skip_types:
             return ret
         for skip_type in skip_types.split(","):
+            skip_type = skip_type.strip()
             if skip_type not in allow_types:
                 raise InvalidParameterValueError(
                     self.__class__.__name__,

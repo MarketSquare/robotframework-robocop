@@ -279,7 +279,7 @@ class RenameVariables(Formatter):
     def get_ignored_variables_case(self, ignore_vars: str | None) -> set[str]:
         if ignore_vars is None:
             return self.DEFAULT_IGNORE_CASE
-        ignored_vars = set(ignore_vars.split(","))
+        ignored_vars = {var.strip() for var in ignore_vars.split(",")}
         return ignored_vars.union(self.DEFAULT_IGNORE_CASE)
 
     @skip_section_if_disabled

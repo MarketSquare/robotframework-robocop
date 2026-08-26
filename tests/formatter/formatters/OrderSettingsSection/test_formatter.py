@@ -54,6 +54,17 @@ class TestOrderSettingsSection(FormatterAcceptanceTest):
             configure=configure,
         )
 
+    def test_custom_group_order_import_ordered_with_spaces(self):
+        configure = [
+            f"{self.FORMATTER_NAME}.group_order=tags, documentation, imports, settings",
+            f"{self.FORMATTER_NAME}.imports_order=library, resource, variables",
+        ]
+        self.compare(
+            source="test.robot",
+            expected="test_group_order_import_ordered.robot",
+            configure=configure,
+        )
+
     def test_missing_group_from_param(self):
         self.compare(
             source="test.robot",

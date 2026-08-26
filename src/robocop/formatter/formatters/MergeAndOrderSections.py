@@ -84,7 +84,7 @@ class MergeAndOrderSections(Formatter):
         )
         if not order:
             return default_order
-        parts = order.lower().split(",")
+        parts = [part.strip() for part in order.lower().split(",")]
         map_names = {
             "comments": Token.COMMENT_HEADER,
             "comment": Token.COMMENT_HEADER,

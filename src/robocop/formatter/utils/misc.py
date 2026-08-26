@@ -371,6 +371,49 @@ def collect_comments_from_tokens(tokens: list[Token], indent: Token | None) -> l
     return [Comment([comment, eol]) for comment in comments]
 
 
+def _split_tokens_into_lines(tokens: list[Token]) -> Generator[list[Token]]:
+    """Yield tokens grouped by physical line (split on EOL)."""
+    line: list[Token] = []
+    for token in tokens:
+        line.append(token)
+        if token.type == Token.EOL:
+            yield line
+            line = []
+    if line:
+        yield line
+
+
+def split_comments_by_anchor(tokens: list[Token], indent: Token | None) -> tuple[list[Comment], dict[int, list[Token]]]:
+    """
+    Split comments into standalone comment lines and trailing comments.
+
+    A comment that shares a physical line with data tokens (keyword name or arguments) is considered a
+    *trailing* comment and is anchored to the last data token preceding it on that line. A comment that occupies
+    its own line is considered *standalone*.
+
+    Returns a tuple of ``(standalone_comments, anchor_map)`` where ``standalone_comments`` is a list of
+    ``Comment`` nodes (to be emitted before the statement) and ``anchor_map`` maps ``id(data_token)`` to the list
+    of trailing comment tokens that should be rendered on the same output line as that data token.
+    """
+    standalone: list[Comment] = []
+    anchor_map: dict[int, list[Token]] = {}
+    eol = Token(Token.EOL)
+    for line in _split_tokens_into_lines(tokens):
+        data_tokens = [
+            token for token in line if token.type not in (Token.SEPARATOR, Token.EOL, Token.CONTINUATION, Token.COMMENT)
+        ]
+        line_comments = get_comments(line)
+        if not line_comments:
+            continue
+        if data_tokens:
+            anchor_map.setdefault(id(data_tokens[-1]), []).extend(line_comments)
+        elif indent:
+            standalone.extend(Comment([indent, comment, eol]) for comment in line_comments)
+        else:
+            standalone.extend(Comment([comment, eol]) for comment in line_comments)
+    return standalone, anchor_map
+
+
 def flatten_multiline(tokens: list[Token], separator: str, remove_comments: bool = False) -> list[Token]:
     flattened = []
     skip_start = False

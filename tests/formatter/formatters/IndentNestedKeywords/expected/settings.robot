@@ -2,31 +2,29 @@
 Suite Setup    Run Keywords
 ...    No Operation
 ...    No Operation
-# comment1
 Suite Teardown    Run Keywords
 ...    Log    1
 ...    AND
-...    Log    2
+...    Log    2    # comment1
 
 Test Setup    Run Keywords
 ...    No Operation
 ...    No Operation
-# comment1  comment2
 Test Teardown    Run Keywords
 ...    No Operation
-...    No Operation
+...    No Operation    # comment1  comment2
 
 
 *** Test Cases ***
 Test
     [Setup]    Run Keyword If    ${True}
     ...    No Operation
-    [Teardown]    Run Keywords  # comment comment2
-    ...    Log    1
+    [Teardown]    Run Keywords
+    ...    Log    1    # comment
     ...    AND
-    ...    Log    2
+    ...    Log    2    # comment2
     No Operation
 
-Test in line    [Setup]    Run Keyword  # comment
-    ...    Log    1
+Test in line    [Setup]    Run Keyword
+    ...    Log    1    # comment
     No Operation

@@ -92,6 +92,33 @@ You can configure it using ``indent_and``:
     ```
 
 
+## Comments
+
+Comments are kept together with the code they refer to. A comment that trails data on a line (for example a
+``# robocop: fmt: off`` disabler) stays on the same output line as the closest keyword or argument, instead of being
+moved in front of the whole statement:
+
+=== "Before"
+
+    ```robotframework
+    *** Test Cases ***
+    Test
+        Run Keywords    Log    1    AND    Log    2    # keep me next to log 2
+    ```
+
+=== "After"
+
+    ```robotframework
+    *** Test Cases ***
+    Test
+        Run Keywords
+        ...    Log    1
+        ...    AND
+        ...    Log    2    # keep me next to log 2
+    ```
+
+Comments that occupy their own line are kept as standalone comment lines placed before the formatted statement.
+
 ## Skip formatting settings
 
 To skip formatting run keywords inside settings (such as ``Suite Setup``, ``[Setup]``, ``[Teardown]`` etc.) set

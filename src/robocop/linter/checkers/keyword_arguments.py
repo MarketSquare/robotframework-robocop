@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
-    from robocop.project.context import ProjectContext
+    from robocop.project.context import ProjectContext, ProjectFile
     from robocop.project.definitions import ArgumentsMismatch, KeywordUsage
     from robocop.source_file import VirtualSourceFile
 
@@ -40,9 +40,10 @@ class ArgumentsChecker(VisitorChecker):
 
 
 class ProjectArgumentsChecker(ProjectChecker):
-    """Checker for keyword arguments validated against definitions from the whole project."""
+    """Checker for keyword arguments validated against keyword definitions from the whole project."""
 
     invalid_argument_count: arguments.InvalidArgumentCountRule
+    missing_argument_name: arguments.MissingArgumentNameRule
 
     def scan_project(
         self,
@@ -51,23 +52,61 @@ class ProjectArgumentsChecker(ProjectChecker):
         context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
+        check_count = self.invalid_argument_count.enabled
+        check_names = self.missing_argument_name.enabled
         for project_file, usage in context.iter_usages():
-            mismatch = self._validate_usage(context, usage)
-            if mismatch is None:
-                continue
-            self.report(
-                self.invalid_argument_count,
-                source=SourceFile(path=project_file.path, config=project_source_file.config),
-                keyword_name=usage.name,
-                expected=mismatch.expected,
-                provided=mismatch.provided,
-                missing=self._describe_missing(mismatch),
-                lineno=usage.location.lineno,
-                col=usage.location.col,
-                end_lineno=usage.location.end_lineno,
-                end_col=usage.location.end_col,
-            )
+            if check_count:
+                self._check_argument_count(context, project_file, usage, project_source_file)
+            if check_names:
+                self._check_argument_names(context, project_file, usage, project_source_file)
         return self.issues
+
+    def _check_argument_count(
+        self,
+        context: ProjectContext,
+        project_file: ProjectFile,
+        usage: KeywordUsage,
+        project_source_file: SourceFile | VirtualSourceFile,
+    ) -> None:
+        mismatch = self._validate_usage(context, usage)
+        if mismatch is None:
+            return
+        self.report(
+            self.invalid_argument_count,
+            source=SourceFile(path=project_file.path, config=project_source_file.config),
+            keyword_name=usage.name,
+            expected=mismatch.expected,
+            provided=mismatch.provided,
+            missing=self._describe_missing(mismatch),
+            lineno=usage.location.lineno,
+            col=usage.location.col,
+            end_lineno=usage.location.end_lineno,
+            end_col=usage.location.end_col,
+        )
+
+    def _check_argument_names(
+        self,
+        context: ProjectContext,
+        project_file: ProjectFile,
+        usage: KeywordUsage,
+        project_source_file: SourceFile | VirtualSourceFile,
+    ) -> None:
+        named_arguments = self._find_positional_arguments(context, usage)
+        if len(named_arguments) < self.missing_argument_name.min_arguments:
+            return
+        source = SourceFile(path=project_file.path, config=project_source_file.config)
+        for index, argument_name in named_arguments:
+            lineno, col, end_col = usage.argument_positions[index]
+            self.report(
+                self.missing_argument_name,
+                source=source,
+                keyword_name=usage.name,
+                argument_name=argument_name,
+                lineno=lineno,
+                col=col,
+                end_lineno=lineno,
+                end_col=end_col,
+            )
 
     @staticmethod
     def _describe_missing(mismatch: ArgumentsMismatch) -> str:
@@ -88,38 +127,6 @@ class ProjectArgumentsChecker(ProjectChecker):
         if definition.has_embedded_arguments:
             return None
         return definition.arguments.validate_call(usage.arguments)
-
-
-class ProjectArgumentNamesChecker(ProjectChecker):
-    """Checker for rules that require argument names from the keyword definitions in the whole project."""
-
-    missing_argument_name: arguments.MissingArgumentNameRule
-
-    def scan_project(
-        self,
-        project_source_file: SourceFile | VirtualSourceFile,
-        config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext,
-    ) -> list[Diagnostic]:
-        self.issues = []
-        for project_file, usage in context.iter_usages():
-            named_arguments = self._find_positional_arguments(context, usage)
-            if len(named_arguments) < self.missing_argument_name.min_arguments:
-                continue
-            source = SourceFile(path=project_file.path, config=project_source_file.config)
-            for index, argument_name in named_arguments:
-                lineno, col, end_col = usage.argument_positions[index]
-                self.report(
-                    self.missing_argument_name,
-                    source=source,
-                    keyword_name=usage.name,
-                    argument_name=argument_name,
-                    lineno=lineno,
-                    col=col,
-                    end_lineno=lineno,
-                    end_col=end_col,
-                )
-        return self.issues
 
     def _find_positional_arguments(self, context: ProjectContext, usage: KeywordUsage) -> list[tuple[int, str]]:
         """

@@ -69,10 +69,12 @@ RESERVED_KEYWORD_NAMES = frozenset({"none"})
 """Values used in place of a keyword name that do not refer to any keyword."""
 
 
-class KeywordNotFound(ProjectChecker):
-    """Reports keyword calls that do not match any known keyword."""
+class KeywordUsageChecker(ProjectChecker):
+    """Checker for rules validated against every keyword call in the project."""
 
     keyword_not_found: usage.KeywordNotFoundRule
+    ambiguous_keyword_name: usage.AmbiguousKeywordNameRule
+    missing_keyword_prefix: usage.MissingKeywordPrefixRule
 
     def scan_project(
         self,
@@ -81,21 +83,107 @@ class KeywordNotFound(ProjectChecker):
         context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
-        if context.library_loader is None:
-            return self.issues  # without libraries almost every call would be reported
+        # without libraries almost every call would be reported as not found
+        check_not_found = self.keyword_not_found.enabled and context.library_loader is not None
+        check_ambiguous = self.ambiguous_keyword_name.enabled
+        check_prefix = self.missing_keyword_prefix.enabled
         can_check: dict[Path, bool] = {}
         for project_file, keyword_usage in context.iter_usages():
-            if not self._is_known(context, keyword_usage) and self._can_be_checked(context, project_file, can_check):
-                self.report(
-                    self.keyword_not_found,
-                    source=SourceFile(path=project_file.path, config=project_source_file.config),
-                    keyword_name=keyword_usage.name,
-                    lineno=keyword_usage.location.lineno,
-                    col=keyword_usage.location.col,
-                    end_lineno=keyword_usage.location.end_lineno,
-                    end_col=keyword_usage.location.end_col,
-                )
+            if check_not_found:
+                self._check_not_found(context, project_file, keyword_usage, project_source_file, can_check)
+            if check_ambiguous:
+                self._check_ambiguous(context, project_file, keyword_usage, project_source_file)
+            if check_prefix:
+                self._check_prefix(context, project_file, keyword_usage, project_source_file)
         return self.issues
+
+    def _check_not_found(
+        self,
+        context: ProjectContext,
+        project_file: ProjectFile,
+        keyword_usage: KeywordUsage,
+        project_source_file: SourceFile | VirtualSourceFile,
+        can_check: dict[Path, bool],
+    ) -> None:
+        if self._is_known(context, keyword_usage) or not self._can_be_checked(context, project_file, can_check):
+            return
+        self.report(
+            self.keyword_not_found,
+            source=SourceFile(path=project_file.path, config=project_source_file.config),
+            keyword_name=keyword_usage.name,
+            lineno=keyword_usage.location.lineno,
+            col=keyword_usage.location.col,
+            end_lineno=keyword_usage.location.end_lineno,
+            end_col=keyword_usage.location.end_col,
+        )
+
+    def _check_ambiguous(
+        self,
+        context: ProjectContext,
+        project_file: ProjectFile,
+        keyword_usage: KeywordUsage,
+        project_source_file: SourceFile | VirtualSourceFile,
+    ) -> None:
+        candidates = self._ambiguous_definitions(context, keyword_usage)
+        if not candidates:
+            return
+        self.report(
+            self.ambiguous_keyword_name,
+            source=SourceFile(path=project_file.path, config=project_source_file.config),
+            keyword_name=keyword_usage.name,
+            sources=_describe_sources(candidates),
+            lineno=keyword_usage.location.lineno,
+            col=keyword_usage.location.col,
+            end_lineno=keyword_usage.location.end_lineno,
+            end_col=keyword_usage.location.end_col,
+        )
+
+    def _check_prefix(
+        self,
+        context: ProjectContext,
+        project_file: ProjectFile,
+        keyword_usage: KeywordUsage,
+        project_source_file: SourceFile | VirtualSourceFile,
+    ) -> None:
+        prefix = self._find_prefix(context, keyword_usage)
+        if prefix is None:
+            return
+        self.report(
+            self.missing_keyword_prefix,
+            source=SourceFile(path=project_file.path, config=project_source_file.config),
+            keyword_name=keyword_usage.name,
+            prefix=prefix,
+            prefix_offset=_bdd_prefix_offset(keyword_usage),
+            lineno=keyword_usage.location.lineno,
+            col=keyword_usage.location.col,
+            end_lineno=keyword_usage.location.end_lineno,
+            end_col=keyword_usage.location.end_col,
+        )
+
+    def _find_prefix(self, context: ProjectContext, keyword_usage: KeywordUsage) -> str | None:
+        """
+        Find the prefix the call should use.
+
+        Returns:
+            Name of the resource file or library, or None if the call should not be reported.
+
+        """
+        if keyword_usage.name_contains_variable or keyword_usage.is_template:
+            return None
+        name = keyword_usage.names_to_check()[-1]
+        if "." in name:
+            return None  # already prefixed, or the name contains a dot and cannot be prefixed safely
+        definitions = context.resolve_keyword(keyword_usage)
+        if len(definitions) != 1:
+            return None  # not defined in the project, or ambiguous
+        definition = definitions[0]
+        if definition.location.source == keyword_usage.location.source:
+            return None  # keyword defined in the file with the call, there is nothing to prefix it with
+        # keywords from the libraries imported with the ``AS`` syntax already use the alias as the library name
+        prefix = definition.library_name or definition.location.source.stem
+        if normalize_robot_name(prefix) in self.missing_keyword_prefix.ignored_sources:
+            return None
+        return prefix
 
     @staticmethod
     def _is_known(context: ProjectContext, keyword_usage: KeywordUsage) -> bool:
@@ -123,7 +211,7 @@ class KeywordNotFound(ProjectChecker):
         cached = cache.get(resolved)
         if cached is not None:
             return cached
-        can_check = KeywordNotFound._all_imports_known(context, project_file)
+        can_check = KeywordUsageChecker._all_imports_known(context, project_file)
         cache[resolved] = can_check
         return can_check
 
@@ -142,7 +230,7 @@ class KeywordNotFound(ProjectChecker):
         for visible_file in context.imported_files(project_file.path):
             if any(keyword_usage.normalized_name in DYNAMIC_IMPORT_KEYWORDS for keyword_usage in visible_file.usages):
                 return False
-            if not all(KeywordNotFound._import_known(context, imported) for imported in visible_file.imports):
+            if not all(KeywordUsageChecker._import_known(context, imported) for imported in visible_file.imports):
                 return False
         return True
 
@@ -165,35 +253,6 @@ class KeywordNotFound(ProjectChecker):
             return False
         spec = context.library_loader.load_import(imported)
         return spec is not None and spec.loaded
-
-
-class AmbiguousKeywordNames(ProjectChecker):
-    """Reports keyword calls matching keywords defined in more than one place."""
-
-    ambiguous_keyword_name: usage.AmbiguousKeywordNameRule
-
-    def scan_project(
-        self,
-        project_source_file: SourceFile | VirtualSourceFile,
-        config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext,
-    ) -> list[Diagnostic]:
-        self.issues = []
-        for project_file, keyword_usage in context.iter_usages():
-            candidates = self._ambiguous_definitions(context, keyword_usage)
-            if not candidates:
-                continue
-            self.report(
-                self.ambiguous_keyword_name,
-                source=SourceFile(path=project_file.path, config=project_source_file.config),
-                keyword_name=keyword_usage.name,
-                sources=_describe_sources(candidates),
-                lineno=keyword_usage.location.lineno,
-                col=keyword_usage.location.col,
-                end_lineno=keyword_usage.location.end_lineno,
-                end_col=keyword_usage.location.end_col,
-            )
-        return self.issues
 
     @staticmethod
     def _ambiguous_definitions(context: ProjectContext, keyword_usage: KeywordUsage) -> list[KeywordDefinition]:
@@ -278,61 +337,6 @@ def _describe_sources(definitions: list[KeywordDefinition]) -> str:
         if source not in sources:
             sources.append(source)
     return ", ".join(sources)
-
-
-class MissingKeywordPrefix(ProjectChecker):
-    """Reports keyword calls that do not use the name of the resource file or library the keyword comes from."""
-
-    missing_keyword_prefix: usage.MissingKeywordPrefixRule
-
-    def scan_project(
-        self,
-        project_source_file: SourceFile | VirtualSourceFile,
-        config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext,
-    ) -> list[Diagnostic]:
-        self.issues = []
-        for project_file, keyword_usage in context.iter_usages():
-            prefix = self._find_prefix(context, keyword_usage)
-            if prefix is None:
-                continue
-            self.report(
-                self.missing_keyword_prefix,
-                source=SourceFile(path=project_file.path, config=project_source_file.config),
-                keyword_name=keyword_usage.name,
-                prefix=prefix,
-                prefix_offset=_bdd_prefix_offset(keyword_usage),
-                lineno=keyword_usage.location.lineno,
-                col=keyword_usage.location.col,
-                end_lineno=keyword_usage.location.end_lineno,
-                end_col=keyword_usage.location.end_col,
-            )
-        return self.issues
-
-    def _find_prefix(self, context: ProjectContext, keyword_usage: KeywordUsage) -> str | None:
-        """
-        Find the prefix the call should use.
-
-        Returns:
-            Name of the resource file or library, or None if the call should not be reported.
-
-        """
-        if keyword_usage.name_contains_variable or keyword_usage.is_template:
-            return None
-        name = keyword_usage.names_to_check()[-1]
-        if "." in name:
-            return None  # already prefixed, or the name contains a dot and cannot be prefixed safely
-        definitions = context.resolve_keyword(keyword_usage)
-        if len(definitions) != 1:
-            return None  # not defined in the project, or ambiguous
-        definition = definitions[0]
-        if definition.location.source == keyword_usage.location.source:
-            return None  # keyword defined in the file with the call, there is nothing to prefix it with
-        # keywords from the libraries imported with the ``AS`` syntax already use the alias as the library name
-        prefix = definition.library_name or definition.location.source.stem
-        if normalize_robot_name(prefix) in self.missing_keyword_prefix.ignored_sources:
-            return None
-        return prefix
 
 
 def _bdd_prefix_offset(keyword_usage: KeywordUsage) -> int:

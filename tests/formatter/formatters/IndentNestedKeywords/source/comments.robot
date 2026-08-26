@@ -31,3 +31,6 @@ Golden Keywords
     Run Keywords
     ...    No Operation
     ...    No Operation  # comment about this keyword call
+
+Trailing Comment Stays With Statement
+    Run Keywords    Log    1    AND    Log    2    # keep me next to log 2

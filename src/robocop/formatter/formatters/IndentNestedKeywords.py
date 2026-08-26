@@ -41,6 +41,10 @@ class IndentNestedKeywords(Formatter):
     ``AND`` argument inside ``Run Keywords`` can be handled in different ways. It is controlled via ``indent_and``
     parameter. For more details see the full documentation.
 
+    Comments are kept together with the code they reference: a comment trailing data on a line stays on the same
+    output line as the closest keyword or argument (rather than being moved in front of the whole statement), while a
+    comment occupying its own line is kept as a standalone comment line before the statement.
+
     To skip formatting run keywords inside settings (such as ``Suite Setup``, ``[Setup]``, ``[Teardown]`` etc.) set
     ``skip_settings`` to ``True``.
     """
@@ -81,39 +85,63 @@ class IndentNestedKeywords(Formatter):
             separator = self.formatting_config.separator * column
         return Token(Token.SEPARATOR, separator)
 
+    def append_trailing_comments(
+        self, tokens: list[Token], line: list[Token], anchor_map: dict[int, list[Token]]
+    ) -> None:
+        """Append comments anchored to any data token in ``line`` at the end of the current output line."""
+        if not anchor_map:
+            return
+        for data_token in line:
+            for comment in anchor_map.get(id(data_token), []):
+                tokens.append(self.get_separator())
+                tokens.append(comment)
+
     def parse_keyword_lines(
-        self, lines: list[tuple[int, list[Token]]], tokens: list[Token], new_line: list[Token], eol: Token
+        self,
+        lines: list[tuple[int, list[Token]]],
+        tokens: list[Token],
+        new_line: list[Token],
+        eol: Token,
+        anchor_map: dict[int, list[Token]] | None = None,
     ) -> list[Token]:
+        anchor_map = anchor_map or {}
         separator = self.get_separator()
+        self.append_trailing_comments(tokens, lines[0][1], anchor_map)
         for column, line in lines[1:]:
             tokens.extend(new_line)
             tokens.append(self.get_separator(column, continuation=True))
             tokens.extend(misc.join_tokens_with_token(line, separator))
+            self.append_trailing_comments(tokens, line, anchor_map)
         tokens.append(eol)
         return tokens
 
     @staticmethod
-    def node_was_formatted(old_tokens: list[Token], new_tokens: list[Token]) -> bool:
-        """Compare code before and after formatting while ignoring comments to check if code was formatted."""
-        if len(new_tokens) > len(old_tokens):
-            return True
-        old_tokens_no_comm: list[Token] = []
+    def tokens_without_comments(tokens: list[Token]) -> list[Token]:
+        """Return tokens with comments (and resulting comment-only lines) removed."""
+        result: list[Token] = []
         data_in_line = False
-        for token in old_tokens:
+        for token in tokens:
             if token.type == Token.EOL:
                 if not data_in_line:
                     continue
                 data_in_line = False
             elif token.type == Token.COMMENT:
-                if old_tokens_no_comm and old_tokens_no_comm[-1].type == Token.SEPARATOR:
-                    old_tokens_no_comm.pop()
+                if result and result[-1].type == Token.SEPARATOR:
+                    result.pop()
                 continue
             elif token.type != Token.SEPARATOR:
                 data_in_line = True
-            old_tokens_no_comm.append(token)
-        if len(new_tokens) != len(old_tokens_no_comm):
+            result.append(token)
+        return result
+
+    @classmethod
+    def node_was_formatted(cls, old_tokens: list[Token], new_tokens: list[Token]) -> bool:
+        """Compare code before and after formatting while ignoring comments to check if code was formatted."""
+        old_tokens_no_comm = cls.tokens_without_comments(old_tokens)
+        new_tokens_no_comm = cls.tokens_without_comments(new_tokens)
+        if len(new_tokens_no_comm) != len(old_tokens_no_comm):
             return True
-        for new_token, old_token in zip(new_tokens, old_tokens_no_comm, strict=False):
+        for new_token, old_token in zip(new_tokens_no_comm, old_tokens_no_comm, strict=False):
             if new_token.type != old_token.type or new_token.value != old_token.value:
                 return True
         return False
@@ -123,11 +151,11 @@ class IndentNestedKeywords(Formatter):
         lines = self.get_setting_lines(node, 0)
         if not lines:
             return node
-        comments = misc.collect_comments_from_tokens(node.tokens, indent=None)
+        comments, anchor_map = misc.split_comments_by_anchor(node.tokens, indent=None)
         separator = self.get_separator()
         new_line = misc.get_new_line()
         tokens = [node.data_tokens[0], separator, *misc.join_tokens_with_token(lines[0][1], separator)]
-        formatted_tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1])
+        formatted_tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1], anchor_map=anchor_map)
         if self.node_was_formatted(node.tokens, formatted_tokens):
             node.tokens = formatted_tokens
             return (*comments, node)
@@ -136,7 +164,7 @@ class IndentNestedKeywords(Formatter):
     visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node: Setup) -> Setup:  # noqa: N802
+    def visit_Setup(self, node: Setup) -> Setup | tuple[Any, ...]:  # noqa: N802
         indent = len(node.tokens[0].value)
         lines = self.get_setting_lines(node, indent)
         if not lines:
@@ -145,12 +173,10 @@ class IndentNestedKeywords(Formatter):
         separator = self.get_separator()
         new_line = misc.get_new_line(indent)
         tokens = [indent, node.data_tokens[0], separator, *misc.join_tokens_with_token(lines[0][1], separator)]
-        comment = misc.merge_comments_into_one(node.tokens)
-        if comment:
-            # need to add comments on first line for [Setup] / [Teardown] settings
-            comment_sep = Token(Token.SEPARATOR, "  ")
-            tokens.extend([comment_sep, comment])
-        node.tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1])
+        comments, anchor_map = misc.split_comments_by_anchor(node.tokens, indent=indent)
+        node.tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1], anchor_map=anchor_map)
+        if comments:
+            return (*comments, node)
         return node
 
     visit_Teardown = visit_Setup  # noqa: N815
@@ -164,7 +190,7 @@ class IndentNestedKeywords(Formatter):
             return node
 
         indent = node.tokens[0]
-        comments = misc.collect_comments_from_tokens(node.tokens, indent)
+        comments, anchor_map = misc.split_comments_by_anchor(node.tokens, indent)
         assign, kw_tokens = misc.split_on_token_type(node.data_tokens, Token.KEYWORD)
         lines = self.parse_sub_kw(kw_tokens)
         if not lines:
@@ -177,7 +203,7 @@ class IndentNestedKeywords(Formatter):
             tokens.extend([*misc.join_tokens_with_token(assign, separator), separator])
         tokens.extend(misc.join_tokens_with_token(lines[0][1], separator))
         new_line = misc.get_new_line(indent)
-        formatted_tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1])
+        formatted_tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1], anchor_map=anchor_map)
         if self.node_was_formatted(node.tokens, formatted_tokens):
             node.tokens = formatted_tokens
             return (*comments, node)

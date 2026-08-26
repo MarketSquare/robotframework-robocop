@@ -2,20 +2,18 @@
 Suite Setup    Run Keywords
 ...    No Operation
 ...    No Operation
-# comment1
 Suite Teardown    Run Keywords
 ...    Log    1
 ...    AND
 ...    Keyword Call That Is Going Over Allowed Limit    ${myVeryLongDefinitionOfAnElement}
-...        ${myVeryLongDefinitionOfAnElement}
+...        ${myVeryLongDefinitionOfAnElement}    # comment1
 
 Test Setup    Run Keywords
 ...    No Operation
 ...    Keyword Call That Is Going Over Allowed Limit Keyword Call That Is Going Over Allowed Limit Keyword Call That Is Going Over Allowed Limit
-# comment1  comment2
 Test Teardown    Run Keywords
 ...    Keyword Call That Is Going Over Allowed Limit Keyword Call That Is Going Over Allowed Limit Keyword Call That Is Going Over Allowed Limit
-...    No Operation
+...    No Operation    # comment1  comment2
 
 
 *** Test Cases ***
@@ -77,7 +75,7 @@ Keyword That Should Be Split On Every Line
     ...            ${addingTheSecondArgumentMakesThisLineTooLong}
 
 Settings
-    [Teardown]    Run Keywords  # comment comment2
+    [Teardown]    Run Keywords    # comment comment2
     ...    Element Should Contain    ${myVeryLongDefinitionOfAnElement}
     ...        ${addingTheSecondArgumentMakesThisLineTooLong}
     ...        ${addingTheSecondArgumentMakesThisLineTooLong}

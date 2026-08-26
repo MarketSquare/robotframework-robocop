@@ -108,7 +108,7 @@ class OrderSettingsSection(Formatter):
             return default
         if not order:
             return []
-        parts = order.lower().split(",")
+        parts = [part.strip() for part in order.lower().split(",")]
         if any(part not in default for part in parts):
             raise InvalidParameterValueError(
                 self.__class__.__name__,
@@ -128,7 +128,7 @@ class OrderSettingsSection(Formatter):
         if order == "preserved":
             self.disabled_group.add(name)
             return default
-        parts = order.lower().split(",")
+        parts = [part.strip() for part in order.lower().split(",")]
         try:
             return [mapping[part] for part in parts]
         except KeyError:

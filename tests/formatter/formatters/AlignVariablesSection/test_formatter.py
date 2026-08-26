@@ -42,6 +42,13 @@ class TestAlignVariablesSection(FormatterAcceptanceTest):
             source="tests.robot", expected="tests_skip.robot", configure=[f"{self.FORMATTER_NAME}.skip_types=dict,list"]
         )
 
+    def test_align_variables_skip_with_spaces(self):
+        self.compare(
+            source="tests.robot",
+            expected="tests_skip.robot",
+            configure=[f"{self.FORMATTER_NAME}.skip_types=dict, list"],
+        )
+
     def test_align_variables_skip_scalar(self):
         self.compare(
             source="align_selected.robot",

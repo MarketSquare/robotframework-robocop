@@ -125,7 +125,7 @@ class OrderSettings(Formatter):
     def get_order(self, order: str, param_name: str, name_map: dict[str, str]) -> list[str]:
         if not order:
             return []
-        parts = order.lower().split(",")
+        parts = [part.strip() for part in order.lower().split(",")]
         try:
             return [name_map[part] for part in parts]
         except KeyError:

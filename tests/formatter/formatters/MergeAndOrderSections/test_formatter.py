@@ -44,6 +44,16 @@ class TestMergeAndOrderSections(FormatterAcceptanceTest):
             configure=configure,
         )
 
+    def test_custom_order_with_spaces(self):
+        configure = [
+            f"{self.FORMATTER_NAME}.order=settings, comments, keyword, variables, testcases",
+        ]
+        self.compare(
+            source="order.robot",
+            expected="order_settings_comments_keywords_variables_testcases.robot",
+            configure=configure,
+        )
+
     def test_do_not_create_comment_section(self):
         self.compare(
             source="tests.robot",

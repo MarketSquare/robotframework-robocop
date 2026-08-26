@@ -5,8 +5,7 @@ Test Template    Login with invalid credentials should fail
 *** Test Cases ***                USERNAME         PASSWORD
 Invalid User Name                 [Tags]           foo
                                   invalid          ${VALID PASSWORD}
-Invalid Password
-                                  [Tags]           bar
+Invalid Password                  [Tags]           bar
                                   ${VALID USER}    invalid
 Invalid User Name and Password    [Tags]           baz
                                   invalid          invalid

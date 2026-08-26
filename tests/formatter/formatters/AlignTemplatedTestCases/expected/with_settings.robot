@@ -3,14 +3,15 @@ Test Template    Dummy
 
 *** Test Cases ***
 Test1    ARG1
-         [Tags]             sanity
+         [Tags]    sanity
          [Documentation]    Validate Test1
 Test2    ARG2
-         [Tags]             smoke
+         [Tags]    smoke
          [Documentation]    Validate Test2
 Test3    ARG3
-         [Tags]             valid
+         [Tags]    valid
          [Documentation]    Validate Test3
 Test4    ARG4
-         [Tags]             sanity
+         [Tags]    sanity
          [Documentation]    Validate Test4
+Test5    ARG5      ARG_SUB

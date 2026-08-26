@@ -14,3 +14,4 @@ Test3    ARG3
 Test4    ARG4
     [Tags]    sanity
     [Documentation]  Validate Test4
+Test5    ARG5    ARG_SUB

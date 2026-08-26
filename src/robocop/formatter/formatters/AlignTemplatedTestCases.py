@@ -148,7 +148,8 @@ class AlignTemplatedTestCases(Formatter):
                 if self.test_without_eol:
                     self.test_without_eol = False
                     exp_pos -= self.test_name_len
-                tokens.append(Token(Token.SEPARATOR, (exp_pos - line_pos) * " "))
+                sep_len = max(exp_pos - line_pos, self.formatting_config.space_count)
+                tokens.append(Token(Token.SEPARATOR, sep_len * " "))
                 tokens.append(token)
                 line_pos += len(token.value) + exp_pos - line_pos
             tokens.append(line[-1])
@@ -189,7 +190,7 @@ class ColumnWidthCounter(ModelVisitor):  # type: ignore[misc]
 
     @skip_if_disabled
     def visit_Statement(self, statement: Statement) -> None:  # noqa: N802
-        if statement.type == Token.COMMENT:
+        if statement.type in (Token.COMMENT, Token.DOCUMENTATION):
             return
         if statement.type == Token.TESTCASE_HEADER:
             if len(statement.data_tokens) > 1:

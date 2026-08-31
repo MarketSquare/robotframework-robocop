@@ -104,6 +104,15 @@ mcp = [
     "pydantic>=2.13.4",
 ]
 
+[tool.deptry]
+# The distribution is named "robotframework-robocop" but the importable module is "robocop".
+known_first_party = ["robocop"]
+# Dev-only scripts that legitimately import dev/doc dependencies.
+extend_exclude = [
+    "docs",
+    "noxfile.py",
+]
+
 [tool.ruff]
 line-length = 120
 show-fixes = true

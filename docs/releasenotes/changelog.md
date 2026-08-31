@@ -1,5 +1,18 @@
 # Release notes
 
+## [9.1.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.0.0...v9.1.0) (2026-08-31)
+
+
+### Features
+
+* register deprecated rules so they are recognized in configuration ([#1928](https://github.com/MarketSquare/robotframework-robocop/issues/1928)) ([86b7b95](https://github.com/MarketSquare/robotframework-robocop/commit/86b7b956f983db4647cae71c2881d821250be662))
+
+
+### Refactoring
+
+* name fix-loop convergence limits ([#1931](https://github.com/MarketSquare/robotframework-robocop/issues/1931)) ([8c341a9](https://github.com/MarketSquare/robotframework-robocop/commit/8c341a9731ebcc4eecf2538aecd7564a2f9c4690))
+* reuse RuleSeverity.parser for severity thresholds ([#1930](https://github.com/MarketSquare/robotframework-robocop/issues/1930)) ([a2886cb](https://github.com/MarketSquare/robotframework-robocop/commit/a2886cb4cebf357f253ff8266cc8ff213e468251))
+
 ## [9.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.8.0...v9.0.0) (2026-08-21)
 
 More detailed notes regarding 9.0.0 [here](9.0.0.md).

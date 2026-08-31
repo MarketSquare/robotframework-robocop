@@ -242,7 +242,7 @@ ignore_missing_imports = true
 
 # External libraries that may have incomplete stubs or no stubs at all
 [[tool.mypy.overrides]]
-module = ["typer.*", "click.*", "rich.*", "rich_click.*", "platformdirs.*", "tomli.*", "tomli_w.*", "jinja2.*"]
+module = ["typer.*", "click.*", "rich.*", "platformdirs.*", "tomli.*", "tomli_w.*", "jinja2.*"]
 ignore_missing_imports = true
 
 # CLI module - intentionally passes None values to dataclasses which are handled by overwrite()

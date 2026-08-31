@@ -851,7 +851,7 @@ class MultilineInlineIfRule(Rule):
         )
 
 
-class UnnecessaryStringConversionRule(Rule):  # TODO: Not used atm, see if it was deprecated before
+class UnnecessaryStringConversionRule(Rule):
     """
     Variable in the condition has unnecessary string conversion.
 

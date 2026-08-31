@@ -241,23 +241,6 @@ class SeverityThreshold:
     def value(self, value: str) -> None:
         self.set_thresholds(value)
 
-    @staticmethod
-    def parse_severity(value: str) -> RuleSeverity:
-        # TODO can be replaced with RuleSeverity.parse with False flag
-        severity = {
-            "error": RuleSeverity.ERROR,
-            "e": RuleSeverity.ERROR,
-            "warning": RuleSeverity.WARNING,
-            "w": RuleSeverity.WARNING,
-            "info": RuleSeverity.INFO,
-            "i": RuleSeverity.INFO,
-        }.get(str(value).lower(), None)
-        if severity is None:
-            severity_values = ", ".join(sev.value for sev in RuleSeverity)
-            hint = f"Choose one from: {severity_values}."
-            raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
-        return severity
-
     def set_thresholds(self, value: str) -> None:
         severity_pairs = value.split(":")
         thresholds = []
@@ -269,7 +252,7 @@ class SeverityThreshold:
                     f"Invalid severity value '{value}'. "
                     f"It should be list of `severity=param_value` pairs, separated by `:`."
                 ) from None
-            severity = self.parse_severity(sev)
+            severity = RuleSeverity.parser(sev, rule_severity=False)
             thresholds.append((severity, int(param_value)))  # TODO: support non-int params
         self.thresholds = sorted(thresholds, key=lambda x: x[0], reverse=True)
 

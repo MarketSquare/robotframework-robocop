@@ -32,6 +32,12 @@ if TYPE_CHECKING:
     from robocop.project.context import ProjectContext
 
 
+# Fixes can reveal or resolve other issues, so files are re-scanned and re-fixed until the results converge.
+# These caps bound that loop in case a pair of fixes keeps flipping the same issue.
+MAX_FILE_FIX_ITERATIONS = 20
+MAX_PROJECT_FIX_ITERATIONS = 5
+
+
 class RobocopLinter:
     def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
@@ -159,7 +165,7 @@ class RobocopLinter:
         templated = is_suite_templated(source_file.model)
         prev_fixable = 0
         # Iteratively scans, filters, applies fixes, and reloads model until convergence or no fixes remain
-        for _ in range(20):
+        for _ in range(MAX_FILE_FIX_ITERATIONS):
             found_diagnostics = []
             disablers = DisablersFinder(source_file.model)
             for checker in resolved_config.checkers:
@@ -239,7 +245,7 @@ class RobocopLinter:
             return diagnostics
         # Fixes may reveal or resolve other issues, so the project is scanned again until it converges.
         # In the diff mode files are not saved, so repeating the analysis would produce the same diagnostics.
-        attempts = 5 if config.linter.fix and not config.linter.diff else 1
+        attempts = MAX_PROJECT_FIX_ITERATIONS if config.linter.fix and not config.linter.diff else 1
         for _ in range(attempts):
             if not self.apply_project_fixes(diagnostics, fix_applier, checked_paths, save=not config.linter.diff):
                 break

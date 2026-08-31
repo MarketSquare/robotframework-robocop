@@ -318,9 +318,11 @@ class LinterImporter:
         for name, rule_class in inspect.getmembers(module, inspect.isclass):
             if not is_rule((name, rule_class)):
                 continue
-            rule = rule_class()
-            if not rule.deprecated:
+            # ``deprecated`` is a class attribute, so gate on it before instantiating to avoid
+            # constructing every rule class (180+) just to discover the few deprecated ones.
+            if not rule_class.deprecated:
                 continue
+            rule = rule_class()
             for key in (rule.name, rule.rule_id, *(rule.deprecated_names or ())):
                 self.deprecated_rules.setdefault(key, rule)
 

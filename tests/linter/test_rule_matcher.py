@@ -57,6 +57,15 @@ def get_fixable_message_with_id(rule_id: str) -> CustomFixableRule:
     return custom_rule
 
 
+def get_deprecated_rule(rule_id: str, deprecated_names: tuple[str, ...] = ()) -> CustomRule:
+    custom_rule = CustomRule()
+    custom_rule.rule_id = rule_id
+    custom_rule.name = f"some-message-{rule_id}"
+    custom_rule.deprecated = True
+    custom_rule.deprecated_names = deprecated_names
+    return custom_rule
+
+
 class TestRuleMatcher:
     @pytest.mark.parametrize(
         ("selected", "ignored"),
@@ -578,3 +587,68 @@ class TestRuleMatcher:
         rule_matcher.check_unmatched_filters()
         _, err = capsys.readouterr()
         assert err == ""
+
+    def test_deprecated_rule_reports_deprecation_warning(self, capsys):
+        """Referencing a deprecated rule reports a deprecation warning instead of an unknown rule error."""
+        deprecated = get_deprecated_rule("0923", deprecated_names=("old-name",))
+        rule_matcher = RuleMatcher(
+            select=["some-message-0923"],
+            extend_select=[],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+        rule_matcher.deprecated_rules = {
+            "some-message-0923": deprecated,
+            "0923": deprecated,
+            "old-name": deprecated,
+        }
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert deprecated.deprecation_warning in err
+        assert "did not match with any rule name or id" not in err
+
+    def test_deprecated_rule_by_old_name(self, capsys):
+        """Deprecated rule referenced by its old name is recognized as deprecated."""
+        deprecated = get_deprecated_rule("0923", deprecated_names=("old-name",))
+        rule_matcher = RuleMatcher(
+            select=["old-name"],
+            extend_select=[],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+        rule_matcher.deprecated_rules = {
+            "some-message-0923": deprecated,
+            "0923": deprecated,
+            "old-name": deprecated,
+        }
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert deprecated.deprecation_warning in err
+        assert "did not match with any rule name or id" not in err
+
+    def test_unknown_rule_still_reports_error_alongside_deprecated(self, capsys):
+        """Unknown rules still report an error even when a deprecated rule is also referenced."""
+        deprecated = get_deprecated_rule("0923")
+        rule_matcher = RuleMatcher(
+            select=["some-message-0923", "does-not-exist"],
+            extend_select=[],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+        rule_matcher.deprecated_rules = {"some-message-0923": deprecated, "0923": deprecated}
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert deprecated.deprecation_warning in err
+        assert "Option value 'does-not-exist' from '--select' did not match with any rule name or id" in err

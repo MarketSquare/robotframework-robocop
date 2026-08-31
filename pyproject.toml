@@ -183,6 +183,7 @@ lint.unfixable = [
 ]
 extend-exclude = [
     "tests/linter/test_data/",
+    "tests/embedded/test_data/",
     "docs/"
 ]
 [tool.ruff.lint.extend-per-file-ignores]

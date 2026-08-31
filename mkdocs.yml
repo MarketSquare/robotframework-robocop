@@ -37,6 +37,7 @@ nav:
   - Robocop: index.md
   - User Guide:
       - "Getting started": user_guide/intro.md
+      - "Embedded code (Markdown, Python)": user_guide/embedded_code.md
       - "Migrate to Robocop 6.0": user_guide/migrate_to_robocop6.md
       - "Python API Reference": user_guide/python_api.md
   - Linter:

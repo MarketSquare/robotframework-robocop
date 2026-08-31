@@ -126,3 +126,34 @@ def test_loading_custom_rule_with_name_conflict(loader):
         loader.custom_rules = [EXT_MODULE_WITH_CONFLICT]
         loader.load_rules()
     assert "CUS01" in loader.rules
+
+
+def test_builtin_deprecated_rules_are_registered(loader):
+    """Deprecated built-in rules are discovered and registered so they can be recognized in configuration."""
+    loader.load_rules()
+    # Registered by name, rule id and legacy (deprecated) name.
+    assert "unnecessary-string-conversion" in loader.rules
+    assert "MISC12" in loader.rules
+    assert "0923" in loader.rules
+    assert loader.rules["MISC12"].deprecated
+    # Deprecated rules are shared with the matcher so referencing them reports a deprecation warning.
+    assert loader.rule_matcher.deprecated_rules is not loader.rules
+    assert loader.rule_matcher.deprecated_rules["MISC12"].deprecated
+
+
+def test_selecting_deprecated_rule_reports_warning(capsys):
+    """Selecting a deprecated rule reports a deprecation warning instead of an unknown rule error."""
+    rule_matcher = RuleMatcher(
+        select=["unnecessary-string-conversion"],
+        extend_select=[],
+        ignore=[],
+        target_version=ROBOT_VERSION,
+        threshold=RuleSeverity.INFO,
+        fixable=[],
+        unfixable=[],
+    )
+    loader = RulesLoader(rule_matcher=rule_matcher, custom_rules=[], configure=[], silent=False, config_source="mock")
+    loader.load_rules()
+    _, err = capsys.readouterr()
+    assert "unnecessary-string-conversion is deprecated" in err
+    assert "did not match with any rule name or id" not in err

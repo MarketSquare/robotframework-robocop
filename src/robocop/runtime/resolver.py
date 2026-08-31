@@ -123,6 +123,8 @@ class RuleMatcher:
         self.ignore_filter = RuleFilter.from_rules(ignore)
         self.fixable_filter = RuleFilter(exact_matches=set(fixable))
         self.unfixable_filter = RuleFilter(exact_matches=set(unfixable))
+        # Populated after the rules are loaded. Maps a deprecated rule name / id / old name to its rule.
+        self.deprecated_rules: dict[str, Rule] = {}
 
     def is_rule_enabled(self, rule: Rule) -> bool:
         if self._is_rule_disabled(rule):
@@ -177,14 +179,19 @@ class RuleMatcher:
             # (self.unfixable_filter.exact_matches, self.unfixable_filter.matched, "--unfixable"),
         ]
 
-        errors = [
-            f"Option value '{rule}' from '{option}' did not match with any rule name or id."
-            for original, matched, option in unmatched
-            for rule in set(original) - matched
-        ]
+        errors = []
+        warnings = []
+        for original, matched, option in unmatched:
+            for rule in set(original) - matched:
+                deprecated_rule = self.deprecated_rules.get(rule)
+                if deprecated_rule is not None:
+                    warnings.append(deprecated_rule.deprecation_warning)
+                else:
+                    errors.append(f"Option value '{rule}' from '{option}' did not match with any rule name or id.")
 
-        if errors:
-            typer.echo("\n".join(errors), err=True)
+        messages = [*dict.fromkeys(warnings), *errors]
+        if messages:
+            typer.echo("\n".join(messages), err=True)
 
 
 def is_checker(checker_class_def: tuple[str, type]) -> bool:
@@ -265,8 +272,8 @@ class LinterImporter:
         self._purge_internal_modules()
         # rules have to be reimported first: `from robocop.linter.rules import <module>` inside a checker would
         # otherwise resolve to the stale module still referenced by the rules package
-        for _ in self._import_package_modules("robocop.linter.rules.", self.internal_rules_dir):
-            pass
+        for rule_module in self._import_package_modules("robocop.linter.rules.", self.internal_rules_dir):
+            self._collect_deprecated_rules(rule_module)
         yield from self._import_package_modules("robocop.linter.checkers.", self.internal_checkers_dir)
 
     def get_internal_rule_modules(self) -> Generator[types.ModuleType, None, None]:
@@ -295,9 +302,27 @@ class LinterImporter:
 
     def _get_initialized_checkers_from_module(self, module: types.ModuleType) -> Generator[BaseChecker, None, None]:
         self.seen_modules.add(module)
+        self._collect_deprecated_rules(module)
         for checker_instance in self.get_checkers_from_module(module):
             if not self.is_checker_already_imported(checker_instance):
                 yield checker_instance
+
+    def _collect_deprecated_rules(self, module: types.ModuleType) -> None:
+        """
+        Discover deprecated rule classes defined in a module.
+
+        Deprecated rules are not attached to any checker, so they are not loaded through the regular flow.
+        Collecting them here keeps them recognizable by ``--select`` / ``--configure`` and by ``robocop list``,
+        so that referencing a removed rule reports a deprecation warning instead of an "unknown rule" error.
+        """
+        for name, rule_class in inspect.getmembers(module, inspect.isclass):
+            if not is_rule((name, rule_class)):
+                continue
+            rule = rule_class()
+            if not rule.deprecated:
+                continue
+            for key in (rule.name, rule.rule_id, *(rule.deprecated_names or ())):
+                self.deprecated_rules.setdefault(key, rule)
 
     def is_checker_already_imported(self, checker: BaseChecker) -> bool:
         """
@@ -397,14 +422,6 @@ class LinterImporter:
             except ImportError:
                 pass
 
-    def register_deprecated_rules(self, module_rules: dict[str, Rule]) -> None:
-        # FIXME: currently deprecated, not used rules are hidden (we could just mentioned them in doc. or create
-        # empty checker just for deprecated stuff
-        for rule_name, rule_def in module_rules.items():
-            if rule_def.deprecated:
-                self.deprecated_rules[rule_name] = rule_def
-                self.deprecated_rules[rule_def.rule_id] = rule_def
-
     def _import_rule_class(self, module: types.ModuleType, rule_class: str) -> type[Rule] | None:
         """
         Import class definition using typing information.
@@ -438,7 +455,6 @@ class LinterImporter:
         # FIXME do not inspect / enter external libs such as re..
         classes = inspect.getmembers(module, inspect.isclass)
         checkers = [checker[1]() for checker in classes if is_checker(checker)]
-        # self.register_deprecated_rules(module_rules) # FIXME
         checker_instances = []
         for checker in checkers:
             rules = self.get_checker_rules(checker, module)
@@ -533,8 +549,22 @@ class RulesLoader:
         robocop_importer = LinterImporter(external_rules_paths=self.custom_rules)
         for checker in robocop_importer.get_initialized_checkers():
             self.register_checker(checker)
-        # linter.rules.update(robocop_importer.deprecated_rules)
+        self.register_deprecated_rules(robocop_importer.deprecated_rules)
         self.validate_any_rule_enabled()
+
+    def register_deprecated_rules(self, deprecated_rules: dict[str, Rule]) -> None:
+        """
+        Register deprecated rules so they remain recognizable by select / configure and by ``robocop list``.
+
+        Deprecated rules are never enabled (``Rule.is_disabled`` returns True), so they do not produce diagnostics.
+        Registering them lets Robocop report a deprecation warning instead of an "unknown rule" error when a removed
+        rule is still referenced in the configuration.
+        """
+        self.rule_matcher.deprecated_rules = deprecated_rules
+        for key, rule in deprecated_rules.items():
+            rule.enabled = False  # deprecated rules never run; keep them reported as disabled
+            self.rules.setdefault(key, rule)
+            self.apply_configuration(rule, key)
 
     def register_checker(self, checker: BaseChecker | AfterRunChecker | ProjectChecker) -> None:
         any_enabled = False

@@ -7,7 +7,7 @@ from rich.console import Console
 
 if TYPE_CHECKING:
     from robocop.linter.reports import Report
-    from robocop.linter.rules import Rule, RuleParam
+    from robocop.linter.rules import RuleParam
 
 
 class FatalError(typer.Exit):  # type: ignore[misc, unused-ignore]
@@ -62,14 +62,6 @@ class InvalidCustomReportSource(FatalError):
         )
 
 
-class RuleParamNotFoundError(FatalError):  # TODO, not used
-    def __init__(self, rule: Rule, param: str, checker: object) -> None:
-        super().__init__(
-            f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
-            f"Available params:\n    {rule.available_configurables()[1]}"
-        )
-
-
 class RuleParamFailedInitError(FatalError):
     def __init__(self, param: RuleParam, value: Any, err: str) -> None:
         desc = f"    Parameter info: {param.desc}" if param.desc else ""
@@ -86,18 +78,6 @@ class InvalidReportName(FatalError):
         report_names = sorted([*list(reports.keys()), "all"])
         similar = RecommendationFinder().find_similar(report, report_names)
         msg = f"Provided report '{report}' does not exist. {similar}"
-        super().__init__(msg)
-
-
-class RuleDoesNotExist(FatalError):  # not used atm
-    def __init__(self, rule: str, rules: dict[str, Rule]) -> None:
-        from typing import cast  # noqa: PLC0415
-
-        from robocop.linter.utils.misc import RecommendationFinder  # noqa: PLC0415
-
-        rules_dict: dict[str, object] = cast("dict[str, object]", rules)
-        similar = RecommendationFinder().find_similar(rule, rules_dict)
-        msg = f"Provided rule '{rule}' does not exist. {similar}"
         super().__init__(msg)
 
 

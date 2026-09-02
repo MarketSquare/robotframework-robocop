@@ -27,6 +27,8 @@ class TestCaseKeywordChecker(VisitorChecker):
     too_few_calls_in_test_case: lengths.TooFewCallsInTestCaseRule
     too_many_calls_in_test_case: lengths.TooManyCallsInTestCaseRule
     too_many_arguments: lengths.TooManyArgumentsRule
+    too_many_required_arguments: lengths.TooManyRequiredArgumentsRule
+    too_many_optional_arguments: lengths.TooManyOptionalArgumentsRule
     not_allowed_char_in_filename: naming.NotAllowedCharInFilenameRule
     not_allowed_char_in_name: naming.NotAllowedCharInNameRule
     not_capitalized_test_case_title: naming.NotCapitalizedTestCaseTitleRule
@@ -64,6 +66,8 @@ class TestCaseKeywordChecker(VisitorChecker):
         self.keyword_section_out_of_order.check(node)
         if not node.name.lstrip().startswith("#"):
             self.too_many_arguments.check(node)
+            self.too_many_required_arguments.check(node)
+            self.too_many_optional_arguments.check(node)
             # a keyword that is already reported as too long is not additionally reported for the number of calls
             if not self.too_long_keyword.check(node):
                 keyword_count = count_keyword_calls(node)

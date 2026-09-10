@@ -70,6 +70,8 @@ class TestReplaceWithVAR(FormatterAcceptanceTest):
     )
     def test_inline_comment_is_not_split_into_keyword_calls(self, keyword_call, expected_comment, tmp_path):
         """Cells of a single inline comment must stay in one comment line (#1715)."""
+        if not self.enabled_in_version(">=7"):
+            pytest.skip("Test enabled only for RF >=7")
         source = tmp_path / "inline_comment.robot"
         source.write_text(f"*** Test Cases ***\nTest\n    {keyword_call}\n", encoding="utf-8")
 

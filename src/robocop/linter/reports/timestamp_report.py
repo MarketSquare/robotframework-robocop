@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING
 from warnings import warn
-
-import pytz
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import robocop.linter.reports
 from robocop import exceptions
@@ -79,15 +78,17 @@ class TimestampReport(robocop.linter.reports.Report):
         print(f"\nReported: {self._get_timestamp()}")
 
     def _get_timestamp(self) -> str:
+
+        if self.timezone == "local":
+            return datetime.now().astimezone().strftime(self.format)
+
         try:
-            if self.timezone == "local":
-                timezone_code = datetime.now(timezone.utc).astimezone().tzinfo
-            else:
-                timezone_code = pytz.timezone(self.timezone)
-            return datetime.now(timezone_code).strftime(self.format)
-        except pytz.exceptions.UnknownTimeZoneError:
+            tz = ZoneInfo(self.timezone)
+        except (ZoneInfoNotFoundError, ValueError):
             raise exceptions.ConfigurationError(
                 f"Provided timezone '{self.timezone}' for report '{self.name}' is not valid. "
                 "Use timezone names like `Europe\\Helsinki`."
                 "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone"
             ) from None
+
+        return datetime.now(tz).strftime(self.format)

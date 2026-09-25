@@ -19,9 +19,9 @@ dependencies = [
     "tomli-w>=1.0",
     "pathspec>=0.12",
     "platformdirs>=4.3",
-    "pytz>=2022.7",
     "msgpack>=1.0.0",
     "typing-extensions>=4.15.0",
+    'tzdata; sys_platform == "win32"',
 ]
 
 keywords = ["robotframework", "automation", "testautomation", "testing", "linter", "qa", "formatting", "formatter"]
@@ -86,7 +86,6 @@ dev = [
     "packaging>=25.0",
     "mypy>=1.19.1",
     "types-jinja2",
-    "types-pytz",
     "msgpack-types",
     "deptry>=0.25.1",
 ]

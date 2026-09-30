@@ -145,10 +145,17 @@ class RobocopLinter:
         run_stats = RunStatistic(
             files_count=files, fix_stats=fix_applier.fix_stats, modified_files=fix_applier.modified_files
         )
+        self.offset_embedded_diagnostics()
         self.make_reports(run_stats=run_stats)
         if self.config_manager.default_config.linter.return_result:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
+
+    def offset_embedded_diagnostics(self) -> None:
+        """Translate diagnostic positions of embedded files (Markdown, Python) to physical file coordinates."""
+        for diagnostic in self.diagnostics:
+            if diagnostic.source.is_embedded:
+                diagnostic.source.offset_range(diagnostic.range)
 
     def run_check(self, source_file: SourceFile, fix_applier: FixApplier | None = None) -> list[Diagnostic]:
         """
@@ -204,7 +211,7 @@ class RobocopLinter:
             fix_applier.fix_stats.total_fixes += max(prev_fixable - len(fixable_diagnostics), 0)
             prev_fixable = len(fixable_diagnostics)
             # Collect fixes from diagnostics
-            fixes = [diag.fix or diag.rule.fix(diag, source_file.source_lines) for diag in fixable_diagnostics]
+            fixes = [diag.fix or diag.rule.fix(diag, source_file.fix_source_lines) for diag in fixable_diagnostics]
             if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):
                 break
         if source_file.config.linter.fix and not source_file.config.linter.diff:
@@ -317,7 +324,7 @@ class RobocopLinter:
             source_file = modified_files.get(resolved_path) or project_files.get(resolved_path)
             if source_file is None:
                 source_file = source_diagnostics[0].source
-            fixes = [diag.fix or diag.rule.fix(diag, source_file.source_lines) for diag in source_diagnostics]
+            fixes = [diag.fix or diag.rule.fix(diag, source_file.fix_source_lines) for diag in source_diagnostics]
             fixes_before = self.count_applied_fixes(fix_applier)
             if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):
                 continue

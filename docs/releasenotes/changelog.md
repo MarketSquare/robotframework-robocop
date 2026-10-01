@@ -1,5 +1,17 @@
 # Release notes
 
+## [9.1.1](https://github.com/MarketSquare/robotframework-robocop/compare/v9.1.0...v9.1.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* **formatter:** keep inline comment cells together in ReplaceWithVAR ([#1788](https://github.com/MarketSquare/robotframework-robocop/issues/1788)) ([4d704e8](https://github.com/MarketSquare/robotframework-robocop/commit/4d704e87d439c4945db8aa98baf4018da4ab97d0))
+
+
+### Documentation
+
+* add SVG versions of Robocop logos ([#1941](https://github.com/MarketSquare/robotframework-robocop/issues/1941)) ([4db4000](https://github.com/MarketSquare/robotframework-robocop/commit/4db400059c2371a84fbfeb16b20770b5cd2a0104))
+
 ## [9.1.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.0.0...v9.1.0) (2026-09-25)
 
 

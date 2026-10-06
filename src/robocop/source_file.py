@@ -47,6 +47,16 @@ class SourceFile:
     _original_source_lines: list[str] | None = None
     _resolved_path: Path | None = None
 
+    def __post_init__(self) -> None:
+        # When a model is provided by an external caller (e.g. a language server passing the
+        # in-memory editor content), it is the source of truth for the file content and may
+        # differ from what is stored on disk. Derive the source lines from that model so the
+        # diagnostics and their fixes stay consistent, instead of reading stale content from disk.
+        if self._model is not None and self._source_lines is None:
+            self._source_lines = StatementLinesCollector(self._model).text.splitlines(keepends=True)
+            if self._original_source_lines is None and self.config.linter.diff:
+                self._original_source_lines = self._source_lines.copy()
+
     @property
     def resolved_path(self) -> Path:
         """Resolved path of the file, computed once per source file."""

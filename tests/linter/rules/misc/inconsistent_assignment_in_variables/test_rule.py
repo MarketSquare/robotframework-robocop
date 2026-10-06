@@ -34,3 +34,12 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_fix(self):
         self.check_rule_fix(src_files=["test.robot"])
+
+    def test_fix_configured_equal_sign(self):
+        # Regression test for robotcodedev/robotcode#654: variables without a sign must gain a
+        # single ``=`` when ``assignment_sign_type=equal_sign`` is configured.
+        self.check_rule_fix(
+            src_files=["equal_sign_vars.robot"],
+            expected_dir="expected_fixed_equal_sign",
+            configure=["inconsistent-assignment-in-variables.assignment_sign_type=equal_sign"],
+        )

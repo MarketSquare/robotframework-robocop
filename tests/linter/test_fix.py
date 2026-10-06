@@ -1,11 +1,15 @@
+import tempfile
 from pathlib import Path
 from textwrap import dedent
 from unittest.mock import Mock
 
 import pytest
+from robot.api import get_model
 
+from robocop.config.manager import ConfigManager
 from robocop.linter.diagnostics import Position, Range
 from robocop.linter.fix import Fix, FixApplicability, FixApplier, FixStats, TextEdit
+from robocop.linter.runner import RobocopLinter
 from robocop.source_file import SourceFile
 
 
@@ -724,3 +728,65 @@ def test_edit_kind(sample_source_file):
     assert "String" not in sample_source_file.source_lines[3]
     assert "Name" in sample_source_file.source_lines[3]
     assert applier.fix_stats.by_file[sample_source_file.path][("W001", "update-library")] == 3
+
+
+def test_provided_model_takes_precedence_over_disk_for_source_lines():
+    """
+    The in-memory model wins over disk when deriving source lines.
+
+    A language server (e.g. RobotCode) passes the editor's in-memory model to Robocop while the
+    file on disk may hold different (already fixed) content. Source lines must then be derived from
+    the provided model so diagnostics and their fixes stay consistent instead of corrupting the
+    mismatched disk content. Regression test for robotcodedev/robotcode#654.
+    """
+    buffer_text = "*** Variables ***\n${one}   1\n"
+    disk_text = "*** Variables ***\n${one}=   1\n"
+
+    config = Mock()
+    config.languages = None
+    config.linter.diff = False
+
+    with tempfile.TemporaryDirectory() as tmp:
+        source_path = Path(tmp) / "test.robot"
+        source_path.write_text(disk_text, encoding="utf-8")
+
+        source_file = SourceFile(path=source_path, config=config, _model=get_model(buffer_text))
+
+        assert "".join(source_file.source_lines) == buffer_text
+
+
+def test_run_check_fix_with_provided_model_does_not_corrupt_disk(tmp_path):
+    """
+    End-to-end reproduction of robotcodedev/robotcode#654.
+
+    Mirrors how RobotCode collects diagnostics: it builds a ``SourceFile`` from the editor's
+    in-memory model and calls ``run_check``. With ``fix=true`` configured in ``[tool.robocop.lint]``
+    this applies fixes and writes them back. Previously the fixes were computed against the provided
+    model but applied to the (diverging) disk content, inserting spurious ``==`` signs.
+    """
+    (tmp_path / "robot.toml").write_text(
+        "[tool.robocop.lint]\n"
+        "fix = true\n"
+        "configure = [\n"
+        '    "inconsistent-assignment-in-variables.assignment_sign_type=equal_sign",\n'
+        '    "inconsistent-assignment.assignment_sign_type=equal_sign",\n'
+        "]\n",
+        encoding="utf-8",
+    )
+    buffer_text = "*** Variables ***\n${one}   1\n${two}           2\n"
+    # Disk already carries the fixed content from a previous pass, diverging from the editor buffer.
+    disk_text = "*** Variables ***\n${one}=   1\n${two}=           2\n"
+
+    source = tmp_path / "test.robot"
+    source.write_text(disk_text, encoding="utf-8")
+
+    config_manager = ConfigManager([], root=tmp_path, config=tmp_path / "robot.toml")
+    linter = RobocopLinter(config_manager)
+    config = config_manager.get_config_for_source_file(source)
+
+    source_file = SourceFile(path=source, config=config, _model=get_model(buffer_text))
+    linter.run_check(source_file)
+
+    fixed = source.read_text(encoding="utf-8")
+    assert "==" not in fixed
+    assert fixed == "*** Variables ***\n${one}=   1\n${two}=           2\n"

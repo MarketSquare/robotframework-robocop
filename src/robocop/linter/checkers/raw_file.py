@@ -31,7 +31,8 @@ class RawFileRulesChecker(RawFileChecker):
 
     def parse_file(self) -> None:
         self.lines = self.source_file.source_lines
-        if self.ignored_data.enabled or self.bom_encoding_in_file.enabled:
+        is_embedded = self.source_file.is_embedded
+        if not is_embedded and (self.ignored_data.enabled or self.bom_encoding_in_file.enabled):
             is_bom = detect_bom(self.source_file.path)
             self.bom_encoding_in_file.check(is_bom)
             self.ignored_data.check(self.lines, is_bom)
@@ -39,11 +40,12 @@ class RawFileRulesChecker(RawFileChecker):
             doc_lines: frozenset[int] = frozenset()
             if self.line_too_long.enabled and self.line_too_long.ignore_docs:
                 doc_lines = self.line_too_long.get_documentation_lines(self.source_file.model)
-            for lineno, line in enumerate(self.lines, start=1):
+            for lineno, line in self.source_file.check_lines:
                 self.trailing_whitespace.check(line, lineno)
                 self.line_too_long.check(line, lineno, doc_lines)
-        self.too_many_trailing_blank_lines.check(self.lines)
-        self.missing_trailing_blank_line.check(self.lines)
+        if not is_embedded:
+            self.too_many_trailing_blank_lines.check(self.lines)
+            self.missing_trailing_blank_line.check(self.lines)
 
 
 def detect_bom(source: Path) -> bool:

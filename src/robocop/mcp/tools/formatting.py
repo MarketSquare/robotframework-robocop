@@ -125,7 +125,7 @@ def _format_file_impl(
         raise ToolError(f"File not found: {file_path}")
 
     if path.suffix not in VALID_EXTENSIONS:
-        raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
+        raise ToolError(f"Invalid file type: {path.suffix}. Expected one of: {', '.join(sorted(VALID_EXTENSIONS))}.")
 
     try:
         # Read the file content
@@ -212,7 +212,9 @@ def _lint_and_format_impl(
             raise ToolError(f"File not found: {file_path}")
 
         if path.suffix not in VALID_EXTENSIONS:
-            raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
+            raise ToolError(
+                f"Invalid file type: {path.suffix}. Expected one of: {', '.join(sorted(VALID_EXTENSIONS))}."
+            )
 
         try:
             content = path.read_text(encoding="utf-8")

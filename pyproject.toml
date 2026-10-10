@@ -112,6 +112,12 @@ extend_exclude = [
     "noxfile.py",
 ]
 
+[tool.deptry.per_rule_ignores]
+# tzdata provides the IANA time zone database for zoneinfo on Windows (used by the
+# timestamp report). It is a data-only package with no importable module, so it is
+# never imported directly.
+DEP002 = ["tzdata"]
+
 [tool.ruff]
 line-length = 120
 show-fixes = true

@@ -1,0 +1,3 @@
+shadowing.robot:2:96:2:111 [W] VAR13 Automatic variable '${TEST MESSAGE}' is not available in suite setup; it is only available in test teardown
+
+Found 1 issue.

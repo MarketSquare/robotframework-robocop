@@ -126,7 +126,7 @@ def _lint_file_impl(
         raise ToolError(f"File not found: {file_path}")
 
     if path.suffix not in VALID_EXTENSIONS:
-        raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
+        raise ToolError(f"Invalid file type: {path.suffix}. Expected one of: {', '.join(sorted(VALID_EXTENSIONS))}.")
 
     try:
         linter_config = _create_linter_config(select, ignore, threshold, configure)

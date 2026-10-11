@@ -68,6 +68,18 @@ class RobocopFormatter:
                         cached_files += 1
                         continue
                 previous_changed_files = changed_files
+                if source_file.is_embedded:
+                    diff, old_text, new_text = self.format_embedded(source_file)
+                    if diff:
+                        self.save_text(source_file.path, new_text)
+                        self.log_formatted_source(source_file.path, stdin)
+                        self.output_diff_text(source_file.path, old_text, new_text)
+                        changed_files += 1
+                    if not diff or self.config.formatter.overwrite:
+                        self.config_manager.cache.set_formatter_entry(
+                            source_file.path, source_file.config.hash, needs_formatting=False
+                        )
+                    continue
                 diff, old_model, new_model, model = self.format_until_stable(source_file)
                 # if stdin:
                 #     self.print_to_stdout(new_model)
@@ -150,6 +162,87 @@ class RobocopFormatter:
         new_model = StatementLinesCollector(model)
         return new_model != old_model, old_model, new_model
 
+    def format_embedded(self, source_file: SourceFile) -> tuple[bool, str, str]:
+        """
+        Format every Robot code block embedded in a Markdown or Python file independently.
+
+        Each block is formatted on its own, re-indented to its original position and spliced back into the physical
+        file, leaving prose, fences and indentation of the surrounding document untouched.
+
+        Returns:
+            Tuple of (changed, original_text, new_text) with the full physical file contents.
+
+        """
+        resolved_config = self.config_resolver.resolve_config(source_file.config)
+        original = list(source_file.source_lines)
+        physical = list(original)
+        newline = self._detect_newline(original)
+        # Blocks are spliced bottom-to-top so that changing the length of one block does not shift the others.
+        for block, model in reversed(source_file.format_blocks()):  # type: ignore[attr-defined]
+            formatted = self.format_block(model, resolved_config)
+            if formatted is None:
+                continue
+            physical[block.start_line - 1 : block.end_line] = self._reindent_block(formatted, block.indent, newline)
+        new_text = "".join(physical)
+        old_text = "".join(original)
+        return new_text != old_text, old_text, new_text
+
+    def format_block(self, model: File, resolved_config: ResolvedConfig) -> str | None:
+        """
+        Run the configured formatters on a single block model.
+
+        Returns:
+            The formatted block text, or ``None`` if the block is unchanged or fully disabled.
+
+        """
+        disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
+        disabler_finder.visit(model)
+        if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
+            return None
+        original_text = StatementLinesCollector(model).text
+        formatted = self._apply_formatters(model, disabler_finder.disablers, resolved_config)
+        reruns = self.config.formatter.reruns
+        while formatted != original_text and reruns:
+            rerun_model = get_model(formatted)
+            rerun_disablers = disablers.RegisterDisablers(
+                self.config.formatter.start_line, self.config.formatter.end_line
+            )
+            rerun_disablers.visit(rerun_model)
+            new_formatted = self._apply_formatters(rerun_model, rerun_disablers.disablers, resolved_config)
+            if new_formatted == formatted:
+                break
+            formatted = new_formatted
+            reruns -= 1
+        return formatted if formatted != original_text else None
+
+    @staticmethod
+    def _apply_formatters(
+        model: File, disablers_in_file: disablers.DisablersInFile, resolved_config: ResolvedConfig
+    ) -> str:
+        for name, formatter in resolved_config.formatters.items():
+            formatter.disablers = disablers_in_file
+            if disablers_in_file.is_disabled_in_file(name):
+                continue
+            formatter.visit(model)
+        return StatementLinesCollector(model).text
+
+    @staticmethod
+    def _detect_newline(lines: list[str]) -> str:
+        """Return the line ending used by the physical file so formatted blocks keep the surrounding style."""
+        for line in lines:
+            if line.endswith("\r\n"):
+                return "\r\n"
+            if line.endswith("\n"):
+                return "\n"
+            if line.endswith("\r"):
+                return "\r"
+        return os.linesep
+
+    @staticmethod
+    def _reindent_block(text: str, indent: str, newline: str) -> list[str]:
+        """Re-apply the block indentation and the file's line ending to formatted lines, leaving blanks unindented."""
+        return [f"{indent}{line}{newline}" if line.strip() else f"{line}{newline}" for line in text.splitlines()]
+
     def log_formatted_source(self, source: Path, stdin: bool) -> None:
         if stdin or self.config.silent:
             return
@@ -170,6 +263,28 @@ class RobocopFormatter:
         if self.config.formatter.overwrite:
             output = self.config.formatter.output or source
             misc.ModelWriter(output=str(output), newline=self.get_line_ending(str(source))).write(model)
+
+    def save_text(self, source: Path, text: str) -> None:
+        """Write the full physical file content of an embedded file, preserving its original line endings."""
+        if self.config.formatter.overwrite:
+            output = self.config.formatter.output or source
+            with open(output, "w", encoding="utf-8", newline="") as f:
+                f.write(text)
+
+    def output_diff_text(self, path: Path, old_text: str, new_text: str) -> None:
+        if not self.config.formatter.diff:
+            return
+        old = [line + "\n" for line in old_text.splitlines()]
+        new = [line + "\n" for line in new_text.splitlines()]
+        lines = list(unified_diff(old, new, fromfile=f"{path}\tbefore", tofile=f"{path}\tafter"))
+        if not lines:
+            return
+        if self.config.formatter.color:
+            output = misc.decorate_diff_with_color(lines)
+        else:
+            output = misc.escape_rich_markup(lines)
+        for line in output:
+            console.print(line, end="", highlight=False, soft_wrap=True)
 
     def get_line_ending(self, path: str) -> str:
         if self.config.formatter.whitespace_config.line_ending == "auto":

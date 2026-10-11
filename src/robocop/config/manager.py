@@ -11,7 +11,7 @@ from robocop.cache import RobocopCache
 from robocop.config.builder import ConfigBuilder
 from robocop.config.parser import read_toml_config
 from robocop.config.schema import Config, RawConfig
-from robocop.source_file import SourceFile
+from robocop.source_file import SourceFile, build_source_file
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -291,4 +291,4 @@ class ConfigManager:
             if source.is_dir():
                 self.resolve_paths(list(source.iterdir()), target=target)
             elif source.is_file():
-                target[source] = self._paths.get(source) or SourceFile(path=source, config=config)
+                target[source] = self._paths.get(source) or build_source_file(source, config)

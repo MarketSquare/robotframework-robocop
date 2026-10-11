@@ -5456,6 +5456,8 @@ Redesign the test and move complex logic to separate keywords to increase readab
 
 ### LEN07: too-many-arguments
 
+> Rule is disabled by default. Enable it by using ``--select too-many-arguments`` option.
+
 Added: `v1.0.0`
 
 Supported RF version `All`
@@ -5471,6 +5473,18 @@ Fix availability: There is no automatic fix.
 **Documentation**:
 
 Keyword has too many arguments.
+
+Keywords with many arguments can be hard to understand. A large number of arguments can
+indicate that the keyword does multiple different things and/or that it's complex.
+
+Try to reduce the number of arguments. For example:
+
+- Split the keyword into multiple keywords
+- Collect the required data in a different way
+
+This rule is disabled by default in favor of the ``too-many-required-arguments`` and
+``too-many-optional-arguments`` rules, which allow to configure separate limits for required and
+optional arguments.
 
 **Style guide**:
 
@@ -5511,7 +5525,7 @@ Keyword has too many arguments.
 
 ??? example "max_args"
 
-    Number of lines allowed in a file
+    Number of allowed keyword arguments
 
     **Default value:** 5
 
@@ -7060,6 +7074,186 @@ Correct code example:
         [tool.robocop.lint]
         configure = [
             "metadata-without-value.severity=W"
+        ]
+        ```
+
+---
+
+### LEN34: too-many-required-arguments
+
+Added: `v9.1.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{keyword_name}' has too many required arguments ({arguments_count}/{max_allowed_count})`
+
+**Documentation**:
+
+Keyword has too many required arguments.
+
+Keywords with many required arguments can be hard to understand. A large number of required
+arguments can indicate that the keyword does multiple different things and/or that it's complex.
+
+Optional arguments are less troublesome as they reduce the amount of things you need to
+understand to use a keyword.
+
+Try to reduce the number of required arguments. For example:
+
+- Split the keyword into multiple keywords
+- Make some arguments optional by giving them a default value
+- Collect the required data in a different way
+
+See also the ``too-many-arguments`` and ``too-many-optional-arguments`` rules.
+
+**Style guide**:
+
+- [#arguments](https://docs.robotframework.org/docs/style_guide#arguments)
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_args` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_args` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-many-required-arguments.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-many-required-arguments.severity=W"
+        ]
+        ```
+
+??? example "max_args"
+
+    Number of allowed required keyword arguments
+
+    **Default value:** 5
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-many-required-arguments.max_args=5
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-many-required-arguments.max_args=5"
+        ]
+        ```
+
+---
+
+### LEN35: too-many-optional-arguments
+
+Added: `v9.1.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{keyword_name}' has too many optional arguments ({arguments_count}/{max_allowed_count})`
+
+**Documentation**:
+
+Keyword has too many optional arguments.
+
+Keywords with many optional arguments can be hard to understand. A large number of optional
+arguments can indicate that the keyword does multiple different things and/or that it's complex.
+
+Try to reduce the number of optional arguments. For example:
+
+- Split the keyword into multiple keywords
+- Collect the required data in a different way
+
+See also the ``too-many-arguments`` and ``too-many-required-arguments`` rules.
+
+**Style guide**:
+
+- [#arguments](https://docs.robotframework.org/docs/style_guide#arguments)
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_args` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_args` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-many-optional-arguments.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-many-optional-arguments.severity=W"
+        ]
+        ```
+
+??? example "max_args"
+
+    Number of allowed optional keyword arguments
+
+    **Default value:** 10
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure too-many-optional-arguments.max_args=10
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "too-many-optional-arguments.max_args=10"
         ]
         ```
 

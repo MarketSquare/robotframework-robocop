@@ -1,5 +1,12 @@
 # Release notes
 
+## [9.1.2](https://github.com/MarketSquare/robotframework-robocop/compare/v9.1.1...v9.1.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* detect extended variable syntax usage in project rules ([#1948](https://github.com/MarketSquare/robotframework-robocop/issues/1948)) ([49fd2ec](https://github.com/MarketSquare/robotframework-robocop/commit/49fd2eccb9619ca0485ec7b363980666e39d883b)), closes [#1947](https://github.com/MarketSquare/robotframework-robocop/issues/1947)
+
 ## [9.1.1](https://github.com/MarketSquare/robotframework-robocop/compare/v9.1.0...v9.1.1) (2026-10-10)
 
 

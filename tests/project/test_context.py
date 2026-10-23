@@ -161,6 +161,33 @@ class TestUsedVariables:
         used = context.get_file(tmp_path / "test.robot").used_variables
         assert "inner" in used
 
+    @pytest.mark.parametrize(
+        "statement",
+        [
+            "Log    ${my_dict}[key]",
+            "Log    ${my_dict['key']}",
+            "Log    ${my_dict.key}",
+            "Log    Text ${My Dict.key.nested} text",
+            "Log    ${my_dict * 2}",
+            "Log    ${{ $my_dict['key'] }}",
+            "IF    $my_dict['key'] == 'value'    Log    yes",
+            "${value}    Evaluate    len($my_dict)",
+        ],
+    )
+    def test_extended_variable_syntax(self, tmp_path, statement):
+        (tmp_path / "test.robot").write_text(f"*** Test Cases ***\nTest\n    {statement}\n")
+        config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+        context = build_project_context(config_manager, silent=True)
+        assert "mydict" in context.get_file(tmp_path / "test.robot").used_variables
+
+    def test_attribute_name_is_not_variable_usage(self, tmp_path):
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    ${obj.attr}\n")
+        config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+        context = build_project_context(config_manager, silent=True)
+        used = context.get_file(tmp_path / "test.robot").used_variables
+        assert "obj" in used
+        assert "attr" not in used
+
 
 class TestDynamicKeywordCalls:
     def test_no_dynamic_calls(self, context, project):

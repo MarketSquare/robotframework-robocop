@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
+import re
+import tokenize
 from dataclasses import dataclass, field
+from io import StringIO
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -25,6 +28,7 @@ from robocop.project.definitions import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from pathlib import Path
 
     from robot.parsing.model.blocks import File, Keyword, Section
@@ -41,6 +45,27 @@ if TYPE_CHECKING:
 
 DEFAULT_BDD_PREFIXES = BDD_PREFIXES
 VARIABLE_VALUE_TOKENS = (Token.ARGUMENT, Token.NAME, Token.KEYWORD, Token.OPTION)
+VARIABLE_NAME_PATTERN = re.compile(r"[\w ]+")
+EXTENDED_SYNTAX_PATTERN = re.compile(r"(.+?)[^\s\w]")
+"""Base name of the variable used with the extended variable syntax, matched the same way as Robot Framework does."""
+ESCAPED_VARIABLE_PATTERN = re.compile(r"\$([A-Za-z_]\w*)")
+"""Variables used in Python expressions without curly braces, for example ``$var`` in ``IF`` conditions."""
+
+
+def _python_names(expression: str) -> Generator[str, None, None]:
+    """
+    Yield names used in the Python expression, skipping attribute names.
+
+    For example ``var.attr + other['key']`` yields ``var`` and ``other``.
+    """
+    previous = None
+    try:
+        for token in tokenize.generate_tokens(StringIO(expression).readline):
+            if token.type == tokenize.NAME and not (previous is not None and previous.string == "."):
+                yield token.string
+            previous = token
+    except (tokenize.TokenError, SyntaxError):
+        return
 
 
 @dataclass
@@ -206,10 +231,28 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
             self._add_used_variables(token.value)
 
     def _add_used_variables(self, value: str) -> None:
+        if "$" in value:
+            self.collected.used_variables.update(
+                normalize_robot_name(name) for name in ESCAPED_VARIABLE_PATTERN.findall(value)
+            )
         for match in VariableMatches(value, ignore_errors=True):
             if match.base:
                 self.collected.used_variables.add(normalize_robot_name(match.base))
+                self._add_extended_variable_names(match.base)
                 self._add_used_variables(match.base)
+
+    def _add_extended_variable_names(self, base: str) -> None:
+        """
+        Record names of variables used with the extended variable syntax.
+
+        For example ``${var.attr}``, ``${var['key']}`` or ``${var * 2}`` use the ``var`` variable.
+        """
+        if VARIABLE_NAME_PATTERN.fullmatch(base):
+            return
+        is_inline_python = base.startswith("{") and base.endswith("}")
+        if not is_inline_python and (extended := EXTENDED_SYNTAX_PATTERN.match(base)):
+            self.collected.used_variables.add(normalize_robot_name(extended.group(1)))
+        self.collected.used_variables.update(normalize_robot_name(name) for name in _python_names(base))
 
     def _add_usages(self, node: Statement, name_token_type: str) -> None:
         for call in iterate_keyword_calls(node, name_token_type):

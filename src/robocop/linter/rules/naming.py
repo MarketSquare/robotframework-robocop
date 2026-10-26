@@ -1112,6 +1112,7 @@ class WrongCaseInKeywordCallRule(FixableRule):
 
 
 SET_VARIABLE_VARIANTS = {
+    "setlocalvariable",
     "settaskvariable",
     "settestvariable",
     "setsuitevariable",

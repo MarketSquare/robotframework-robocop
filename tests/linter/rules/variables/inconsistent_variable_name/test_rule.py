@@ -44,3 +44,10 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_var_syntax(self):
         self.check_rule(src_files=["VAR_syntax.robot"], expected_file=None, test_on_version=">=7")
+
+    def test_set_local_variable(self):
+        self.check_rule(
+            src_files=["set_local_variable.robot"],
+            expected_file="expected_output_set_local_variable.txt",
+            issue_format="end_col",
+        )

@@ -1,0 +1,3 @@
+set_local_variable.robot:6:27 [W] VAR07 Non local variable is not uppercase
+
+Found 1 issue.

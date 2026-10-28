@@ -36,3 +36,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_groups(self):
         self.check_rule(src_files=["groups.robot"], expected_file="expected_groups.txt", test_on_version=">=7.2")
+
+    def test_set_local_variable(self):
+        self.check_rule(src_files=["set_local_variable.robot"], expected_file="expected_output_set_local_variable.txt")

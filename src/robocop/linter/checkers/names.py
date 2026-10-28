@@ -131,7 +131,9 @@ class NamesChecker(VisitorChecker):
         """Check the name of a variable assigned with one of the ``Set * Variable`` keywords."""
         if not node.keyword:
             return
-        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") not in naming.SET_VARIABLE_VARIANTS:
+        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") not in (
+            naming.NON_LOCAL_SET_VARIABLE_VARIANTS
+        ):
             return
         if len(node.data_tokens) < 2:
             return

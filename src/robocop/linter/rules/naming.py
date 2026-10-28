@@ -1111,13 +1111,16 @@ class WrongCaseInKeywordCallRule(FixableRule):
         return wrong_case_in_keyword_fix(self, diag, source_lines, is_keyword_call=True)
 
 
-SET_VARIABLE_VARIANTS = {
+LOCAL_SET_VARIABLE_VARIANTS = {
     "setlocalvariable",
+}
+NON_LOCAL_SET_VARIABLE_VARIANTS = {
     "settaskvariable",
     "settestvariable",
     "setsuitevariable",
     "setglobalvariable",
 }
+SET_VARIABLE_VARIANTS = LOCAL_SET_VARIABLE_VARIANTS | NON_LOCAL_SET_VARIABLE_VARIANTS
 
 
 def uppercase_error_msg(name: str) -> str:

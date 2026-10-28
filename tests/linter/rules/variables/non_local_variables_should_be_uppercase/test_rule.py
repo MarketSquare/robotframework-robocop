@@ -18,3 +18,7 @@ class TestRuleAcceptance(RuleAcceptance):
             output_format="extended",
             test_on_version=">=7.3",
         )
+
+    def test_set_local_variable(self):
+        """``Set Local Variable`` sets a local variable and should not be reported."""
+        self.check_rule(src_files=["set_local_variable.robot"], expected_file="expected_output_set_local_variable.txt")

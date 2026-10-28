@@ -12,7 +12,7 @@ from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, variables
-from robocop.linter.rules.naming import SET_VARIABLE_VARIANTS
+from robocop.linter.rules.naming import LOCAL_SET_VARIABLE_VARIANTS, SET_VARIABLE_VARIANTS
 from robocop.linter.utils import misc as utils
 from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
 
@@ -58,17 +58,22 @@ class SimilarVariableChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
-            normalized, assign_value = "", ""
+        normalized_keyword = utils.normalize_robot_name(node.keyword, remove_prefix="builtin.")
+        if normalized_keyword in SET_VARIABLE_VARIANTS:
+            normalized, assign_token = "", None
             for index, token in enumerate(node.data_tokens[1:]):
                 if index == 0:  # First argument is assign-like
                     normalized = utils.normalize_robot_var_name(token.value)
-                    assign_value = token.value  # process assign last, cache for now
+                    assign_token = token  # process assign last, cache for now
                 else:
                     self.find_not_nested_variable(token)
-            if assign_value:
-                variable = search_variable(assign_value, ignore_errors=True)
-                self.assigned_variables[normalized].append(variable.base)
+            if assign_token is not None and assign_token.value:
+                variable = search_variable(assign_token.value, ignore_errors=True)
+                if variable.base is not None and normalized_keyword in LOCAL_SET_VARIABLE_VARIANTS:
+                    # local scope behaves like a normal assignment and can overwrite a similar variable
+                    self.find_similar_variables([assign_token], node)
+                else:
+                    self.assigned_variables[normalized].append(variable.base)
         else:
             for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
                 self.find_not_nested_variable(token)

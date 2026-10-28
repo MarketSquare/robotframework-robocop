@@ -1,0 +1,6 @@
+set_local_variable.robot:5:12:5:23 [W] VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
+set_local_variable.robot:6:12:6:24 [W] VAR10 Variable '${var_iable}' has inconsistent naming. First used as '${variable}'
+set_local_variable.robot:12:12:12:24 [W] VAR10 Variable '${varia ble}' has inconsistent naming. First used as '${variable}'
+set_local_variable.robot:14:21:14:32 [W] VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
+
+Found 4 issues.

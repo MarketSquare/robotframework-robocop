@@ -1,0 +1,4 @@
+set_local_variable.robot:4:27 [W] VAR08 Variable '${MY VAR}' may overwrite similar variable inside 'Test With Overwritten Local Variables' TestCase
+set_local_variable.robot:12:27 [W] VAR08 Variable '${MyVar}' may overwrite similar variable inside 'Keyword With Overwritten Local Variables' Keyword
+
+Found 2 issues.

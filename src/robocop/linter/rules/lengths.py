@@ -342,13 +342,28 @@ class FileTooLongRule(Rule):
 
 
 class TooManyArgumentsRule(Rule):
-    """Keyword has too many arguments."""
+    """
+    Keyword has too many arguments.
+
+    Keywords with many arguments can be hard to understand. A large number of arguments can
+    indicate that the keyword does multiple different things and/or that it's complex.
+
+    Try to reduce the number of arguments. For example:
+
+    - Split the keyword into multiple keywords
+    - Collect the required data in a different way
+
+    This rule is disabled by default in favor of the ``too-many-required-arguments`` and
+    ``too-many-optional-arguments`` rules, which allow to configure separate limits for required and
+    optional arguments.
+    """
 
     name = "too-many-arguments"
     rule_id = "LEN07"
     message = "Keyword '{keyword_name}' has too many arguments ({arguments_count}/{max_allowed_count})"
     severity = RuleSeverity.WARNING
-    parameters = [RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file")]
+    enabled = False
+    parameters = [RuleParam(name="max_args", default=5, converter=int, desc="number of allowed keyword arguments")]
     severity_threshold = SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count")
     added_in_version = "1.0.0"
     style_guide_ref = ["#arguments"]
@@ -364,6 +379,112 @@ class TooManyArgumentsRule(Rule):
             if not isinstance(child, Arguments):
                 continue
             args_number = len(child.values)
+            if args_number > self.max_args:
+                name_token = child.data_tokens[0]
+                self.report(
+                    keyword_name=node.name,
+                    arguments_count=args_number,
+                    max_allowed_count=self.max_args,
+                    node=name_token,
+                    end_lineno=child.end_lineno,
+                    end_col=child.end_col_offset,
+                    extended_disablers=(node.lineno, node.end_lineno),
+                    sev_threshold_value=args_number,
+                )
+            break
+
+
+class TooManyRequiredArgumentsRule(Rule):
+    """
+    Keyword has too many required arguments.
+
+    Keywords with many required arguments can be hard to understand. A large number of required
+    arguments can indicate that the keyword does multiple different things and/or that it's complex.
+
+    Optional arguments are less troublesome as they reduce the amount of things you need to
+    understand to use a keyword.
+
+    Try to reduce the number of required arguments. For example:
+
+    - Split the keyword into multiple keywords
+    - Make some arguments optional by giving them a default value
+    - Collect the required data in a different way
+
+    See also the ``too-many-arguments`` and ``too-many-optional-arguments`` rules.
+    """
+
+    name = "too-many-required-arguments"
+    rule_id = "LEN34"
+    message = "Keyword '{keyword_name}' has too many required arguments ({arguments_count}/{max_allowed_count})"
+    severity = RuleSeverity.WARNING
+    parameters = [
+        RuleParam(name="max_args", default=5, converter=int, desc="number of allowed required keyword arguments")
+    ]
+    severity_threshold = SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count")
+    added_in_version = "9.1.0"
+    style_guide_ref = ["#arguments"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Keyword) -> None:
+        if not self.enabled:
+            return
+        for child in node.body:
+            if not isinstance(child, Arguments):
+                continue
+            args_number = sum(1 for arg in child.values if "}=" not in arg)
+            if args_number > self.max_args:
+                name_token = child.data_tokens[0]
+                self.report(
+                    keyword_name=node.name,
+                    arguments_count=args_number,
+                    max_allowed_count=self.max_args,
+                    node=name_token,
+                    end_lineno=child.end_lineno,
+                    end_col=child.end_col_offset,
+                    extended_disablers=(node.lineno, node.end_lineno),
+                    sev_threshold_value=args_number,
+                )
+            break
+
+
+class TooManyOptionalArgumentsRule(Rule):
+    """
+    Keyword has too many optional arguments.
+
+    Keywords with many optional arguments can be hard to understand. A large number of optional
+    arguments can indicate that the keyword does multiple different things and/or that it's complex.
+
+    Try to reduce the number of optional arguments. For example:
+
+    - Split the keyword into multiple keywords
+    - Collect the required data in a different way
+
+    See also the ``too-many-arguments`` and ``too-many-required-arguments`` rules.
+    """
+
+    name = "too-many-optional-arguments"
+    rule_id = "LEN35"
+    message = "Keyword '{keyword_name}' has too many optional arguments ({arguments_count}/{max_allowed_count})"
+    severity = RuleSeverity.WARNING
+    parameters = [
+        RuleParam(name="max_args", default=10, converter=int, desc="number of allowed optional keyword arguments")
+    ]
+    severity_threshold = SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count")
+    added_in_version = "9.1.0"
+    style_guide_ref = ["#arguments"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Keyword) -> None:
+        if not self.enabled:
+            return
+        for child in node.body:
+            if not isinstance(child, Arguments):
+                continue
+            args_number = sum(1 for arg in child.values if "}=" in arg)
             if args_number > self.max_args:
                 name_token = child.data_tokens[0]
                 self.report(

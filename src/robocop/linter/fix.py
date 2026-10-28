@@ -319,6 +319,7 @@ class FixApplier:
         if not all_edits:
             return False
 
+        all_edits = source_file.prepare_fix_edits(all_edits)
         sorted_edits = sorted(all_edits, key=lambda e: (e.start_line, e.start_col))
         non_overlapping_edits = self._remove_overlapping_edits(sorted_edits)
 

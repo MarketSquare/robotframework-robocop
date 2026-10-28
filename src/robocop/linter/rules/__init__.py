@@ -595,7 +595,8 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # type: ignore[misc]
         self.source_file = source_file
         self.templated_suite = templated
         self.context = Context()
-        self.visit_File(source_file.model)
+        for model in source_file.models:
+            self.visit_File(model)
         return self.issues
 
     def visit_File(self, node: File) -> None:  # noqa: N802

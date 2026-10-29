@@ -1,0 +1,4 @@
+var_scopes.robot:3:12:3:26 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+var_scopes.robot:10:17:10:31 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+
+Found 2 issues.

@@ -1,5 +1,18 @@
 # Release notes
 
+## [9.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.1.2...v9.2.0) (2026-11-06)
+
+
+### Features
+
+* support embedded robot code in markdown and python files ([#1932](https://github.com/MarketSquare/robotframework-robocop/issues/1932)) ([6e81470](https://github.com/MarketSquare/robotframework-robocop/commit/6e81470b16e07942dc4ad062cade954b6c2c77c2))
+
+
+### Bug Fixes
+
+* handle Set Local Variable in variable naming rules ([#1953](https://github.com/MarketSquare/robotframework-robocop/issues/1953)) ([57f1cce](https://github.com/MarketSquare/robotframework-robocop/commit/57f1cce9ac48138b016113d6b353a39135cfc564))
+* remove jinja syntax from unused-resource rule docs ([#1960](https://github.com/MarketSquare/robotframework-robocop/issues/1960)) ([d98afa6](https://github.com/MarketSquare/robotframework-robocop/commit/d98afa69f2977df3fdb46220f73c7f2a92538346))
+
 ## [9.1.2](https://github.com/MarketSquare/robotframework-robocop/compare/v9.1.1...v9.1.2) (2026-10-23)
 
 

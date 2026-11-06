@@ -266,7 +266,7 @@ class UnusedResourceImportRule(Rule):
     A resource is considered used when the file uses any keyword or variable defined in it, or in any resource it
     imports itself, since resource imports are transitive in Robot Framework. Variables are also recognized when
     used with the extended variable syntax (``${var.attr}``, ``${var['key']}``), item access (``${var}[key]``) or in
-    Python expressions (``$var`` in ``IF`` conditions, ``Evaluate`` or ``${{ }}``).
+    Python expressions (``$var`` in ``IF`` conditions, ``Evaluate`` or inline Python evaluation in variables).
 
     To avoid false positives, imports are not reported when:
 

@@ -1,0 +1,26 @@
+test.robot:17:5 LEN35 Keyword 'Keyword With Too Many Arguments' has too many optional arguments (11/10)
+    |
+ 15 | Keyword With Too Many Arguments
+ 16 |     [Documentation]  this is doc
+ 17 |     [Arguments]  ${var1}=optional  ${var2}=optional  ${var3}=optional  ${var4}=optional  ${var5}=optional  ${var6}=optional  ${var7}=optional  ${var8}=optional  ${var9}=optional  ${var10}=optional  ${var11}=optional
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN35
+ 18 |     No Operation
+ 19 |     Pass
+    |
+
+test.robot:25:5 LEN35 Keyword 'Keyword With Too Many Arguments In Multi Lines' has too many optional arguments (11/10)
+    |
+ 23 |   Keyword With Too Many Arguments In Multi Lines
+ 24 |       [Documentation]  this is doc
+ 25 | /     [Arguments]  ${var1}=optional  ${var2}=optional
+ 26 | |     ...  ${var3}=optional  ${var4}=optional
+ 27 | |     ...  ${var5}=optional  ${var6}=optional
+ 28 | |     ...  ${var7}=optional  ${var8}=optional
+ 29 | |     ...  ${var9}=optional  ${var10}=optional
+ 30 | |     ...  ${var11}=optional
+    | |_^ LEN35
+ 31 |       No Operation
+ 32 |       Pass
+    |
+
+Found 2 issues.

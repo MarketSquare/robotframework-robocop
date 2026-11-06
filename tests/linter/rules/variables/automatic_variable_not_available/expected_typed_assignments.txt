@@ -1,0 +1,5 @@
+typed_assignments.robot:3:17:3:32 [W] VAR13 Automatic variable '${TEST MESSAGE}' is not available in test case body; it is only available in test teardown
+typed_assignments.robot:3:36:3:54 [W] VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in test case body; it is only available in user keyword teardown
+typed_assignments.robot:5:50:5:68 [W] VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in test case body; it is only available in user keyword teardown
+
+Found 3 issues.

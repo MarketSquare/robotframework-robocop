@@ -1,0 +1,9 @@
+assignments.robot:3:12:3:26 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+assignments.robot:4:41:4:55 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+assignments.robot:6:57:6:74 [W] VAR13 Automatic variable '${KEYWORD STATUS}' is not available in test case body; it is only available in user keyword teardown
+assignments.robot:13:17:13:31 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+assignments.robot:13:35:13:50 [W] VAR13 Automatic variable '${TEST MESSAGE}' is not available in test case body; it is only available in test teardown
+assignments.robot:13:54:13:71 [W] VAR13 Automatic variable '${KEYWORD STATUS}' is not available in test case body; it is only available in user keyword teardown
+assignments.robot:13:75:13:93 [W] VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in test case body; it is only available in user keyword teardown
+
+Found 7 issues.

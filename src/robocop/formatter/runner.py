@@ -135,6 +135,7 @@ class RobocopFormatter:
     ) -> tuple[bool, StatementLinesCollector | None, StatementLinesCollector | None, File]:
         model = source_file.model
         resolved_config = self.config_resolver.resolve_config(source_file.config)
+        self.set_file_languages(source_file, resolved_config)
         disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
         disabler_finder.visit(model)
         if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
@@ -177,8 +178,10 @@ class RobocopFormatter:
         original = list(source_file.source_lines)
         physical = list(original)
         newline = self._detect_newline(original)
+        format_blocks = source_file.format_blocks()  # type: ignore[attr-defined]
+        self.set_file_languages(source_file, resolved_config)
         # Blocks are spliced bottom-to-top so that changing the length of one block does not shift the others.
-        for block, model in reversed(source_file.format_blocks()):  # type: ignore[attr-defined]
+        for block, model in reversed(format_blocks):
             formatted = self.format_block(model, resolved_config)
             if formatted is None:
                 continue
@@ -214,6 +217,15 @@ class RobocopFormatter:
             formatted = new_formatted
             reruns -= 1
         return formatted if formatted != original_text else None
+
+    @staticmethod
+    def set_file_languages(source_file: SourceFile, resolved_config: ResolvedConfig) -> None:
+        """Use languages of the formatted file, including languages from its ``language:`` header."""
+        languages = source_file.languages
+        if languages is None:
+            return
+        for formatter in resolved_config.formatters.values():
+            formatter.languages = languages
 
     @staticmethod
     def _apply_formatters(

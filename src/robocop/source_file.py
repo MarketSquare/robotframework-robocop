@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -151,10 +152,11 @@ class SourceFile:
 
         Robot Framework adds languages from the ``language:`` header to the passed ``Languages`` object. Every source
         file uses its own copy of the configured languages, so that the language of one file does not leak to the
-        other files using the same configuration.
+        other files using the same configuration. The configured object is copied as a whole, since it can contain
+        more than its languages (for example deprecated singular English headers in RF 6.1).
         """
         if self._languages is None and self.config.languages is not None:
-            self._languages = Languages(self.config.languages, add_english=False)
+            self._languages = copy.deepcopy(self.config.languages)
         return self._languages
 
     def reload_model(self) -> None:

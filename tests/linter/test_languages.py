@@ -27,3 +27,12 @@ def test_language_header_does_not_leak_to_other_files(tmp_path):
         diagnostics = check_files(return_result=True, silent=True, cache=False, select=["ERR01", "NAME16"])
 
     assert {diag.source.path.name for diag in diagnostics} == {"b_without_header.robot"}
+
+
+@pytest.mark.skipif(ROBOT_VERSION < Version("6.1"), reason="invalid-section requires RF 6.1+")  # noqa: SIM300
+def test_deprecated_singular_header_is_recognized(tmp_path):
+    (tmp_path / "singular.robot").write_text("*** Keyword ***\nKeyword\n    Log    1\n")
+    with working_directory(tmp_path):
+        diagnostics = check_files(return_result=True, silent=True, cache=False, select=["ERR01", "NAME16"])
+
+    assert not diagnostics

@@ -208,6 +208,32 @@ Disable logging with ``--silent`` flag.
 
 ---
 
+#### ``jobs``
+
+Process files in parallel with ``--jobs`` / ``-j`` option, which sets the number of worker processes. The default
+value is ``1``, which processes all files sequentially in the current process. Use ``0`` to use as many workers as
+there are available CPUs.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --jobs 4
+    robocop format -j 0
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    jobs = 4
+    ```
+
+Starting worker processes has a fixed cost, so the number of workers is limited to ensure every worker gets at least
+20 files. Files restored from the cache are not sent to the workers. The output is the same as with sequential
+processing. ``robocop check --diff`` and ``robocop format --output`` always process files sequentially.
+
+---
+
 ### Configuration options
 
 #### ``config``

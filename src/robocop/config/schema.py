@@ -379,6 +379,7 @@ class RawConfig:
     force_exclude: bool | None = None
     verbose: bool | None = None
     silent: bool | None = None
+    jobs: int | None = None
     target_version: TargetVersion | None = None
     config_source: str | None = None
 
@@ -403,6 +404,7 @@ class RawConfig:
             "force_exclude",
             "verbose",
             "silent",
+            "jobs",
             "target_version",
         }
         known_fields = config_fields | {"lint", "format", "extends", "skip_gitignore"}
@@ -455,6 +457,7 @@ class Config:
     target_version: Version
     config_source: str
     hash: str
+    jobs: int = 1
 
     def __str__(self) -> str:
         return str(self.config_source)
@@ -482,5 +485,6 @@ class Config:
             and self.ignored_libraries == other.ignored_libraries
             and self.verbose == other.verbose
             and self.silent == other.silent
+            and self.jobs == other.jobs
             and self.target_version == other.target_version
         )

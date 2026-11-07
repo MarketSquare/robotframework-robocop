@@ -238,6 +238,18 @@ verbose_option = Annotated[
 silent_option = Annotated[
     bool | None, typer.Option(help="Disable all logging.", show_default="--no-silent", rich_help_panel="Other")
 ]
+jobs_option = Annotated[
+    int | None,
+    typer.Option(
+        "--jobs",
+        "-j",
+        min=0,
+        show_default="1",
+        metavar="N",
+        help="Number of processes used to process files in parallel. Use 0 for the number of available CPUs.",
+        rich_help_panel="Other",
+    ),
+]
 ignore_git_dir_option = Annotated[
     bool,
     typer.Option(
@@ -461,6 +473,7 @@ def check_files(
     ignored_library: ignored_libraries_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
+    jobs: jobs_option = None,
     cache: cache_option = None,
     clear_cache: clear_cache_option = False,
     cache_dir: cache_dir_option = None,
@@ -514,6 +527,7 @@ def check_files(
         ignored_libraries=ignored_library,
         silent=silent,
         verbose=verbose,
+        jobs=jobs,
         target_version=target_version,
     )
     config_manager = manager.ConfigManager(
@@ -696,6 +710,7 @@ def format_files(
     root: project_root_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
+    jobs: jobs_option = None,
     cache: cache_option = None,
     clear_cache: clear_cache_option = False,
     cache_dir: cache_dir_option = None,
@@ -750,6 +765,7 @@ def format_files(
         cache=cache_config,
         verbose=verbose,
         silent=silent,
+        jobs=jobs,
         target_version=target_version,
     )
     config_manager = manager.ConfigManager(

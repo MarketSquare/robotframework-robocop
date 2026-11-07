@@ -28,6 +28,7 @@ SKIP_OPTIONS = frozenset(
 FORCE_EXCLUDE = False
 VERBOSE = False
 SILENT = False
+JOBS = 1  # number of processes used to lint or format files, 0 means the number of available CPUs
 
 # project checks
 

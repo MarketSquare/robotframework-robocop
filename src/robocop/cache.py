@@ -715,34 +715,48 @@ def restore_diagnostics(
         (e.g. rule no longer exists).
 
     """
-    from robocop.linter.diagnostics import Diagnostic  # noqa: PLC0415
-    from robocop.linter.rules import RuleSeverity  # noqa: PLC0415
-
     if source_file is None:
         # all diagnostics share the same source file, so the file content is read only once (if needed)
         source_file = SourceFile(source, config)
     restored = []
     for cached_diag in cached_entry.diagnostics:
-        # Try to find rule by ID first, fall back to name
-        rule = resolved_config.rules.get(cached_diag.rule_id)
-        if rule is None:
-            rule = resolved_config.rules.get(cached_diag.rule_name)
-
-        if rule is None:
+        diagnostic = restore_diagnostic(cached_diag, source_file, resolved_config)
+        if diagnostic is None:
             # Rule no longer exists - invalidate cache entry
             return None
-
-        diagnostic = Diagnostic(
-            rule=rule,
-            source=source_file,
-            lineno=cached_diag.line,
-            col=cached_diag.col,
-            end_lineno=cached_diag.end_line,
-            end_col=cached_diag.end_col,
-            **dict(cached_diag.arguments),
-        )
-        # severity can depend on the reported value (rules with severity thresholds)
-        diagnostic.severity = RuleSeverity(cached_diag.severity)
         restored.append(diagnostic)
 
     return restored
+
+
+def restore_diagnostic(
+    cached_diag: CachedDiagnostic, source_file: SourceFile, resolved_config: ResolvedConfig
+) -> Diagnostic | None:
+    """
+    Restore a single Diagnostic object from its serialized form.
+
+    Returns:
+        Restored diagnostic, or None if the rule of the diagnostic does not exist.
+
+    """
+    from robocop.linter.diagnostics import Diagnostic  # noqa: PLC0415
+    from robocop.linter.rules import RuleSeverity  # noqa: PLC0415
+
+    # Try to find rule by ID first, fall back to name
+    rule = resolved_config.rules.get(cached_diag.rule_id)
+    if rule is None:
+        rule = resolved_config.rules.get(cached_diag.rule_name)
+    if rule is None:
+        return None
+    diagnostic = Diagnostic(
+        rule=rule,
+        source=source_file,
+        lineno=cached_diag.line,
+        col=cached_diag.col,
+        end_lineno=cached_diag.end_line,
+        end_col=cached_diag.end_col,
+        **dict(cached_diag.arguments),
+    )
+    # severity can depend on the reported value (rules with severity thresholds)
+    diagnostic.severity = RuleSeverity(cached_diag.severity)
+    return diagnostic

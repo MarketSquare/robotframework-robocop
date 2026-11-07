@@ -9,7 +9,7 @@ from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 
 from robocop import exceptions
-from robocop.cache import restore_diagnostics
+from robocop.cache import restore_diagnostic, restore_diagnostics
 from robocop.files import resolve_path
 from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics, RunStatistic
@@ -18,6 +18,7 @@ from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
+from robocop.parallel import get_workers_count
 from robocop.project.context import build_project_context
 from robocop.runtime.resolver import ConfigResolver
 from robocop.source_file import SourceFile, VirtualSourceFile
@@ -36,6 +37,68 @@ if TYPE_CHECKING:
 # These caps bound that loop in case a pair of fixes keeps flipping the same issue.
 MAX_FILE_FIX_ITERATIONS = 20
 MAX_PROJECT_FIX_ITERATIONS = 5
+
+
+def check_source_file(
+    source_file: SourceFile, config_resolver: ConfigResolver, fix_applier: FixApplier | None = None
+) -> list[Diagnostic]:
+    """
+    Run all rules on file model and return list of diagnostics.
+
+    Args:
+        source_file: SourceFile representing robot source file under the check.
+        config_resolver: Resolver providing the rules and checkers for the source file configuration.
+        fix_applier: The applier responsible for applying fixes to the source file.
+
+    """
+    resolved_config = config_resolver.resolve_config(source_file.config)
+    if fix_applier is None:
+        fix_applier = FixApplier()
+    templated = is_suite_templated(source_file.model)
+    prev_fixable = 0
+    # Iteratively scans, filters, applies fixes, and reloads model until convergence or no fixes remain
+    for _ in range(MAX_FILE_FIX_ITERATIONS):
+        found_diagnostics = []
+        disablers = DisablersFinder(source_file.model)
+        for checker in resolved_config.checkers:
+            found_diagnostics += [
+                diagnostic
+                for diagnostic in checker.scan_file(source_file, templated)  # type: ignore[attr-defined]
+                if not (
+                    diagnostic.severity < source_file.config.linter.threshold or disablers.is_rule_disabled(diagnostic)
+                )
+            ]
+            if disablers.file_disabled and found_diagnostics:  # special case to not report disabler as not used
+                return []
+        for checker in resolved_config.after_run_checkers:
+            found_diagnostics += [
+                diagnostic
+                for diagnostic in checker.scan_file(source_file, disablers=disablers)
+                if not (
+                    diagnostic.severity < source_file.config.linter.threshold or disablers.is_rule_disabled(diagnostic)
+                )
+            ]
+        if found_diagnostics and source_file.config.linter.per_file_ignores:
+            for ignored_file, ignored_rules in source_file.config.linter.per_file_ignores.items():
+                if source_file.path.match(ignored_file):
+                    found_diagnostics = [
+                        diagnostic
+                        for diagnostic in found_diagnostics
+                        if diagnostic.rule.rule_id not in ignored_rules and diagnostic.rule.name not in ignored_rules
+                    ]
+        if not found_diagnostics or not (source_file.config.linter.fix or source_file.config.linter.diff):
+            fix_applier.fix_stats.total_fixes += prev_fixable
+            break
+        fixable_diagnostics = [diag for diag in found_diagnostics if diag.rule.fixable]
+        fix_applier.fix_stats.total_fixes += max(prev_fixable - len(fixable_diagnostics), 0)
+        prev_fixable = len(fixable_diagnostics)
+        # Collect fixes from diagnostics
+        fixes = [diag.fix or diag.rule.fix(diag, source_file.fix_source_lines) for diag in fixable_diagnostics]
+        if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):
+            break
+    if source_file.config.linter.fix and not source_file.config.linter.diff:
+        source_file.write_changes()
+    return found_diagnostics
 
 
 class RobocopLinter:
@@ -86,9 +149,27 @@ class RobocopLinter:
         try:
             return self.run_check(source_file, fix_applier)
         except DataError as error:
-            if not source_file.config.silent:
-                print(f"Failed to decode {source_file.path} with an error: {error}. Skipping file")
+            self.print_decode_error(source_file, error)
             return None
+
+    @staticmethod
+    def print_decode_error(source_file: SourceFile, error: DataError | str) -> None:
+        if not source_file.config.silent:
+            print(f"Failed to decode {source_file.path} with an error: {error}. Skipping file")
+
+    def check_file(self, source_file: SourceFile, fix_applier: FixApplier) -> list[Diagnostic] | None:
+        """
+        Check the file in the current process and store the results in the cache.
+
+        Returns:
+            List of diagnostics or None if file cannot be decoded.
+
+        """
+        diagnostics = self.get_model_diagnostics(source_file, fix_applier)
+        if diagnostics is not None and not source_file.config.linter.diff:
+            # diff simulate fixes, so it's best to ignore the results
+            self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
+        return diagnostics
 
     def run(self) -> list[Diagnostic]:
         """
@@ -116,6 +197,12 @@ class RobocopLinter:
         cached_files = 0
         checked_paths: set[Path] = set()
         fix_applier = FixApplier()
+        default_config = self.config_manager.default_config
+        # diff mode prints the diff of the in-memory changes, so it is always run in the current process
+        parallel = default_config.jobs != 1 and not default_config.linter.diff
+        # diagnostics of every file, kept in the order of the files so the results do not depend on the number of jobs
+        file_diagnostics: list[list[Diagnostic]] = []
+        pending: list[tuple[int, SourceFile]] = []
         for source_file in self.config_manager.paths:
             if source_file.config.verbose:
                 print(f"Scanning file: {source_file.path}")
@@ -124,17 +211,21 @@ class RobocopLinter:
             if diagnostics is not None:
                 no_fixables = all(not diag.rule.fixable for diag in diagnostics)
                 if no_fixables or not (source_file.config.linter.fix or source_file.config.linter.diff):
-                    self.diagnostics.extend(diagnostics)
+                    file_diagnostics.append(diagnostics)
                     files += 1
                     cached_files += 1
                     continue
-            diagnostics = self.get_model_diagnostics(source_file, fix_applier)
+            if parallel:
+                pending.append((len(file_diagnostics), source_file))
+                file_diagnostics.append([])
+                continue
+            diagnostics = self.check_file(source_file, fix_applier)
             if diagnostics is None:
                 continue
-            self.diagnostics.extend(diagnostics)
+            file_diagnostics.append(diagnostics)
             files += 1
-            if not source_file.config.linter.diff:  # diff simulate fixes, so it's best to ignore the results
-                self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
+        files += self.check_files_in_parallel(pending, file_diagnostics, fix_applier)
+        self.diagnostics = [diagnostic for diagnostics in file_diagnostics for diagnostic in diagnostics]
         self.config_manager.cache.save()
         self.diagnostics.extend(self.run_project_checks(fix_applier, checked_paths))
         self.config_manager.cache.save()  # project analysis may cache imported libraries
@@ -152,6 +243,50 @@ class RobocopLinter:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
 
+    def check_files_in_parallel(
+        self, pending: list[tuple[int, SourceFile]], file_diagnostics: list[list[Diagnostic]], fix_applier: FixApplier
+    ) -> int:
+        """
+        Check the files in worker processes and store their diagnostics at the given indexes of ``file_diagnostics``.
+
+        The number of workers is limited by the number of files, and if only one worker would be used,
+        the files are checked in the current process.
+
+        Returns:
+            Number of checked files.
+
+        """
+        if not pending:
+            return 0
+        workers = get_workers_count(self.config_manager.default_config.jobs, len(pending))
+        checked = 0
+        if workers == 1:
+            for index, source_file in pending:
+                diagnostics = self.check_file(source_file, fix_applier)
+                if diagnostics is not None:
+                    file_diagnostics[index] = diagnostics
+                    checked += 1
+            return checked
+        from robocop.linter.parallel import check_in_workers  # noqa: PLC0415
+
+        source_files = [source_file for _, source_file in pending]
+        for (index, source_file), result in zip(pending, check_in_workers(source_files, workers), strict=True):
+            if result.error is not None:
+                self.print_decode_error(source_file, result.error)
+                continue
+            fix_applier.fix_stats.total_fixes += result.total_fixes
+            if result.applied_fixes:
+                fix_applier.fix_stats.by_file[source_file.path] = result.applied_fixes
+            if result.modified:  # the file is already saved by the worker
+                fix_applier.modified_files.append(source_file)
+            resolved_config = self.config_resolver.resolve_config(source_file.config)
+            restored = [restore_diagnostic(cached, source_file, resolved_config) for cached in result.diagnostics]
+            diagnostics = [diagnostic for diagnostic in restored if diagnostic is not None]
+            self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
+            file_diagnostics[index] = diagnostics
+            checked += 1
+        return checked
+
     def offset_embedded_diagnostics(self) -> None:
         """Translate diagnostic positions of embedded files (Markdown, Python) to physical file coordinates."""
         for diagnostic in self.diagnostics:
@@ -167,57 +302,7 @@ class RobocopLinter:
             fix_applier: The applier responsible for applying fixes to the source file.
 
         """
-        resolved_config = self.config_resolver.resolve_config(source_file.config)
-        if fix_applier is None:
-            fix_applier = FixApplier()
-        templated = is_suite_templated(source_file.model)
-        prev_fixable = 0
-        # Iteratively scans, filters, applies fixes, and reloads model until convergence or no fixes remain
-        for _ in range(MAX_FILE_FIX_ITERATIONS):
-            found_diagnostics = []
-            disablers = DisablersFinder(source_file.model)
-            for checker in resolved_config.checkers:
-                found_diagnostics += [
-                    diagnostic
-                    for diagnostic in checker.scan_file(source_file, templated)  # type: ignore[attr-defined]
-                    if not (
-                        diagnostic.severity < source_file.config.linter.threshold
-                        or disablers.is_rule_disabled(diagnostic)
-                    )
-                ]
-                if disablers.file_disabled and found_diagnostics:  # special case to not report disabler as not used
-                    return []
-            for checker in resolved_config.after_run_checkers:
-                found_diagnostics += [
-                    diagnostic
-                    for diagnostic in checker.scan_file(source_file, disablers=disablers)
-                    if not (
-                        diagnostic.severity < source_file.config.linter.threshold
-                        or disablers.is_rule_disabled(diagnostic)
-                    )
-                ]
-            if found_diagnostics and source_file.config.linter.per_file_ignores:
-                for ignored_file, ignored_rules in source_file.config.linter.per_file_ignores.items():
-                    if source_file.path.match(ignored_file):
-                        found_diagnostics = [
-                            diagnostic
-                            for diagnostic in found_diagnostics
-                            if diagnostic.rule.rule_id not in ignored_rules
-                            and diagnostic.rule.name not in ignored_rules
-                        ]
-            if not found_diagnostics or not (source_file.config.linter.fix or source_file.config.linter.diff):
-                fix_applier.fix_stats.total_fixes += prev_fixable
-                break
-            fixable_diagnostics = [diag for diag in found_diagnostics if diag.rule.fixable]
-            fix_applier.fix_stats.total_fixes += max(prev_fixable - len(fixable_diagnostics), 0)
-            prev_fixable = len(fixable_diagnostics)
-            # Collect fixes from diagnostics
-            fixes = [diag.fix or diag.rule.fix(diag, source_file.fix_source_lines) for diag in fixable_diagnostics]
-            if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):
-                break
-        if source_file.config.linter.fix and not source_file.config.linter.diff:
-            source_file.write_changes()
-        return found_diagnostics
+        return check_source_file(source_file, self.config_resolver, fix_applier)
 
     def run_project_checks(
         self, fix_applier: FixApplier | None = None, checked_paths: set[Path] | None = None

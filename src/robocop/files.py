@@ -47,14 +47,14 @@ def resolve_path(path: Path) -> Path:
     return resolved
 
 
-def mark_resolved(path: Path) -> None:
+def mark_resolved(path: Path, resolved: Path | None = None) -> None:
     """
     Mark the path as already resolved, so it is not resolved again by ``resolve_path``.
 
     It allows to skip the costly ``Path.resolve`` call for paths that are known to be resolved, for example paths
-    found when walking the resolved directory.
+    found when walking the resolved directory, or paths resolved in another process.
     """
-    _remember_resolved_path(path, path)
+    _remember_resolved_path(path, path if resolved is None else resolved)
 
 
 def _remember_resolved_path(path: Path, resolved: Path) -> None:

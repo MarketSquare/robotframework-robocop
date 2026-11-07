@@ -33,7 +33,7 @@ class GitIgnoreResolver:
             relative_path = files.get_relative_path(path, gitignore_path)
             path_str = str(relative_path)
             # fixes a bug in pathspec where directory needs to end with / to be ignored by pattern
-            if relative_path.is_dir() and path_str != ".":
+            if path.is_dir() and path_str != ".":
                 path_str = f"{path_str}{os.sep}"
             if gitignore.match_file(path_str):
                 return True

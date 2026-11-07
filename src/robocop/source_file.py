@@ -50,6 +50,7 @@ class SourceFile:
     _source_lines: list[str] | None = None
     _original_source_lines: list[str] | None = None
     _resolved_path: Path | None = None
+    _languages: Languages | None = None
 
     def __post_init__(self) -> None:
         # When a model is provided by an external caller (e.g. a language server passing the
@@ -140,8 +141,21 @@ class SourceFile:
             loader = get_model
 
         if LANG_SUPPORTED:
-            return loader(path_or_text, lang=self.config.languages)
+            return loader(path_or_text, lang=self.languages)
         return loader(path_or_text)
+
+    @property
+    def languages(self) -> Languages | None:
+        """
+        Languages used to parse the file.
+
+        Robot Framework adds languages from the ``language:`` header to the passed ``Languages`` object. Every source
+        file uses its own copy of the configured languages, so that the language of one file does not leak to the
+        other files using the same configuration.
+        """
+        if self._languages is None and self.config.languages is not None:
+            self._languages = Languages(self.config.languages, add_english=False)
+        return self._languages
 
     def reload_model(self) -> None:
         """
@@ -241,7 +255,7 @@ class EmbeddedSourceFile(SourceFile):
         from robot.api import get_model as _get_model  # noqa: PLC0415
 
         if LANG_SUPPORTED:
-            model = _get_model(source, lang=self.config.languages)
+            model = _get_model(source, lang=self.languages)
         else:
             model = _get_model(source)
         model.source = self.path

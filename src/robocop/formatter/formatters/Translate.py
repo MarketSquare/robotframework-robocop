@@ -172,6 +172,7 @@ class Translate(Formatter):
 
     def visit_File(self, node: File) -> File:  # noqa: N802
         self.in_settings = False
+        self._bdd_mapping = None  # languages can differ between files
         self.add_replace_language_header(node)
         return self.generic_visit(node)
 

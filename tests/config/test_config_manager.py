@@ -388,6 +388,22 @@ class TestConfigFinder:
         assert test_dir / "file.robot" in actual_results
         assert len(actual_results) == 1
 
+    def test_gitignore_directory_pattern_in_subdirectory(self, tmp_path):
+        # Arrange
+        (tmp_path / ".git").mkdir()
+        ignored_dir = tmp_path / "sub" / "ignored_dir"
+        ignored_dir.mkdir(parents=True)
+        # files from the ignored directory can't be re-included, the same as in git
+        (tmp_path / "sub" / ".gitignore").write_text("ignored_dir/\n!ignored_dir/keep.robot\n")
+        (tmp_path / "sub" / "file.robot").write_text("*** Test Cases ***\n")
+        (ignored_dir / "keep.robot").write_text("*** Test Cases ***\n")
+
+        # Act
+        actual_results = get_sources_and_configs(tmp_path)
+
+        # Assert
+        assert set(actual_results) == {tmp_path / "sub" / "file.robot"}
+
     def test_invalid_option_value(self, test_data):
         # Arrange
         config_path = test_data / "invalid_option_values" / "invalid_target_version.toml"

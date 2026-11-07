@@ -133,6 +133,7 @@ def _global_options(target_version: Version) -> list[str]:
         ("cache_dir", defaults.CACHE_DIR_NAME, "Directory used to store the cache."),
         ("verbose", defaults.VERBOSE, "Print more information during the run."),
         ("silent", defaults.SILENT, "Do not print any output."),
+        ("jobs", defaults.JOBS, "Number of processes used to lint or format files (0 means number of CPUs)."),
     ]
     return _render_options("[tool.robocop]", options)
 

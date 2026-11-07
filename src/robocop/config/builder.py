@@ -9,6 +9,7 @@ try:
 except ImportError:
     Languages = None
 
+from robocop import exceptions
 from robocop.config import defaults
 from robocop.config.hash import config_hash, formatter_hash, linter_hash
 from robocop.config.parser import load_languages, parse_target_version
@@ -100,6 +101,7 @@ class ConfigBuilder:
         force_exclude = resolve(cli_raw, file_raw, "force_exclude", defaults.FORCE_EXCLUDE)
         verbose = resolve(cli_raw, file_raw, "verbose", defaults.VERBOSE)
         silent = resolve(cli_raw, file_raw, "silent", defaults.SILENT)
+        jobs = self.jobs_from_raw(cli_raw, file_raw)
 
         target_version = resolve(cli_raw, file_raw, "target_version", None)
         validated_version = parse_target_version(target_version)
@@ -156,7 +158,18 @@ class ConfigBuilder:
             target_version=validated_version,
             config_source=config_source,
             hash=hash_str,
+            jobs=jobs,
         )
+
+    @staticmethod
+    def jobs_from_raw(cli_raw: RawConfig | None, file_raw: RawConfig | None) -> int:
+        jobs = resolve(cli_raw, file_raw, "jobs", defaults.JOBS)
+        if isinstance(jobs, bool) or not isinstance(jobs, int) or jobs < 0:
+            raise exceptions.ConfigurationError(
+                f"Invalid 'jobs' value: '{jobs}'. It should be a non-negative integer "
+                "(0 means the number of available CPUs)."
+            )
+        return jobs
 
     @staticmethod
     def variables_from_raw(cli_raw: RawConfig | None, file_raw: RawConfig | None) -> dict[str, str]:

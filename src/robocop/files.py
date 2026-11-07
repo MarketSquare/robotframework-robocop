@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from functools import cache, lru_cache
+from functools import cache
 from pathlib import Path
+
+RESOLVED_PATHS_LIMIT = 100_000
+_resolved_paths: dict[Path, Path] = {}
 
 
 def get_relative_path(path: str | Path, parent_path: Path) -> Path:
@@ -24,7 +27,6 @@ def path_relative_to_cwd(path: Path) -> Path:
     return _path_relative_to(path, Path.cwd())
 
 
-@lru_cache(maxsize=100_000)
 def resolve_path(path: Path) -> Path:
     """
     Return the resolved (absolute, symlink free) path.
@@ -38,7 +40,27 @@ def resolve_path(path: Path) -> Path:
         Resolved path.
 
     """
-    return path.resolve()
+    resolved = _resolved_paths.get(path)
+    if resolved is None:
+        resolved = path.resolve()
+        _remember_resolved_path(path, resolved)
+    return resolved
+
+
+def mark_resolved(path: Path) -> None:
+    """
+    Mark the path as already resolved, so it is not resolved again by ``resolve_path``.
+
+    It allows to skip the costly ``Path.resolve`` call for paths that are known to be resolved, for example paths
+    found when walking the resolved directory.
+    """
+    _remember_resolved_path(path, path)
+
+
+def _remember_resolved_path(path: Path, resolved: Path) -> None:
+    if len(_resolved_paths) >= RESOLVED_PATHS_LIMIT:
+        _resolved_paths.clear()
+    _resolved_paths[path] = resolved
 
 
 def get_common_parent_dirs(sources: list[Path]) -> list[Path]:

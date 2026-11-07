@@ -57,7 +57,7 @@ class RobocopLinter:
             return get_resource_with_lang(get_resource_model, source, language)
         return get_resource_with_lang(get_model, source, language)
 
-    def get_cached_diagnostics(self, config: Config, source: Path) -> list[Diagnostic] | None:
+    def get_cached_diagnostics(self, source_file: SourceFile) -> list[Diagnostic] | None:
         """
         Return cached diagnostics if available.
 
@@ -65,13 +65,14 @@ class RobocopLinter:
             List of cached diagnostics or None if no cache is available.
 
         """
+        config = source_file.config
         if not config.cache.enabled:
             return None
-        cached_entry = self.config_manager.cache.get_linter_entry(source, config.hash)
+        cached_entry = self.config_manager.cache.get_linter_entry(source_file.path, config.hash)
 
         if cached_entry is not None:
             resolved_config = self.config_resolver.resolve_config(config)
-            return restore_diagnostics(cached_entry, source, config, resolved_config)
+            return restore_diagnostics(cached_entry, source_file.path, config, resolved_config, source_file)
         return None
 
     def get_model_diagnostics(self, source_file: SourceFile, fix_applier: FixApplier) -> list[Diagnostic] | None:
@@ -119,7 +120,7 @@ class RobocopLinter:
             if source_file.config.verbose:
                 print(f"Scanning file: {source_file.path}")
             checked_paths.add(source_file.resolved_path)
-            diagnostics = self.get_cached_diagnostics(source_file.config, source_file.path)
+            diagnostics = self.get_cached_diagnostics(source_file)
             if diagnostics is not None:
                 no_fixables = all(not diag.rule.fixable for diag in diagnostics)
                 if no_fixables or not (source_file.config.linter.fix or source_file.config.linter.diff):

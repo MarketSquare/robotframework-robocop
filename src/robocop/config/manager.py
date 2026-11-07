@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import stat
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -18,6 +20,50 @@ if TYPE_CHECKING:
 
 CONFIG_NAMES = ("robocop.toml", "robot.toml", "pyproject.toml")
 GitIgnorePathSpec = pathspec.GitIgnoreSpec
+# File systems on Windows and macOS are case-insensitive by default, so file names from directory listings are
+# compared case-insensitively to match the behaviour of ``Path.is_file()`` checks
+CASE_INSENSITIVE_FS = sys.platform in ("win32", "darwin")
+
+
+def _listing_key(name: str) -> str:
+    return name.lower() if CASE_INSENSITIVE_FS else name
+
+
+def _scan_directory(directory: Path) -> tuple[list[os.DirEntry[str]], dict[str, os.DirEntry[str]]]:
+    """
+    List directory entries.
+
+    Entries returned by ``os.scandir`` hold the file type (and on Windows also the file stat) read together
+    with the directory listing, which allows to avoid separate file system calls for each file.
+
+    Returns:
+        Tuple with the list of directory entries and the mapping of (normalized) entry names to entries.
+
+    """
+    with os.scandir(directory) as it:
+        entries = list(it)
+    return entries, {_listing_key(entry.name): entry for entry in entries}
+
+
+def _is_link(entry: os.DirEntry[str]) -> bool:
+    """Check if the entry is a symlink or other link (such as Windows junction) that may point outside its parent."""
+    if entry.is_symlink():
+        return True
+    if os.name == "nt":
+        # junctions are not reported by is_symlink(). The stat is cached with the entry, so it does not cost I/O
+        attributes = getattr(entry.stat(follow_symlinks=False), "st_file_attributes", 0)
+        return bool(attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT)
+    return False
+
+
+def _entry_is_dir(entries: dict[str, os.DirEntry[str]], name: str) -> bool:
+    entry = entries.get(name)
+    return entry is not None and entry.is_dir()
+
+
+def _entry_is_file(entries: dict[str, os.DirEntry[str]], name: str) -> bool:
+    entry = entries.get(name)
+    return entry is not None and entry.is_file()
 
 
 class GitIgnoreResolver:
@@ -29,11 +75,12 @@ class GitIgnoreResolver:
         """Find path gitignores and check if file is excluded."""
         if not gitignores:
             return False
+        is_dir = path.is_dir()
         for gitignore_path, gitignore in gitignores:
             relative_path = files.get_relative_path(path, gitignore_path)
             path_str = str(relative_path)
             # fixes a bug in pathspec where directory needs to end with / to be ignored by pattern
-            if path.is_dir() and path_str != ".":
+            if is_dir and path_str != ".":
                 path_str = f"{path_str}{os.sep}"
             if gitignore.match_file(path_str):
                 return True
@@ -81,6 +128,67 @@ class GitIgnoreResolver:
             if (parent_path / ".git").is_dir():
                 break
         return gitignores
+
+    def get_directory_ignores(
+        self,
+        directory: Path,
+        entries: dict[str, os.DirEntry[str]],
+        parent_ignores: list[tuple[Path, GitIgnorePathSpec]],
+    ) -> list[tuple[Path, GitIgnorePathSpec]]:
+        """
+        Return gitignores that apply to the directory content, reusing gitignores already found for its parent.
+
+        It is the equivalent of ``resolve_path_ignores``, but it does not need to visit parent directories nor to
+        access the file system for checking if the files exist - it uses the directory listing instead.
+
+        Args:
+            directory: resolved path to the directory
+            entries: directory listing (see ``_scan_directory``)
+            parent_ignores: gitignores that apply to the parent directory
+
+        Returns:
+            List of gitignores from the directory and its parents.
+
+        """
+        gitignores: list[tuple[Path, GitIgnorePathSpec]] = []
+        if directory in self.cached_ignores:
+            gitignores.append(self.cached_ignores[directory])
+        elif directory not in self.ignore_dirs:
+            if _entry_is_file(entries, ".gitignore"):
+                gitignore = self.read_gitignore(Path(entries[".gitignore"].path))
+                self.cached_ignores[directory] = (directory, gitignore)
+                gitignores.append((directory, gitignore))
+            else:
+                self.ignore_dirs.add(directory)
+        if _entry_is_dir(entries, ".git"):  # do not look for gitignores outside the repository
+            return gitignores
+        return gitignores + parent_ignores
+
+    @staticmethod
+    def relative_ignores(
+        directory: Path, gitignores: list[tuple[Path, GitIgnorePathSpec]]
+    ) -> list[tuple[str, GitIgnorePathSpec]]:
+        """
+        Return the directory path relative to each gitignore location.
+
+        Paths of the files from the directory can be then matched against gitignores by simple string concatenation.
+
+        Returns:
+            List of tuples with the relative directory path prefix (ending with separator) and the gitignore.
+
+        """
+        relative_ignores = []
+        for gitignore_path, gitignore in gitignores:
+            relative_path = str(files.get_relative_path(directory, gitignore_path))
+            prefix = "" if relative_path == "." else f"{relative_path}{os.sep}"
+            relative_ignores.append((prefix, gitignore))
+        return relative_ignores
+
+    @staticmethod
+    def entry_excluded(relative_ignores: list[tuple[str, GitIgnorePathSpec]], name: str, is_dir: bool) -> bool:
+        """Check if directory entry is excluded by any of the gitignores (see ``relative_ignores``)."""
+        suffix = os.sep if is_dir else ""
+        return any(gitignore.match_file(f"{prefix}{name}{suffix}") for prefix, gitignore in relative_ignores)
 
 
 class ConfigManager:
@@ -184,13 +292,17 @@ class ConfigManager:
             return self.find_config_in_dirs(directories, default=None)
         return self.config_builder.from_raw(self.overwrite_config, None)
 
-    def is_git_project_root(self, path: Path) -> bool:
+    def is_git_project_root(self, path: Path, entries: dict[str, os.DirEntry[str]] | None = None) -> bool:
         """Check if current directory contains .git directory and might be a project root."""
         if self.ignore_git_dir:
             return False
+        if entries is not None:
+            return _entry_is_dir(entries, ".git")
         return (path / ".git").is_dir()
 
-    def find_config_in_directory(self, directory: Path) -> Config | None:
+    def find_config_in_directory(
+        self, directory: Path, entries: dict[str, os.DirEntry[str]] | None = None
+    ) -> Config | None:
         """
         Search for a configuration file in the specified directory.
 
@@ -200,6 +312,7 @@ class ConfigManager:
 
         Args:
             directory: The directory path to search for configuration files.
+            entries: Optional directory listing. If provided, it is used instead of checking each file separately.
 
         Returns:
             A Config object if a configuration file is found and successfully
@@ -207,9 +320,13 @@ class ConfigManager:
 
         """
         for config_filename in CONFIG_NAMES:
-            if (config_path := (directory / config_filename)).is_file() and (
-                configuration := read_toml_config(config_path)
-            ):
+            if entries is not None:
+                if not _entry_is_file(entries, config_filename):
+                    continue
+                config_path = directory / entries[config_filename].name
+            elif not (config_path := (directory / config_filename)).is_file():
+                continue
+            if configuration := read_toml_config(config_path):
                 config_file_raw = RawConfig.from_dict(configuration, config_path)
                 return self.config_builder.from_raw(self.overwrite_config, config_file_raw)
         return None
@@ -248,6 +365,31 @@ class ConfigManager:
             return self.default_config
         return self.find_config_in_dirs(source_file.parents, self.default_config)
 
+    def get_config_for_directory_content(self, directory: Path, entries: dict[str, os.DirEntry[str]]) -> Config:
+        """
+        Find the closest config for the files inside the directory.
+
+        It is the equivalent of ``get_config_for_source_file`` called for any file in the directory, but it uses
+        the directory listing instead of checking each configuration file name separately.
+
+        Args:
+            directory: resolved path to the directory
+            entries: directory listing (see ``_scan_directory``)
+
+        """
+        if self.overridden_config or self.ignore_file_config:
+            return self.default_config
+        if directory in self.cached_configs:
+            return self.cached_configs[directory]
+        config = self.find_config_in_directory(directory, entries)
+        if config is None:
+            if self.is_git_project_root(directory, entries):
+                config = self.default_config
+            else:
+                config = self.find_config_in_dirs(directory.parents, self.default_config)
+        self.cached_configs[directory] = config
+        return config
+
     def resolve_paths(
         self,
         sources: list[Path] | list[str],
@@ -285,10 +427,98 @@ class ConfigManager:
                 if source.is_file() and not config.file_filters.path_included(source_not_resolved):
                     continue
                 if not self.skip_gitignore:
-                    source_gitignore = self.gitignore_resolver.resolve_path_ignores(source_not_resolved)
-                    if self.gitignore_resolver.path_excluded(source_not_resolved, source_gitignore):
+                    source_absolute = Path(os.path.abspath(source_not_resolved))
+                    source_gitignore = self.gitignore_resolver.resolve_path_ignores(source_absolute)
+                    if self.gitignore_resolver.path_excluded(source_absolute, source_gitignore):
                         continue
             if source.is_dir():
-                self.resolve_paths(list(source.iterdir()), target=target)
+                gitignores = [] if self.skip_gitignore else self.gitignore_resolver.resolve_path_ignores(source)
+                self._walk_directory(source, _scan_directory(source), gitignores, target)
             elif source.is_file():
-                target[source] = self._paths.get(source) or build_source_file(source, config)
+                self._add_source_file(source, config, target)
+
+    def _add_source_file(self, path: Path, config: Config, target: dict[Path, SourceFile]) -> None:
+        """Add the source file to the target. The path must be already resolved."""
+        source_file = self._paths.get(path)
+        if source_file is None:
+            files.mark_resolved(path)
+            source_file = build_source_file(path, config)
+        target[path] = source_file
+
+    def _walk_directory(
+        self,
+        directory: Path,
+        listing: tuple[list[os.DirEntry[str]], dict[str, os.DirEntry[str]]],
+        gitignores: list[tuple[Path, GitIgnorePathSpec]],
+        target: dict[Path, SourceFile],
+    ) -> None:
+        """
+        Recursively find all files to parse in the directory.
+
+        It is the equivalent of calling ``resolve_paths`` on each directory entry, but it is optimized for
+        processing a large number of files. Directory listings are used to check file types and to find
+        configuration and gitignore files, and the configuration and gitignores are resolved once per directory
+        instead of once per file. Since the directory path is resolved, the paths of its entries are resolved
+        too, unless they are links - which are handled by ``resolve_paths``.
+
+        Args:
+            directory: resolved path to the directory
+            listing: directory listing (see ``_scan_directory``)
+            gitignores: gitignores that apply to the directory content (including the directory own gitignore)
+            target: where the resolved source files are stored
+
+        """
+        entries, entries_by_name = listing
+        config = self.get_config_for_directory_content(directory, entries_by_name)
+        relative_ignores = self.gitignore_resolver.relative_ignores(directory, gitignores)
+        for entry in entries:
+            if _is_link(entry):
+                self.resolve_paths([entry.path], target=target)
+                continue
+            path = Path(entry.path)
+            if path in target or config.file_filters.path_excluded(path):
+                continue
+            if entry.is_dir():
+                sub_listing = _scan_directory(path)
+                sub_gitignores = self._get_subdirectory_ignores(path, sub_listing[1], gitignores)
+                if self._subdirectory_excluded(path, entry.name, sub_listing[1], sub_gitignores, relative_ignores):
+                    continue
+                self._walk_directory(path, sub_listing, sub_gitignores, target)
+            elif entry.is_file():
+                if not config.file_filters.path_included(path):
+                    continue
+                if self.gitignore_resolver.entry_excluded(relative_ignores, entry.name, is_dir=False):
+                    continue
+                self._add_source_file(path, config, target)
+
+    def _get_subdirectory_ignores(
+        self,
+        directory: Path,
+        entries: dict[str, os.DirEntry[str]],
+        parent_gitignores: list[tuple[Path, GitIgnorePathSpec]],
+    ) -> list[tuple[Path, GitIgnorePathSpec]]:
+        if self.skip_gitignore:
+            return []
+        return self.gitignore_resolver.get_directory_ignores(directory, entries, parent_gitignores)
+
+    def _subdirectory_excluded(
+        self,
+        directory: Path,
+        name: str,
+        entries: dict[str, os.DirEntry[str]],
+        gitignores: list[tuple[Path, GitIgnorePathSpec]],
+        parent_relative_ignores: list[tuple[str, GitIgnorePathSpec]],
+    ) -> bool:
+        """
+        Check if the subdirectory is excluded by gitignores.
+
+        The directory is matched against its own gitignore (as ``.``) and, unless it is the root of other git
+        repository, against the gitignores of its parent.
+        """
+        if self.skip_gitignore:
+            return False
+        if gitignores and gitignores[0][0] == directory and gitignores[0][1].match_file("."):
+            return True
+        if _entry_is_dir(entries, ".git"):
+            return False
+        return self.gitignore_resolver.entry_excluded(parent_relative_ignores, name, is_dir=True)

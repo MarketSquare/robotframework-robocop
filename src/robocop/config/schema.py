@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
-from pathlib import Path
+import fnmatch
+import os
+import re
+from dataclasses import dataclass, field, fields
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
 try:
@@ -311,14 +314,50 @@ class RawFileFiltersOptions:
 class FileFiltersOptions:
     included_paths: set[str]
     excluded_paths: set[str]
+    _excluded_matcher: _PathPatternMatcher = field(init=False, repr=False, compare=False)
+    _included_matcher: _PathPatternMatcher = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        self._excluded_matcher = _PathPatternMatcher(self.excluded_paths)
+        self._included_matcher = _PathPatternMatcher(self.included_paths)
 
     def path_excluded(self, path: Path) -> bool:
         """Exclude all paths matching exclude patterns."""
-        return any(path.match(pattern) for pattern in self.excluded_paths)
+        return self._excluded_matcher.match(path)
 
     def path_included(self, path: Path) -> bool:
         """Only allow paths matching include patterns."""
-        return any(path.match(pattern) for pattern in self.included_paths)
+        return self._included_matcher.match(path)
+
+
+class _PathPatternMatcher:
+    """
+    Match paths against the glob patterns with the ``Path.match`` semantics.
+
+    Most of the patterns (such as ``*.robot`` or ``.venv``) consist of a single, relative part, and so they only need
+    to be matched against the path name. Such patterns are combined into a single compiled regex, which is
+    considerably faster than calling ``Path.match`` with every pattern for every path. Remaining patterns use
+    ``Path.match``.
+    """
+
+    def __init__(self, patterns: set[str]) -> None:
+        name_patterns = []
+        self.path_patterns = []
+        for pattern in sorted(patterns):
+            pure_pattern = PurePath(pattern)
+            if len(pure_pattern.parts) == 1 and not pure_pattern.anchor:
+                # use normalized pattern, i.e. without trailing separator
+                name_patterns.append(fnmatch.translate(pure_pattern.parts[0]))
+            else:
+                self.path_patterns.append(pattern)
+        # Path.match is case-insensitive only on Windows
+        flags = re.IGNORECASE if os.name == "nt" else 0
+        self.name_regex = re.compile("|".join(name_patterns), flags) if name_patterns else None
+
+    def match(self, path: Path) -> bool:
+        if self.name_regex is not None and self.name_regex.match(path.name):
+            return True
+        return any(path.match(pattern) for pattern in self.path_patterns)
 
 
 @dataclass

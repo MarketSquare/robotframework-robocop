@@ -16,6 +16,7 @@ import msgpack
 
 from robocop import __version__
 from robocop.config import defaults
+from robocop.files import resolve_path
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
@@ -421,14 +422,15 @@ class RobocopCache:
 
         Uses instance-bound cache to avoid repeated filesystem I/O from path.resolve().
         The cache is cleared when the RobocopCache instance is garbage collected,
-        preventing memory leaks in long-running processes.
+        preventing memory leaks in long-running processes. Paths already known to be resolved
+        (for example found during the file discovery) are not resolved again.
 
         Returns:
             Normalized absolute path as string.
 
         """
         if path not in self._path_cache:
-            self._path_cache[path] = str(path.resolve())
+            self._path_cache[path] = str(resolve_path(path))
         return self._path_cache[path]
 
     @staticmethod
@@ -696,6 +698,7 @@ def restore_diagnostics(
     source: Path,
     config: Config,
     resolved_config: ResolvedConfig,
+    source_file: SourceFile | None = None,
 ) -> list[Diagnostic] | None:
     """
     Restore Diagnostic objects from cached data.
@@ -705,6 +708,7 @@ def restore_diagnostics(
         source: The source file path (Path object for consistency with normal diagnostics).
         config: Configuration associated with the source file.
         resolved_config: ResolvedConfig with loaded runtime objects such as rules.
+        source_file: Source file shared by the restored diagnostics. Created from ``source`` if not provided.
 
     Returns:
         List of restored diagnostics, or None if restoration failed
@@ -714,6 +718,9 @@ def restore_diagnostics(
     from robocop.linter.diagnostics import Diagnostic  # noqa: PLC0415
     from robocop.linter.rules import RuleSeverity  # noqa: PLC0415
 
+    if source_file is None:
+        # all diagnostics share the same source file, so the file content is read only once (if needed)
+        source_file = SourceFile(source, config)
     restored = []
     for cached_diag in cached_entry.diagnostics:
         # Try to find rule by ID first, fall back to name
@@ -727,7 +734,7 @@ def restore_diagnostics(
 
         diagnostic = Diagnostic(
             rule=rule,
-            source=SourceFile(source, config),
+            source=source_file,
             lineno=cached_diag.line,
             col=cached_diag.col,
             end_lineno=cached_diag.end_line,

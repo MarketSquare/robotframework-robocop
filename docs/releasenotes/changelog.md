@@ -1,5 +1,24 @@
 # Release notes
 
+## [9.3.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.2.0...v9.3.0) (2026-11-07)
+
+
+### Features
+
+* add jobs option for parallel processing ([#1965](https://github.com/MarketSquare/robotframework-robocop/issues/1965)) ([86b7531](https://github.com/MarketSquare/robotframework-robocop/commit/86b7531f056816e0ae6018557829a042290c6bbc))
+
+
+### Bug Fixes
+
+* check gitignore directory patterns against the actual path ([#1961](https://github.com/MarketSquare/robotframework-robocop/issues/1961)) ([a2f39c0](https://github.com/MarketSquare/robotframework-robocop/commit/a2f39c059326e34c8766cb143e9a36edc5bf499a))
+* do not leak language header between files ([#1963](https://github.com/MarketSquare/robotframework-robocop/issues/1963)) ([657293b](https://github.com/MarketSquare/robotframework-robocop/commit/657293b15f0f2861bf9dff1e13b426edf1617c8d))
+* restore severity of cached diagnostics ([#1962](https://github.com/MarketSquare/robotframework-robocop/issues/1962)) ([90c0930](https://github.com/MarketSquare/robotframework-robocop/commit/90c0930e658cad8906752a20b325d608bf3dd32c))
+
+
+### Performance
+
+* speed up file discovery and cache lookups ([#1964](https://github.com/MarketSquare/robotframework-robocop/issues/1964)) ([836a895](https://github.com/MarketSquare/robotframework-robocop/commit/836a895ed54f6e6f8dae65c6928209ee412b6b48))
+
 ## [9.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.1.2...v9.2.0) (2026-11-06)
 
 

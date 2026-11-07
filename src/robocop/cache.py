@@ -712,6 +712,7 @@ def restore_diagnostics(
 
     """
     from robocop.linter.diagnostics import Diagnostic  # noqa: PLC0415
+    from robocop.linter.rules import RuleSeverity  # noqa: PLC0415
 
     restored = []
     for cached_diag in cached_entry.diagnostics:
@@ -733,6 +734,8 @@ def restore_diagnostics(
             end_col=cached_diag.end_col,
             **dict(cached_diag.arguments),
         )
+        # severity can depend on the reported value (rules with severity thresholds)
+        diagnostic.severity = RuleSeverity(cached_diag.severity)
         restored.append(diagnostic)
 
     return restored

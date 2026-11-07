@@ -177,6 +177,25 @@ class TestCacheIntegration:
             # Assert - results should match
             assert len(second_result) == len(first_result)
 
+    def test_cache_restores_severity_from_threshold(self, tmp_path):
+        """Test that severity depending on the reported value (severity threshold) is restored from the cache."""
+        # Arrange
+        (tmp_path / "test.robot").write_text(
+            "*** Keywords ***\nShort\n" + "    Log    1\n" * 3 + "\nLong\n" + "    Log    1\n" * 10, encoding="utf-8"
+        )
+        configure = ["too-long-keyword.max_len=1", "too-long-keyword.severity_threshold=warning=2:error=8"]
+
+        with working_directory(tmp_path):
+            first_result = check_files(select=["LEN01"], configure=configure, return_result=True, silent=True)
+
+            # Act - second run uses cached data
+            second_result = check_files(select=["LEN01"], configure=configure, return_result=True, silent=True)
+
+        # Assert
+        first_severities = [diag.severity.value for diag in first_result]
+        assert first_severities == ["W", "E"]
+        assert [diag.severity.value for diag in second_result] == first_severities
+
     def test_cache_invalidated_on_size_change(self, tmp_path, capsys):
         """Test that cache is invalidated when only file size changes."""
         # Arrange

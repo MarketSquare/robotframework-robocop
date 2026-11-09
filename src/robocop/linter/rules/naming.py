@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 import re
 from typing import TYPE_CHECKING
 
@@ -50,6 +51,7 @@ RESERVED_WORDS = {
 }
 
 
+@functools.lru_cache(maxsize=4096)
 def normalize_keyword_name(keyword_name: str, pattern: re.Pattern[str], is_keyword_definition: bool) -> str:
     """Strip the parts of a keyword name that should not be taken into account when checking its case."""
     normalized = get_unmasked_string(keyword_name)
@@ -68,11 +70,16 @@ def normalize_keyword_name(keyword_name: str, pattern: re.Pattern[str], is_keywo
     return normalized.replace("'", "")  # replace ' apostrophes
 
 
-def report_wrong_case_in_keyword(rule: Rule, node: Node, keyword_name: str, normalized: str) -> None:
+@functools.lru_cache(maxsize=4096)
+def has_word_starting_with_lowercase(normalized: str, first_word_only: bool) -> bool:
     words = LETTER_PATTERN.sub(" ", normalized).split(" ")
-    if rule.convention == "first_word_capitalized":
+    if first_word_only:
         words = words[:1]
-    if any(word[0].islower() for word in words if word):
+    return any(word[0].islower() for word in words if word)
+
+
+def report_wrong_case_in_keyword(rule: Rule, node: Node, keyword_name: str, normalized: str) -> None:
+    if has_word_starting_with_lowercase(normalized, rule.convention == "first_word_capitalized"):
         rule.report(
             keyword_name=keyword_name,
             node=node,

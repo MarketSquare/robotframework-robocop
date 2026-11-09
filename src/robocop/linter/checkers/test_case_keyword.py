@@ -69,7 +69,7 @@ class TestCaseKeywordChecker(VisitorChecker):
                 keyword_count = count_keyword_calls(node)
                 if not self.too_few_calls_in_keyword.check(node, keyword_count):
                     self.too_many_calls_in_keyword.check(node, keyword_count)
-        self.generic_visit(node)
+        self.visit(node.header)  # only the name is checked, the body does not need to be visited
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.missing_doc_test_case.check(node, self.templated_suite)
@@ -79,7 +79,7 @@ class TestCaseKeywordChecker(VisitorChecker):
         else:
             self.test_case_name_is_empty.check(node)
         self.check_test_case_length(node)
-        self.generic_visit(node)
+        self.visit(node.header)  # only the name is checked, the body does not need to be visited
 
     def check_test_case_length(self, node: TestCase) -> None:
         templated = is_templated_test(node, self.templated_suite)

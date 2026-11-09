@@ -1,5 +1,22 @@
 # Release notes
 
+## [9.4.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.3.0...v9.4.0) (2026-11-09)
+
+
+### Performance
+
+* read source file only once ([#1969](https://github.com/MarketSquare/robotframework-robocop/issues/1969)) ([772d538](https://github.com/MarketSquare/robotframework-robocop/commit/772d5381cd18e0bb0c073110a7d9cf9f3e166b5a))
+* resolve paths through cached parent directory ([#1971](https://github.com/MarketSquare/robotframework-robocop/issues/1971)) ([dd0202e](https://github.com/MarketSquare/robotframework-robocop/commit/dd0202e3952954c5f86f658f99120139a2c8c235))
+* skip commented code check when rule is disabled ([#1968](https://github.com/MarketSquare/robotframework-robocop/issues/1968)) ([d762a07](https://github.com/MarketSquare/robotframework-robocop/commit/d762a072b2ccb876676677dd229d5b9a9a883be0))
+* skip disablers search in files without disablers ([#1974](https://github.com/MarketSquare/robotframework-robocop/issues/1974)) ([f480a76](https://github.com/MarketSquare/robotframework-robocop/commit/f480a767579631fba427a1652b3b1873ca146824))
+* speed up relative path computation ([#1970](https://github.com/MarketSquare/robotframework-robocop/issues/1970)) ([8051fc8](https://github.com/MarketSquare/robotframework-robocop/commit/8051fc8fd466f19bb64e4078a27d3b232b48eb24))
+* speed up the slowest checkers ([#1976](https://github.com/MarketSquare/robotframework-robocop/issues/1976)) ([43f756c](https://github.com/MarketSquare/robotframework-robocop/commit/43f756c2c827358979694768e03db5e163273b61))
+
+
+### Miscellaneous
+
+* release 9.4.0 ([#1978](https://github.com/MarketSquare/robotframework-robocop/issues/1978)) ([6aa8a99](https://github.com/MarketSquare/robotframework-robocop/commit/6aa8a996e05d049872f918e7db6e47985ec59344))
+
 ## [9.3.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.2.0...v9.3.0) (2026-11-07)
 
 

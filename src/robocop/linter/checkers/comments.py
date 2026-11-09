@@ -177,7 +177,7 @@ class CommentChecker(VisitorChecker):
                 lineno=token.lineno,
                 col=token.col_offset + 1,
             )
-        if not skip_commented_code:
+        if not skip_commented_code and self.commented_out_code.enabled:
             self.check_for_commented_code(token, content)
 
     def check_for_commented_code(self, token: Token, content: str) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from functools import cache
 from pathlib import Path
 
@@ -8,18 +9,38 @@ _resolved_paths: dict[Path, Path] = {}
 
 
 def get_relative_path(path: str | Path, parent_path: Path) -> Path:
+    path = Path(path)
+    relative = _relative_to(path, parent_path)
+    return path if relative is None else relative
+
+
+def _relative_to(path: Path, parent_path: Path) -> Path | None:
+    """
+    Return the path relative to the parent path, or None if the path is not inside the parent path.
+
+    ``Path.relative_to`` is slow, so the common case where the path string starts with the parent path string is
+    handled with string operations. ``Path.relative_to`` is used for the other cases (for example paths that differ
+    only in the case on Windows).
+    """
+    path_str, parent_str = str(path), str(parent_path)
+    if path_str.startswith(parent_str):
+        rest = path_str[len(parent_str) :]
+        if not rest:
+            return Path()
+        if parent_str.endswith(os.sep):  # root directory, such as / or C:\
+            return Path(rest)
+        if rest[0] == os.sep:
+            return Path(rest[1:])
     try:
-        return Path(path).relative_to(parent_path)
+        return path.relative_to(parent_path)
     except ValueError:  # symlink etc
-        return Path(path)
+        return None
 
 
 @cache
 def _path_relative_to(path: Path, cwd: Path) -> Path:
-    try:
-        return path.relative_to(cwd)
-    except ValueError:  # symlink etc
-        return path
+    relative = _relative_to(path, cwd)
+    return path if relative is None else relative
 
 
 def path_relative_to_cwd(path: Path) -> Path:

@@ -38,7 +38,9 @@ from robocop.linter.rules import (
 )
 from robocop.linter.utils.misc import (
     RETURN_CLASSES,
+    first_lineno,
     get_section_name,
+    last_lineno,
     pattern_type,
     str2bool,
 )
@@ -329,15 +331,18 @@ class FileTooLongRule(Rule):
     deprecated_names = ("0506",)
 
     def check(self, node: File) -> None:
-        if not self.enabled or node.end_lineno <= self.max_lines:
+        if not self.enabled:
+            return
+        end_lineno = last_lineno(node)
+        if end_lineno <= self.max_lines:
             return
         self.report(
-            lines_count=node.end_lineno,
+            lines_count=end_lineno,
             max_allowed_count=self.max_lines,
             node=node,
-            lineno=node.end_lineno,
+            lineno=end_lineno,
             end_col=node.end_col_offset,
-            sev_threshold_value=node.end_lineno,
+            sev_threshold_value=end_lineno,
         )
 
 
@@ -1187,9 +1192,11 @@ def check_node_length(node: Node, ignore_docs: bool) -> tuple[int, int]:
         if is_data_statement(child) or is_not_standalone_comment(child):
             last_node = child
             break
+    end_lineno = last_lineno(last_node)
+    length = end_lineno - first_lineno(node)
     if ignore_docs:
-        return (last_node.end_lineno - node.lineno - get_documentation_length(node)), last_node.end_lineno
-    return (last_node.end_lineno - node.lineno), last_node.end_lineno
+        length -= get_documentation_length(node)
+    return length, end_lineno
 
 
 def get_documentation_length(node: Node) -> int:

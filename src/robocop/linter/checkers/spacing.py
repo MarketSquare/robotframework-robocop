@@ -17,7 +17,7 @@ from robocop.linter.rules.spacing import (
     index_of_first_standalone_comment,
     most_common_indent,
 )
-from robocop.linter.utils.misc import get_section_name, token_col
+from robocop.linter.utils.misc import first_lineno, get_section_name, token_col
 from robocop.parsing.run_keywords import is_run_keyword
 from robocop.version_handling import INLINE_IF_SUPPORTED
 
@@ -40,7 +40,7 @@ def replace_parent_indent(checker: UnevenIndentChecker, node: Node) -> Iterator[
     parent_line = checker.parent_line
     parent_indent = checker.parent_indent
     checker.parent_indent = get_indent(node)
-    checker.parent_line = node.lineno
+    checker.parent_line = first_lineno(node)
     yield
     checker.parent_indent = parent_indent
     checker.parent_line = parent_line

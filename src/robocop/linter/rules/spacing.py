@@ -20,7 +20,7 @@ from robocop.linter.rules import (
     RuleSeverity,
     SeverityThreshold,
 )
-from robocop.linter.utils.misc import str2bool
+from robocop.linter.utils.misc import first_lineno, str2bool
 
 if TYPE_CHECKING:
     from robot.parsing.model import Section
@@ -1005,11 +1005,12 @@ def count_indents(node: Node) -> Counter[int]:
     indents: Counter[int] = Counter()
     if node is None:
         return indents
+    test_case_lineno = first_lineno(node) if isinstance(node, TestCase) else None
     for line in node.body:
         if isinstance(line, (EmptyLine, Comment)):
             continue
         # for templated suite, there can be data on the same line where the test case name is
-        if node.lineno == line.lineno and isinstance(node, TestCase):
+        if test_case_lineno is not None and test_case_lineno == first_lineno(line):
             indents[len(node.name) + (get_indent(line))] += 1
         else:
             indents[(get_indent(line))] += 1

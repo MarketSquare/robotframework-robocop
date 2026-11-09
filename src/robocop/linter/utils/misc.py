@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 import platformdirs
 from robot.api import Token
+from robot.parsing.model.statements import Statement
 
 try:
     from robot.api.parsing import Variable
@@ -28,11 +29,12 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     from robot.parsing.model import File, Keyword, Section, VariableSection
-    from robot.parsing.model.statements import KeywordCall, Statement, TestTemplate, Var
+    from robot.parsing.model.statements import KeywordCall, Node, TestTemplate, Var
 
     from robocop.linter.diagnostics import Diagnostic
 
 ROBOCOP_RULES_URL = "https://robocop.dev/{version}/rules_list/"
+POSSIBLE_ESCAPED_VARIABLE = re.compile(r"\$(?![ \t\f]*\{)")
 
 
 ReturnClasses = namedtuple("ReturnClasses", ["return_class", "return_setting_class"])  # noqa: PYI024
@@ -69,6 +71,41 @@ RETURN_CLASSES = get_return_classes()
 def remove_variable_type_conversion(name: str) -> str:
     name, *_ = name.split(": ", maxsplit=1)
     return name
+
+
+def _find_statement(node: Node, *, last: bool) -> Statement | None:
+    if isinstance(node, Statement):
+        return node
+    fields = reversed(node._fields) if last else node._fields
+    for field in fields:
+        value = getattr(node, field, None)
+        children = value if isinstance(value, list) else (value,)
+        for child in reversed(children) if last else children:
+            if isinstance(child, ast.AST) and (statement := _find_statement(child, last=last)) is not None:
+                return statement
+    return None
+
+
+def first_lineno(node: Node) -> int:
+    """
+    Return the first line number of the node.
+
+    Same as ``node.lineno``, but faster for blocks: Robot Framework visits every child of the block to find the first
+    statement, while here the search stops as soon as the statement is found.
+    """
+    statement = _find_statement(node, last=False)
+    return int(statement.lineno) if statement is not None else -1
+
+
+def last_lineno(node: Node) -> int:
+    """
+    Return the last line number of the node.
+
+    Same as ``node.end_lineno``, but faster for blocks: Robot Framework visits the whole block to find the last
+    statement, while here the search starts from the end and stops as soon as the statement is found.
+    """
+    statement = _find_statement(node, last=True)
+    return int(statement.end_lineno) if statement is not None else -1
 
 
 def normalize_robot_name(name: str, remove_prefix: str | None = None) -> str:
@@ -345,6 +382,9 @@ def find_escaped_variables(string: str) -> list[str]:
     We are tokenizing the string using Python ast modules. This allows us to find valid Python-like names and check
     if they are escaped Robot Framework variables.
     """
+    # tokenizing is slow - skip it if there is no ``$`` that could be followed by a name (i.e. not ``${``)
+    if not POSSIBLE_ESCAPED_VARIABLE.search(string):
+        return []
     variable_started = False
     variables = []
     try:

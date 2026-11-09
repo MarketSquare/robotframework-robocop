@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from robot.api import Token
-from robot.parsing.model.blocks import TestCaseSection
+from robot.parsing.model.blocks import TestCaseSection, VariableSection
 from robot.parsing.model.statements import KeywordCall, Teardown
 from robot.variables.search import search_variable
 
@@ -48,7 +48,7 @@ from robocop.source_file import StatementLinesCollector
 
 if TYPE_CHECKING:
     from robot.parsing.model import File
-    from robot.parsing.model.blocks import Block, If, VariableSection
+    from robot.parsing.model.blocks import Block, If
     from robot.parsing.model.statements import Error, Node
 
     from robocop.linter.diagnostics import Diagnostic
@@ -1305,6 +1305,12 @@ class SectionVariablesCollector(ast.NodeVisitor):
 
     def __init__(self) -> None:
         self.section_variables: dict[str, CachedVariable] = {}
+
+    def visit_File(self, node: File) -> None:
+        # variables can be defined only in the Variables section, so there is no need to visit other sections
+        for section in node.sections:
+            if isinstance(section, VariableSection):
+                self.visit(section)
 
     def visit_Variable(self, node: Variable) -> None:
         if node.errors:

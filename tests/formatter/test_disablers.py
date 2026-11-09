@@ -1,3 +1,4 @@
+import io
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -99,3 +100,24 @@ def test_register_disablers_mixed():
     assert register_disablers.disablers.disablers["all"].lines == all_disablers
     assert register_disablers.disablers.disablers["Formatter"].lines == formatter_disablers
     assert register_disablers.disablers.disablers["Formatter2"].lines == formatter2_disablers
+
+
+@pytest.mark.parametrize(("start_line", "end_line"), [(None, None), (3, 4)])
+def test_find_disablers_does_not_visit_model_without_disablers(start_line, end_line, monkeypatch):
+    source = "*** Test Cases ***\nTest\n    Keyword    # comment\n\n*** Keywords ***\nKeyword\n    No Operation\n"
+    model = get_model(io.StringIO(source))
+    expected = RegisterDisablers(start_line, end_line)
+    expected.visit(model)
+    monkeypatch.setattr(RegisterDisablers, "visit", lambda *_: pytest.fail("model should not be visited"))
+    register_disablers = RegisterDisablers(start_line, end_line)
+    register_disablers.find_disablers(model, source)
+    assert register_disablers.disablers.disablers["all"].lines == expected.disablers.disablers["all"].lines
+    assert not register_disablers.is_disabled_in_file("all")
+
+
+def test_find_disablers_visits_model_with_disablers():
+    test_file_path = TEST_DATA / "mixed_disablers.robot"
+    model = get_model(test_file_path)
+    register_disablers = RegisterDisablers(None, None)
+    register_disablers.find_disablers(model, test_file_path.read_text(encoding="utf-8"))
+    assert register_disablers.disablers.disablers["all"].lines == [(5, 5), (8, 8)]

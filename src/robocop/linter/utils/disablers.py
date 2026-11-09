@@ -225,19 +225,31 @@ class DisablersVisitor(ModelVisitor):  # type: ignore[misc]
             scope[rule].end_block(end_line)
 
 
-class DisablersFinder:
-    """Visit and find robocop disablers in Robot Framework file."""
+def may_contain_disablers(source_lines: list[str]) -> bool:
+    """Check if the source contains text required by any disabler (``# robocop: off`` or ``# noqa``)."""
+    source = "".join(source_lines)
+    return "robocop:" in source or "# noqa" in source
 
-    def __init__(self, model: File) -> None:
-        self.visitor = DisablersVisitor(model)
+
+class DisablersFinder:
+    """
+    Visit and find robocop disablers in Robot Framework file.
+
+    If ``source_lines`` of the model are passed, the model is visited only if they may contain disablers.
+    """
+
+    def __init__(self, model: File, source_lines: list[str] | None = None) -> None:
+        self.visitor: DisablersVisitor | None = None
+        if source_lines is None or may_contain_disablers(source_lines):
+            self.visitor = DisablersVisitor(model)
 
     @property
     def any_disabler(self) -> bool:
-        return len(self.visitor.rules) != 0
+        return self.visitor is not None and len(self.visitor.rules) != 0
 
     @property
     def file_disabled(self) -> bool:
-        return self.visitor.file_disabled
+        return self.visitor is not None and self.visitor.file_disabled
 
     def is_rule_disabled(self, diagnostic: Diagnostic) -> bool:
         """
@@ -257,12 +269,14 @@ class DisablersFinder:
 
     def is_line_disabled(self, line: int, rule: str) -> bool:
         """Check if a given line is in range of any disabled block"""
-        if rule not in self.visitor.rules:
+        if self.visitor is None or rule not in self.visitor.rules:
             return False
         return line in self.visitor.rules[rule]
 
     @property
     def not_used_disablers(self) -> Generator[tuple[str, Disabler], None, None]:
+        if self.visitor is None:
+            return
         for rule, rule_disabler in self.visitor.rules.items():
             for disabler in rule_disabler.not_used_disablers:
                 yield rule, disabler

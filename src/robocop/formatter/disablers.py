@@ -200,10 +200,24 @@ class RegisterDisablers(ModelVisitor):  # type: ignore[misc]
                 continue
             self.disablers.add_disabler(formatter_name, start_line, end_line, self.file_level_disablers)
 
+    def find_disablers(self, model: File, source: str | None = None) -> None:
+        """
+        Find disablers in the model.
+
+        If ``source`` text of the model is passed, the model is visited only if it may contain disablers.
+        """
+        if source is None or "fmt:" in source:
+            self.visit(model)
+        else:
+            self._init_file_disablers(model.end_lineno)
+
+    def _init_file_disablers(self, file_end: int) -> None:
+        self.disablers = DisablersInFile(self.start_line, self.end_line, file_end)
+        self.disablers.parse_global_disablers()
+
     def visit_File(self, node: File) -> File:  # noqa: N802
         self.file_level_disablers = False
-        self.disablers = DisablersInFile(self.start_line, self.end_line, node.end_lineno)
-        self.disablers.parse_global_disablers()
+        self._init_file_disablers(node.end_lineno)
         self.stack: list[Any] = []
         for index, section in enumerate(node.sections):
             self.file_level_disablers = index == 0 and isinstance(section, CommentSection)

@@ -1,3 +1,4 @@
+import io
 from pathlib import Path
 
 import pytest
@@ -5,7 +6,7 @@ from robot.api import get_model
 
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.rules.lengths import LineTooLongRule
-from robocop.linter.utils.disablers import DisablersFinder
+from robocop.linter.utils.disablers import DisablersFinder, DisablersVisitor
 from robocop.version_handling import ROBOT_VERSION, Version
 
 
@@ -98,3 +99,37 @@ class TestDisablers:
 
         # Assert
         assert disabled_rules == exp_disabled_rules
+
+
+def read_lines(path: Path) -> list[str]:
+    with path.open(encoding="utf-8", newline="") as file:
+        return file.readlines()
+
+
+def found_rules(disabler: DisablersFinder) -> dict:
+    if disabler.visitor is None:
+        return {}
+    return {
+        rule_name: (sorted(rule.lines), [(block.start_line, block.end_line) for block in rule.blocks])
+        for rule_name, rule in disabler.visitor.rules.items()
+    }
+
+
+@pytest.mark.parametrize("test_file", ["disabled.robot", "disabled_whole.robot", "mixed_disablers.robot"])
+def test_find_disablers_with_source_lines(test_file):
+    model = get_model(DISABLED_TEST_DIR / test_file)
+    expected = DisablersFinder(model)
+    disabler = DisablersFinder(model, read_lines(DISABLED_TEST_DIR / test_file))
+    assert found_rules(disabler) == found_rules(expected)
+    assert disabler.file_disabled == expected.file_disabled
+
+
+def test_model_without_disablers_is_not_visited(monkeypatch):
+    source = "*** Test Cases ***\nTest\n    # robocop  noqa\n    Keyword    # comment\n"
+    model = get_model(io.StringIO(source))
+    monkeypatch.setattr(DisablersVisitor, "visit", lambda *_: pytest.fail("model should not be visited"))
+    disabler = DisablersFinder(model, source.splitlines(keepends=True))
+    assert not disabler.any_disabler
+    assert not disabler.file_disabled
+    assert not disabler.is_line_disabled(3, "all")
+    assert list(disabler.not_used_disablers) == []

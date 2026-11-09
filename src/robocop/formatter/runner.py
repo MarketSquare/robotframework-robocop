@@ -93,14 +93,14 @@ class FileFormatter:
         resolved_config = self.config_resolver.resolve_config(source_file.config)
         self.set_file_languages(source_file, resolved_config)
         disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
-        disabler_finder.visit(model)
+        disabler_finder.find_disablers(model, "".join(source_file.source_lines))
         if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
             return False, None, None, model
         diff, old_model, new_model = self.format(model, disabler_finder.disablers, resolved_config)
         reruns = self.config.formatter.reruns
         while diff and reruns:
             model = get_model(new_model.text)
-            disabler_finder.visit(model)
+            disabler_finder.find_disablers(model, new_model.text)
             new_diff, _, new_model = self.format(model, disabler_finder.disablers, resolved_config)
             if not new_diff:
                 break
@@ -154,11 +154,11 @@ class FileFormatter:
             The formatted block text, or ``None`` if the block is unchanged or fully disabled.
 
         """
+        original_text = StatementLinesCollector(model).text
         disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
-        disabler_finder.visit(model)
+        disabler_finder.find_disablers(model, original_text)
         if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
             return None
-        original_text = StatementLinesCollector(model).text
         formatted = self._apply_formatters(model, disabler_finder.disablers, resolved_config)
         reruns = self.config.formatter.reruns
         while formatted != original_text and reruns:
@@ -166,7 +166,7 @@ class FileFormatter:
             rerun_disablers = disablers.RegisterDisablers(
                 self.config.formatter.start_line, self.config.formatter.end_line
             )
-            rerun_disablers.visit(rerun_model)
+            rerun_disablers.find_disablers(rerun_model, formatted)
             new_formatted = self._apply_formatters(rerun_model, rerun_disablers.disablers, resolved_config)
             if new_formatted == formatted:
                 break

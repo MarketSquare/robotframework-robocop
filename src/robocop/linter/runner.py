@@ -59,7 +59,7 @@ def check_source_file(
     # Iteratively scans, filters, applies fixes, and reloads model until convergence or no fixes remain
     for _ in range(MAX_FILE_FIX_ITERATIONS):
         found_diagnostics = []
-        disablers = DisablersFinder(source_file.model)
+        disablers = DisablersFinder(source_file.model, source_file.source_lines)
         for checker in resolved_config.checkers:
             found_diagnostics += [
                 diagnostic

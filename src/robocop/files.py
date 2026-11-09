@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import stat
 from functools import cache
 from pathlib import Path
 
@@ -63,9 +64,39 @@ def resolve_path(path: Path) -> Path:
     """
     resolved = _resolved_paths.get(path)
     if resolved is None:
-        resolved = path.resolve()
+        resolved = _resolve_through_parent(path)
         _remember_resolved_path(path, resolved)
     return resolved
+
+
+def _resolve_through_parent(path: Path) -> Path:
+    """
+    Resolve the path by joining its name with its resolved parent directory.
+
+    Resolving a path is a filesystem call. Files from the same directory share the parent directory, so it is
+    resolved only once. The path itself is resolved if it is a link (it may point outside its parent directory),
+    if it does not exist or if it contains ``..``.
+
+    Unlike ``Path.resolve``, the case of the file name is not normalized on case-insensitive file systems.
+    """
+    if not path.name or ".." in path.parts or _is_link_or_missing(path):
+        return path.resolve()
+    parent = path.absolute().parent
+    resolved_parent = _resolved_paths.get(parent)
+    if resolved_parent is None:
+        resolved_parent = parent.resolve()
+        _remember_resolved_path(parent, resolved_parent)
+    return resolved_parent / path.name
+
+
+def _is_link_or_missing(path: Path) -> bool:
+    try:
+        path_stat = os.lstat(path)
+    except OSError:
+        return True
+    # junctions on Windows are not reported as symlinks
+    is_reparse_point = getattr(path_stat, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT
+    return stat.S_ISLNK(path_stat.st_mode) or bool(is_reparse_point)
 
 
 def mark_resolved(path: Path, resolved: Path | None = None) -> None:

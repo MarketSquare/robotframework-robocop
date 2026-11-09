@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import io
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -14,7 +15,7 @@ except ImportError:
 
 from robocop.embedded import extract_robot_blocks, reconstruct_source, shift_model_lines
 from robocop.files import path_relative_to_cwd, resolve_path
-from robocop.version_handling import LANG_SUPPORTED
+from robocop.version_handling import LANG_SUPPORTED, ROBOT_VERSION, Version
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -77,8 +78,22 @@ class SourceFile:
     @property
     def model(self) -> File:
         if self._model is None:
-            self._model = self._load_model(self.path)
+            self._model = self._load_model(self._model_source())
         return self._model
+
+    def _model_source(self) -> Path | str:
+        """
+        Return the source used to load the model.
+
+        The file is read only once: its content is stored as the source lines and it is passed to the parser as text.
+        The path is returned if the file cannot be read, so the parser reports the error.
+        """
+        if self._source_lines is None:
+            try:
+                self._set_source_lines(self._read_lines())
+            except (OSError, UnicodeDecodeError):
+                return self.path
+        return "".join(self._source_lines)  # type: ignore[arg-type]
 
     @property
     def source_lines(self) -> list[str]:
@@ -97,13 +112,17 @@ class SourceFile:
         # TODO: potential issue: robotcode send model with the updated code, but the file is not saved to disk yet
         if self._source_lines is None:
             try:
-                self._source_lines = self._read_lines()
+                lines = self._read_lines()
             except OSError:
-                self._source_lines = StatementLinesCollector(self.model).text.splitlines()
-            # Save original content for diff comparison
-            if self._original_source_lines is None and self.config.linter.diff:
-                self._original_source_lines = self._source_lines.copy()
-        return self._source_lines
+                lines = StatementLinesCollector(self.model).text.splitlines()
+            self._set_source_lines(lines)
+        return self._source_lines  # type: ignore[return-value]
+
+    def _set_source_lines(self, lines: list[str]) -> None:
+        self._source_lines = lines
+        # Save original content for diff comparison
+        if self._original_source_lines is None and self.config.linter.diff:
+            self._original_source_lines = lines.copy()
 
     @property
     def original_source_lines(self) -> list[str]:
@@ -141,9 +160,13 @@ class SourceFile:
         else:
             loader = get_model
 
-        if LANG_SUPPORTED:
-            return loader(path_or_text, lang=self.languages)
-        return loader(path_or_text)
+        # text is wrapped in StringIO, so it is never mistaken for a path
+        source = io.StringIO(path_or_text) if isinstance(path_or_text, str) else path_or_text
+        model = loader(source, lang=self.languages) if LANG_SUPPORTED else loader(source)
+        if isinstance(path_or_text, str):
+            # the same type as when Robot Framework loads the model from the path
+            model.source = self.path if Version("6.1") <= ROBOT_VERSION else str(self.path)
+        return model
 
     @property
     def languages(self) -> Languages | None:

@@ -413,7 +413,7 @@ class ConfigManager:
         config: Config | None = None
         for source in sources:
             source_not_resolved = Path(source)
-            source = source_not_resolved.resolve()
+            source = files.resolve_path(source_not_resolved.absolute())
             if source in target:
                 continue
             if not source.exists():

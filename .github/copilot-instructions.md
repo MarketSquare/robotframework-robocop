@@ -128,5 +128,7 @@ Rules:
 
 ### Releases
 Versioning/changelog is automated via release-please (`release-please-config.json`, `.release-please-manifest.json`).
+It runs through `.github/scripts/release-please.cjs`, which adds the `perf-bumps-minor` versioning strategy: breaking
+changes bump the major version, `feat` and `perf` the minor version, other types the patch version.
 Follow Conventional Commits — PR titles are validated by `.github/workflows/pr-title.yml`. Version lives in
 `src/robocop/__init__.py`.

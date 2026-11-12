@@ -748,6 +748,10 @@ class AutomaticVariableNotAvailableRule(Rule):
     valid when called by a test but invalid when called by a suite setup. This conservative behavior avoids presenting
     call-context guesses as certain errors.
 
+    User-defined variables with the same identifier and normalized name shadow automatic variables. The rule accounts
+    for Variables-section definitions, assignment targets, ``VAR`` statements, and BuiltIn ``Set ... Variable``
+    keywords. It reports only when the reference is definitely an unavailable automatic variable.
+
     See the official
     [automatic variable scope table](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables).
     The rule has no automatic fix because choosing a replacement or moving code requires understanding its intent.
@@ -764,20 +768,28 @@ class AutomaticVariableNotAvailableRule(Rule):
     )
 
     scopes = {
-        "testname": ("test case", frozenset({"test setup", "test case body", "test teardown"})),
-        "testtags": ("test case", frozenset({"test setup", "test case body", "test teardown"})),
-        "testdocumentation": ("test case", frozenset({"test setup", "test case body", "test teardown"})),
-        "teststatus": ("test teardown", frozenset({"test teardown"})),
-        "testmessage": ("test teardown", frozenset({"test teardown"})),
-        "suitestatus": ("suite teardown", frozenset({"suite teardown"})),
-        "suitemessage": ("suite teardown", frozenset({"suite teardown"})),
-        "keywordstatus": ("user keyword teardown", frozenset({"user keyword teardown"})),
-        "keywordmessage": ("user keyword teardown", frozenset({"user keyword teardown"})),
+        ("$", "testname"): ("test case", frozenset({"test setup", "test case body", "test teardown"})),
+        ("@", "testtags"): ("test case", frozenset({"test setup", "test case body", "test teardown"})),
+        ("$", "testdocumentation"): ("test case", frozenset({"test setup", "test case body", "test teardown"})),
+        ("$", "teststatus"): ("test teardown", frozenset({"test teardown"})),
+        ("$", "testmessage"): ("test teardown", frozenset({"test teardown"})),
+        ("$", "suitestatus"): ("suite teardown", frozenset({"suite teardown"})),
+        ("$", "suitemessage"): ("suite teardown", frozenset({"suite teardown"})),
+        ("$", "keywordstatus"): ("user keyword teardown", frozenset({"user keyword teardown"})),
+        ("$", "keywordmessage"): ("user keyword teardown", frozenset({"user keyword teardown"})),
     }
 
-    def check(self, token: Token, variable: str, normalized_name: str, context: str, offset: int) -> None:
-        scope = self.scopes.get(normalized_name)
-        if scope is None:
+    def check(
+        self,
+        token: Token,
+        variable: str,
+        key: tuple[str, str],
+        context: str,
+        offset: int,
+        shadowed: bool,
+    ) -> None:
+        scope = self.scopes.get(key)
+        if scope is None or shadowed:
             return
         available_in, valid_contexts = scope
         if context in valid_contexts:

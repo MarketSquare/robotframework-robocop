@@ -1,0 +1,50 @@
+test.robot:28:12 ANN05 Variable '${local}' is missing type annotation
+    |
+ 26 | *** Keywords ***
+ 27 | Keyword With VAR
+ 28 |     VAR    ${local}    value
+    |            ^^^^^^^^ ANN05
+ 29 |     VAR    ${typed_local: str}    value
+ 30 |     VAR    ${_ignored}    value
+    |
+
+test.robot:35:12 ANN05 Variable '${multiline_var}' is missing type annotation
+    |
+ 33 | Keyword With Multiline VAR
+ 34 |     VAR
+ 35 |     ...    ${multiline_var}
+    |            ^^^^^^^^^^^^^^^^ ANN05
+ 36 |     ...    value
+ 37 |     VAR
+    |
+
+test.robot:43:5 ANN05 Variable '${result}' is missing type annotation
+    |
+ 41 |
+ 42 | Keyword With Assignment
+ 43 |     ${result} =    Set Variable    value
+    |     ^^^^^^^^^^^ ANN05
+ 44 |     ${typed_result: list} =    Create List    one    two
+ 45 |     ${_ignored} =    Set Variable    value
+    |
+
+test.robot:50:16 ANN05 Variable '${in_if}' is missing type annotation
+    |
+ 48 | Keyword With Nested Blocks
+ 49 |     IF    $condition
+ 50 |         VAR    ${in_if}    value
+    |                ^^^^^^^^ ANN05
+ 51 |     END
+ 52 |     FOR    ${item: str}    IN    a    b
+    |
+
+test.robot:53:9 ANN05 Variable '${in_for}' is missing type annotation
+    |
+ 51 |     END
+ 52 |     FOR    ${item: str}    IN    a    b
+ 53 |         ${in_for} =    Set Variable    ${item}
+    |         ^^^^^^^^^^^ ANN05
+ 54 |     END
+    |
+
+Found 5 issues.

@@ -1,0 +1,7 @@
+test.robot:28:12 [I] ANN05 Variable '${local}' is missing type annotation
+test.robot:35:12 [I] ANN05 Variable '${multiline_var}' is missing type annotation
+test.robot:43:5 [I] ANN05 Variable '${result}' is missing type annotation
+test.robot:50:16 [I] ANN05 Variable '${in_if}' is missing type annotation
+test.robot:53:9 [I] ANN05 Variable '${in_for}' is missing type annotation
+
+Found 5 issues.

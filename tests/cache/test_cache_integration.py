@@ -409,6 +409,30 @@ class TestCacheIntegration:
             assert "Skipped 1 unchanged files from cache." in out2
             assert "1 file reformatted, 1 file left unchanged." in out2
 
+    def test_formatter_does_not_cache_run_with_line_range(self, tmp_path, capsys):
+        test_file = tmp_path / "plain.robot"
+        test_file.write_text(
+            "*** Test Cases ***\nFirst\n    Log      first   badly\n    No Operation\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "pyproject.toml").write_text("[tool.robocop]\ncache = true\n", encoding="utf-8")
+
+        with working_directory(tmp_path):
+            format_files(
+                start_line=4,
+                end_line=4,
+                overwrite=False,
+                return_result=True,
+                verbose=True,
+            )
+            capsys.readouterr()
+
+            format_files(overwrite=False, return_result=True, verbose=True)
+            out, _ = capsys.readouterr()
+
+        assert f"Would reformat {test_file}" in out
+        assert "1 file would be reformatted" in out
+
     def test_empty_file_integration(self, tmp_path, capsys):
         """Test integration with empty Robot Framework file."""
         # Arrange - create empty file

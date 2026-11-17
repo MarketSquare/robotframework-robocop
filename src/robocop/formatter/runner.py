@@ -270,7 +270,7 @@ class RobocopFormatter(FileFormatter):
 
             all_files += 1
 
-            if source_file.config.cache.enabled:
+            if self._can_use_cache(source_file):
                 # Check cache - if file hasn't changed and didn't need formatting before, skip it
                 cached_entry = self.config_manager.cache.get_formatter_entry(source_file.path, source_file.config.hash)
                 if cached_entry is not None and not cached_entry.needs_formatting:
@@ -333,10 +333,20 @@ class RobocopFormatter(FileFormatter):
             self.log_formatted_source(source_file.path, stdin)
             self.print_diff(result.diff_lines)
         # Cache result only if a file does not need formatting or was formatted (no --check and --no-overwrite)
-        if not result.changed or self.config.formatter.overwrite:
+        if self._can_use_cache(source_file) and (not result.changed or self.config.formatter.overwrite):
             self.config_manager.cache.set_formatter_entry(
                 source_file.path, source_file.config.hash, needs_formatting=False
             )
+
+    @staticmethod
+    def _can_use_cache(source_file: SourceFile) -> bool:
+        """Return whether the file's formatter configuration allows cache use."""
+        formatter_config = source_file.config.formatter
+        return (
+            source_file.config.cache.enabled
+            and formatter_config.start_line is None
+            and formatter_config.end_line is None
+        )
 
     def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> int:
         """Print formatting summary and return status code."""

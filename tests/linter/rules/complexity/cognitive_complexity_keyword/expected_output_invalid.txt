@@ -1,0 +1,3 @@
+invalid.robot:14:1 [W] CPX03 Keyword 'Complex After Errors' has too high cognitive complexity (21/15), main contributors: line 20 +6 (IF at nesting 5), line 19 +5 (IF at nesting 4), line 18 +4 (IF at nesting 3)
+
+Found 1 issue.

@@ -1,0 +1,3 @@
+tasks.robot:2:1 [W] CPX04 Test case 'Process Inbox' has too high cognitive complexity (16/10), main contributors: line 10 +4 (IF at nesting 2, boolean operators), line 18 +3 (inline IF at nesting 2), line 4 +2 (IF at nesting 1)
+
+Found 1 issue.

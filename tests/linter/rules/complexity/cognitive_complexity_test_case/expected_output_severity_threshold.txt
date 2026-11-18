@@ -1,0 +1,5 @@
+test.robot:5:1 [I] CPX04 Test case 'Flat Test' has too high cognitive complexity (10/9), main contributors: line 6 +1 (inline IF), line 7 +1 (inline IF), line 8 +1 (inline IF)
+test.robot:17:1 [W] CPX04 Test case 'Medium Nested Test' has too high cognitive complexity (12/12), main contributors: line 20 +4 (IF at nesting 2, boolean operators), line 23 +4 (inline IF at nesting 3), line 19 +2 (IF at nesting 1)
+test.robot:28:1 [E] CPX04 Test case 'Deeply Nested Test' has too high cognitive complexity (21/21), main contributors: line 34 +6 (IF at nesting 5), line 33 +5 (IF at nesting 4), line 32 +4 (IF at nesting 3)
+
+Found 3 issues.

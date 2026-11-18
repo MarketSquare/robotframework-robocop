@@ -1,0 +1,3 @@
+keywords.resource:2:1 [W] CPX03 Keyword 'Wait For Order State' has too high cognitive complexity (12/10), main contributors: line 12 +4 (Run Keyword If at nesting 2, Run Keyword If ELSE), line 6 +3 (IF at nesting 1, boolean operators), line 7 +3 (IF at nesting 2)
+
+Found 1 issue.

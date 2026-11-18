@@ -14,6 +14,7 @@ class RulesGroup:
 GROUPS_LOOKUP = {
     "ARG": RulesGroup("ARG", "Arguments", "Rules for keyword arguments."),
     "COM": RulesGroup("COM", "Comments", "Rules for comments."),
+    "CPX": RulesGroup("CPX", "Complexity", "Rules for complexity metrics of test cases and keywords."),
     "DEPR": RulesGroup("DEPR", "Deprecated code", "Rules for deprecated code or code replacement recommendations."),
     "DOC": RulesGroup("DOC", "Documentation", "Rules for documentation."),
     "DUP": RulesGroup("DUP", "Duplications", "Rules for duplicated code such as settings or variables."),

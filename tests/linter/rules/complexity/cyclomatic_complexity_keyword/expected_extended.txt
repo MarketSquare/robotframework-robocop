@@ -1,0 +1,19 @@
+test.robot:31:1 CPX01 Keyword 'Many Legacy Branches' has too high cyclomatic complexity (11/10), decision points: 10 Run Keyword If
+    |
+ 31 | Many Legacy Branches
+    | ^^^^^^^^^^^^^^^^^^^^ CPX01
+ 32 |     Run Keyword If    $a == 1    Log    1
+ 33 |     Run Keyword If    $a == 2    Log    2
+    | Suggestion: Split the logic into smaller keywords or replace branching with data.
+    |
+
+test.robot:43:1 CPX01 Keyword 'Mixed Branches' has too high cyclomatic complexity (12/10), decision points: 3 inline IF, 2 ELSE IF, 2 EXCEPT, 1 IF, 1 FOR, 1 Skip If, 1 WHILE
+    |
+ 43 | Mixed Branches
+    | ^^^^^^^^^^^^^^ CPX01
+ 44 |     IF    $mode == 'a'
+ 45 |         Log    a
+    | Suggestion: Split the logic into smaller keywords or replace branching with data.
+    |
+
+Found 2 issues.

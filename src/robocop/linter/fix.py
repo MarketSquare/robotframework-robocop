@@ -409,7 +409,7 @@ class FixApplier:
                 lines[start_line_idx : start_line_idx + 1] = new_line.splitlines(keepends=True)
             else:  # Multi-line edit
                 # When edit is multiline, we replace the lines fully
-                lines[start_line_idx : end_line_idx + 2] = edit.replacement.splitlines(keepends=True)
+                lines[start_line_idx : end_line_idx + 1] = edit.replacement.splitlines(keepends=True)
         elif edit.kind == TextEditKind.INSERTION:
             lines[start_line_idx:start_line_idx] = edit.replacement.splitlines(keepends=True)
         elif edit.kind == TextEditKind.DELETION:

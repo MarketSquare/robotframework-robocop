@@ -173,6 +173,7 @@ class FileFormatter:
         finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
         finder.find_disablers(model, "".join(source_file.model_lines))
         physical = "".join(source_file.source_lines)
+        previous_text = StatementLinesCollector(model).text
         for name, formatter in resolved_config.formatters.items():
             if finder.is_disabled_in_file(name):
                 continue
@@ -189,6 +190,8 @@ class FileFormatter:
             if leading is not None:
                 model.sections.insert(0, leading)
             formatted = StatementLinesCollector(model).text
+            if formatted == previous_text:
+                continue
             projected = self._project_markdown(source_file, formatted)
             if projected is not None:
                 physical_lines = projected.splitlines(keepends=True)
@@ -208,8 +211,10 @@ class FileFormatter:
                 model = source_file.build_embedded_model(restored)
                 finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
                 finder.find_disablers(model, restored)
+                previous_text = StatementLinesCollector(model).text
             else:
                 physical = projected
+                previous_text = formatted
         return physical
 
     def _project_markdown(self, source_file: EmbeddedSourceFile, formatted: str) -> str | None:
@@ -221,6 +226,7 @@ class FileFormatter:
         newline = self._detect_newline(physical)
         changes: list[tuple[int, int, list[str]]] = []
         matcher = SequenceMatcher(
+            isjunk=lambda line: not line.strip(),
             a=[line.rstrip("\r\n") for line in original],
             b=[line.rstrip("\r\n") for line in lines],
             autojunk=False,

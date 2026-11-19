@@ -11,8 +11,7 @@ parsing, so it works regardless of the installed Robot Framework version.
 
 A single file may contain zero, one, or many code blocks. In Markdown, all Robot blocks are linted and formatted
 as **one suite**, matching Robot Framework: a block can continue a section or test started in an earlier block.
-This changes the previous behavior, which treated each Markdown block as an independent suite. Python blocks
-continue to be treated independently. Surrounding prose, fences and indentation are left untouched.
+Python blocks continue to be treated independently. Surrounding prose, fences and indentation are left untouched.
 
 ````markdown
 # Example

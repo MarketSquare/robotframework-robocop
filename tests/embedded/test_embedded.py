@@ -149,6 +149,24 @@ class TestLinter:
         assert not FixApplier().apply_fixes(embedded, [fix])
         assert "Prose" in read(source)
 
+    @pytest.mark.parametrize("suffix", [".md", ".py"])
+    @pytest.mark.parametrize("end_line", [5, 6])
+    def test_multiline_replacement_preserves_following_lines(self, tmp_path, suffix, end_line):
+        source = tmp_path / f"suite{suffix}"
+        original = (
+            "  ```robot\n  *** Test Cases ***\n  Example\n"
+            "      Log    one\n      Log    two\n      Log    three\n  ```\n  Prose\n"
+        )
+        source.write_text(original, encoding="utf-8")
+        config = ConfigManager(sources=[], root=tmp_path, ignore_file_config=True).default_config
+        embedded = EmbeddedSourceFile(path=source, config=config)
+        edit = TextEdit("test", "test", 4, 1, end_line, 1, "    Log    replacement\n")
+        fix = Fix(edits=[edit], message="Replace lines", applicability=FixApplicability.SAFE)
+        assert FixApplier().apply_fixes(embedded, [fix])
+        expected = original.splitlines(keepends=True)
+        expected[3:end_line] = ["      Log    replacement\n"]
+        assert "".join(embedded.source_lines).replace("\r\n", "\n") == "".join(expected)
+
     def test_python_blocks_remain_independent(self, tmp_path):
         source = tmp_path / "examples.py"
         source.write_text(
@@ -274,3 +292,37 @@ class TestFormatter:
         assert "  Log  one" in result
         assert "  Log  two" in result
         assert "    Log    three" in result
+
+    @pytest.mark.parametrize("formatted", [True, False])
+    def test_prose_heavy_markdown(self, tmp_path, formatted):
+        source = tmp_path / "large.md"
+        spacing = "    " if formatted else "  "
+        prose = "A line of prose.\n" * 4000
+        original = (
+            f"{prose}```robot\n*** Test Cases ***\nExample\n    Log{spacing}first\n```\n"
+            f"{prose}```robot\n    Log{spacing}second\n```\n{prose}"
+        )
+        source.write_text(original, encoding="utf-8", newline="")
+        with pytest.raises(typer.Exit):
+            format_files(
+                sources=[source],
+                select=["NormalizeSeparators"],
+                overwrite=True,
+                cache=False,
+                ignore_file_config=True,
+            )
+        result = read(source)
+        assert result == original.replace(f"Log{spacing}", "Log    ")
+
+    def test_prose_heavy_markdown_with_newline_normalization(self, tmp_path):
+        source = tmp_path / "large.md"
+        prose = "Prose.\n" * 4000
+        original = (
+            f"{prose}```robot\n*** Test Cases ***\nExample\n  Log  first\n```\n"
+            f"{prose}```robot\n  Log  second\n```\n{prose}"
+        )
+        source.write_text(original, encoding="utf-8", newline="")
+        with pytest.raises(typer.Exit):
+            format_files(sources=[source], overwrite=True, cache=False, ignore_file_config=True)
+        result = read(source)
+        assert result == original.replace("  Log  ", "    Log    ")

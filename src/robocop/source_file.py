@@ -373,10 +373,10 @@ class EmbeddedSourceFile(SourceFile):
 
         for edit in edits:
             indent = self.base_indent(edit.start_line)
-            if edit.kind == TextEditKind.REPLACEMENT:
+            if edit.kind == TextEditKind.REPLACEMENT and edit.start_line == edit.end_line:
                 edit.start_col += indent
                 edit.end_col += indent
-            elif edit.kind in (TextEditKind.REPLACEMENT_LINES, TextEditKind.INSERTION):
+            elif edit.kind in (TextEditKind.REPLACEMENT, TextEditKind.REPLACEMENT_LINES, TextEditKind.INSERTION):
                 block = next((block for block in self.blocks if block.contains(edit.start_line)), None)
                 if block:
                     edit.replacement = self._reindent(edit.replacement, block.indent)

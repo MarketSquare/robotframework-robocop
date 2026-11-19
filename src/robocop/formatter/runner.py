@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from dataclasses import dataclass, field
-from difflib import unified_diff
+from difflib import SequenceMatcher, unified_diff
 from typing import TYPE_CHECKING
 
 import typer
@@ -11,13 +11,14 @@ from rich.console import Console
 from robot.api import get_model
 from robot.errors import DataError
 
+from robocop.embedded import MARKDOWN_EXTENSIONS, ModelContentCollector, extract_robot_blocks, reconstruct_source
 from robocop.formatter import (
     disablers,  # TODO compare robocop vs robotidy disablers, if we can merge something
 )
 from robocop.formatter.utils import misc
 from robocop.parallel import get_workers_count
 from robocop.runtime.resolver import ConfigResolver
-from robocop.source_file import SourceFile, StatementLinesCollector
+from robocop.source_file import EmbeddedSourceFile, SourceFile, StatementLinesCollector
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
 
     from robocop.config.manager import ConfigManager
     from robocop.config.schema import Config
+    from robocop.embedded import RobotCodeBlock
     from robocop.runtime.resolved_config import ResolvedConfig
 
 
@@ -121,15 +123,16 @@ class FileFormatter:
 
     def format_embedded(self, source_file: SourceFile) -> tuple[bool, str, str]:
         """
-        Format every Robot code block embedded in a Markdown or Python file independently.
+        Format embedded Robot code and preserve the surrounding document.
 
-        Each block is formatted on its own, re-indented to its original position and spliced back into the physical
-        file, leaving prose, fences and indentation of the surrounding document untouched.
+        Markdown blocks share a model; Python blocks are formatted independently.
 
         Returns:
             Tuple of (changed, original_text, new_text) with the full physical file contents.
 
         """
+        if isinstance(source_file, EmbeddedSourceFile) and source_file.path.suffix.lower() in MARKDOWN_EXTENSIONS:
+            return self.format_markdown(source_file)
         resolved_config = self.config_resolver.resolve_config(source_file.config)
         original = list(source_file.source_lines)
         physical = list(original)
@@ -145,6 +148,202 @@ class FileFormatter:
         new_text = "".join(physical)
         old_text = "".join(original)
         return new_text != old_text, old_text, new_text
+
+    def format_markdown(self, source_file: EmbeddedSourceFile) -> tuple[bool, str, str]:
+        """Format the combined model, retaining the physical boundaries between code blocks."""
+        original = "".join(source_file.source_lines)
+        if not source_file.blocks:
+            return False, original, original
+        physical = self._format_markdown_once(source_file)
+        for _ in range(self.config.formatter.reruns):
+            if physical == original:
+                break
+            updated = EmbeddedSourceFile(
+                path=source_file.path, config=source_file.config, _source_lines=physical.splitlines(keepends=True)
+            )
+            new_physical = self._format_markdown_once(updated)
+            if new_physical == physical:
+                break
+            physical = new_physical
+        return physical != original, original, physical
+
+    def _format_markdown_once(self, source_file: EmbeddedSourceFile) -> str:
+        resolved_config = self.config_resolver.resolve_config(source_file.config)
+        model = source_file.model
+        self.set_file_languages(source_file, resolved_config)
+        finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
+        finder.find_disablers(model, "".join(source_file.model_lines))
+        physical = "".join(source_file.source_lines)
+        previous_text = StatementLinesCollector(model).text
+        for name, formatter in resolved_config.formatters.items():
+            if finder.is_disabled_in_file(name):
+                continue
+            previous = physical
+            formatter.disablers = finder.disablers
+            leading = None
+            if name == "MergeAndOrderSections" and model.sections:
+                first = model.sections[0]
+                if first.header is None and not any(
+                    token.value.strip() for statement in first.body for token in statement.tokens
+                ):
+                    leading = model.sections.pop(0)
+            formatter.visit(model)
+            if leading is not None:
+                model.sections.insert(0, leading)
+            formatted = StatementLinesCollector(model).text
+            if formatted == previous_text:
+                continue
+            projected = self._project_markdown(source_file, formatted)
+            if projected is not None:
+                physical_lines = projected.splitlines(keepends=True)
+                reconstructed = reconstruct_source(
+                    physical_lines, extract_robot_blocks(physical_lines, markdown=True), markdown=True
+                )
+                if (
+                    ModelContentCollector(source_file.build_embedded_model(formatted)).tokens
+                    != ModelContentCollector(source_file.build_embedded_model(reconstructed)).tokens
+                ):
+                    projected = None
+            if projected is None:
+                previous_lines = previous.splitlines(keepends=True)
+                restored = reconstruct_source(
+                    previous_lines, extract_robot_blocks(previous_lines, markdown=True), markdown=True
+                )
+                model = source_file.build_embedded_model(restored)
+                finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
+                finder.find_disablers(model, restored)
+                previous_text = StatementLinesCollector(model).text
+            else:
+                physical = projected
+                previous_text = formatted
+        return physical
+
+    def _project_markdown(self, source_file: EmbeddedSourceFile, formatted: str) -> str | None:
+        """Project changes onto blocks; reject transformations that cannot preserve their boundaries."""
+        original = source_file.model_lines
+        blocks = source_file.blocks
+        lines = formatted.splitlines(keepends=True)
+        physical = list(source_file.source_lines)
+        newline = self._detect_newline(physical)
+        changes: list[tuple[int, int, list[str]]] = []
+        # Masked prose is blank, but must not become a quadratic number of diff anchors.
+        matcher = SequenceMatcher(
+            isjunk=lambda line: not line.strip(),
+            a=[line.rstrip("\r\n") for line in original],
+            b=[line.rstrip("\r\n") for line in lines],
+            autojunk=False,
+        )
+        for tag, start, end, new_start, new_end in matcher.get_opcodes():
+            if tag == "equal":
+                continue
+            replacement = lines[new_start:new_end]
+            matching = [block for block in blocks if block.start_line - 1 <= start <= end <= block.end_line]
+            if not matching:
+                if any(line.strip() for line in original[start:end] + replacement):
+                    return self._project_markdown_code_lines(source_file, formatted)
+                changes.extend(self._project_blank_range(start, end, replacement, blocks, newline))
+                continue
+            block = matching[0]
+            changes.append((start, end, self._reindent_block("".join(replacement), block.indent, newline)))
+        for start, end, replacement in reversed(changes):
+            physical[start:end] = replacement
+        projected = reconstruct_source(physical, extract_robot_blocks(physical, markdown=True), markdown=True)
+        # Blank masked lines are immaterial, but all formatted code must survive the projection in order.
+        if [line for line in projected.splitlines() if line.strip()] != [
+            line for line in formatted.splitlines() if line.strip()
+        ]:
+            return self._project_markdown_code_lines(source_file, formatted)
+        return "".join(physical)
+
+    def _project_markdown_code_lines(self, source_file: EmbeddedSourceFile, formatted: str) -> str | None:
+        """Map code changes across masked gaps when a whitespace diff cannot locate the boundaries."""
+        original = source_file.model_lines
+        blocks = source_file.blocks
+        old_lines = [(index, line) for index, line in enumerate(original) if line.strip()]
+        new_lines = [line for line in formatted.splitlines(keepends=True) if line.strip()]
+        matcher = SequenceMatcher(
+            a=[line.rstrip("\r\n") for _, line in old_lines],
+            b=[line.rstrip("\r\n") for line in new_lines],
+            autojunk=False,
+        )
+        physical = list(source_file.source_lines)
+        newline = self._detect_newline(physical)
+        changes: list[tuple[int, int, list[str]]] = []
+        for tag, start, end, new_start, new_end in matcher.get_opcodes():
+            if tag == "equal":
+                continue
+            if not old_lines:
+                return None
+            replacements = new_lines[new_start:new_end]
+            if start == 0 and any(line.strip().lower() == "*** comments ***" for line in replacements):
+                return None
+            for offset, (index, _) in enumerate(old_lines[start:end]):
+                block = next((block for block in blocks if block.contains(index + 1)), None)
+                if block is None:
+                    return None
+                line = replacements[offset] if offset < len(replacements) else ""
+                changes.append((index, index + 1, self._reindent_block(line, block.indent, newline)))
+            remaining = replacements[end - start :]
+            if remaining:
+                if end > start:
+                    index = old_lines[end - 1][0] + 1
+                    block_line = index
+                elif start < len(old_lines):
+                    index = old_lines[start][0]
+                    block_line = index + 1
+                else:
+                    index = old_lines[-1][0] + 1
+                    block_line = index
+                block = next((block for block in blocks if block.contains(block_line)), None)
+                if block is None:
+                    return None
+                changes.append((index, index, self._reindent_block("".join(remaining), block.indent, newline)))
+        for start, end, replacement in sorted(changes, key=lambda change: change[0], reverse=True):
+            physical[start:end] = replacement
+        blocks = extract_robot_blocks(physical, markdown=True)
+        projected = reconstruct_source(physical, blocks, markdown=True)
+        if [line for line in projected.splitlines() if line.strip()] != [line.rstrip("\r\n") for line in new_lines]:
+            return None
+        original_lines = projected.splitlines(keepends=True)
+        formatted_lines = formatted.splitlines(keepends=True)
+        whitespace_matcher = SequenceMatcher(
+            isjunk=lambda line: not line.strip(),
+            a=[line.rstrip("\r\n") for line in original_lines],
+            b=[line.rstrip("\r\n") for line in formatted_lines],
+            autojunk=False,
+        )
+        whitespace_changes = []
+        for tag, start, end, new_start, new_end in whitespace_matcher.get_opcodes():
+            replacement = formatted_lines[new_start:new_end]
+            if tag != "equal" and not any(line.strip() for line in original_lines[start:end] + replacement):
+                whitespace_changes.extend(self._project_blank_range(start, end, replacement, blocks, newline))
+        for start, end, replacement in reversed(whitespace_changes):
+            physical[start:end] = replacement
+        return "".join(physical)
+
+    def _project_blank_range(
+        self, start: int, end: int, replacement: list[str], blocks: list[RobotCodeBlock], newline: str
+    ) -> list[tuple[int, int, list[str]]]:
+        """Apply whitespace changes only to code lines, retaining masked lines in their original positions."""
+        overlaps = [
+            (block, max(start, block.start_line - 1), min(end, block.end_line))
+            for block in blocks
+            if max(start, block.start_line - 1) < min(end, block.end_line)
+        ]
+        if not overlaps:
+            if start == end and replacement:
+                block = next((block for block in blocks if block.start_line - 1 <= start <= block.end_line), None)
+                if block:
+                    return [(start, end, self._reindent_block("".join(replacement), block.indent, newline))]
+            return []
+        code_lines = sum(block_end - block_start for _, block_start, block_end in overlaps)
+        # Masked lines remain in the physical document and already account for part of the replacement.
+        retained = max(len(replacement) - (end - start - code_lines), 0)
+        changes = []
+        for index, (block, block_start, block_end) in enumerate(overlaps):
+            content = "".join(replacement[:retained]) if index == 0 else ""
+            changes.append((block_start, block_end, self._reindent_block(content, block.indent, newline)))
+        return changes
 
     def format_block(self, model: File, resolved_config: ResolvedConfig) -> str | None:
         """

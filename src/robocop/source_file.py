@@ -242,6 +242,18 @@ class SourceFile:
         """Return whether a fix can safely be applied to this source."""
         return True
 
+    def is_code_line(self, lineno: int) -> bool:  # noqa: ARG002
+        """Return whether a physical line contains Robot source."""
+        return True
+
+    def same_code_block(self, first: int, second: int) -> bool:  # noqa: ARG002
+        """Return whether two physical lines belong to the same Robot source block."""
+        return True
+
+    def last_code_line(self, start: int, end: int) -> int:  # noqa: ARG002
+        """Return the last Robot source line in the inclusive range."""
+        return end
+
 
 class EmbeddedSourceFile(SourceFile):
     """
@@ -361,6 +373,22 @@ class EmbeddedSourceFile(SourceFile):
                     return 0
                 return min(len(block.indent), len(line) - len(line.lstrip(" \t")))
         return 0
+
+    def is_code_line(self, lineno: int) -> bool:
+        return any(block.contains(lineno) for block in self.blocks)
+
+    def same_code_block(self, first: int, second: int) -> bool:
+        return any(block.contains(first) and block.contains(second) for block in self.blocks)
+
+    def last_code_line(self, start: int, end: int) -> int:
+        return next(
+            (
+                min(block.end_line, end)
+                for block in reversed(self.blocks)
+                if block.start_line <= end and block.end_line >= start
+            ),
+            start,
+        )
 
     def offset_range(self, diag_range: Range) -> None:
         start_indent = self.base_indent(diag_range.start.line)

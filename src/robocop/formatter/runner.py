@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     from robocop.config.manager import ConfigManager
     from robocop.config.schema import Config
+    from robocop.embedded import RobotCodeBlock
     from robocop.runtime.resolved_config import ResolvedConfig
 
 
@@ -225,6 +226,7 @@ class FileFormatter:
         physical = list(source_file.source_lines)
         newline = self._detect_newline(physical)
         changes: list[tuple[int, int, list[str]]] = []
+        # Masked prose is blank, but must not become a quadratic number of diff anchors.
         matcher = SequenceMatcher(
             isjunk=lambda line: not line.strip(),
             a=[line.rstrip("\r\n") for line in original],
@@ -239,6 +241,7 @@ class FileFormatter:
             if not matching:
                 if any(line.strip() for line in original[start:end] + replacement):
                     return self._project_markdown_code_lines(source_file, formatted)
+                changes.extend(self._project_blank_range(start, end, replacement, blocks, newline))
                 continue
             block = matching[0]
             changes.append((start, end, self._reindent_block("".join(replacement), block.indent, newline)))
@@ -297,10 +300,50 @@ class FileFormatter:
                 changes.append((index, index, self._reindent_block("".join(remaining), block.indent, newline)))
         for start, end, replacement in sorted(changes, key=lambda change: change[0], reverse=True):
             physical[start:end] = replacement
-        projected = reconstruct_source(physical, extract_robot_blocks(physical, markdown=True), markdown=True)
+        blocks = extract_robot_blocks(physical, markdown=True)
+        projected = reconstruct_source(physical, blocks, markdown=True)
         if [line for line in projected.splitlines() if line.strip()] != [line.rstrip("\r\n") for line in new_lines]:
             return None
+        original_lines = projected.splitlines(keepends=True)
+        formatted_lines = formatted.splitlines(keepends=True)
+        whitespace_matcher = SequenceMatcher(
+            isjunk=lambda line: not line.strip(),
+            a=[line.rstrip("\r\n") for line in original_lines],
+            b=[line.rstrip("\r\n") for line in formatted_lines],
+            autojunk=False,
+        )
+        whitespace_changes = []
+        for tag, start, end, new_start, new_end in whitespace_matcher.get_opcodes():
+            replacement = formatted_lines[new_start:new_end]
+            if tag != "equal" and not any(line.strip() for line in original_lines[start:end] + replacement):
+                whitespace_changes.extend(self._project_blank_range(start, end, replacement, blocks, newline))
+        for start, end, replacement in reversed(whitespace_changes):
+            physical[start:end] = replacement
         return "".join(physical)
+
+    def _project_blank_range(
+        self, start: int, end: int, replacement: list[str], blocks: list[RobotCodeBlock], newline: str
+    ) -> list[tuple[int, int, list[str]]]:
+        """Apply whitespace changes only to code lines, retaining masked lines in their original positions."""
+        overlaps = [
+            (block, max(start, block.start_line - 1), min(end, block.end_line))
+            for block in blocks
+            if max(start, block.start_line - 1) < min(end, block.end_line)
+        ]
+        if not overlaps:
+            if start == end and replacement:
+                block = next((block for block in blocks if block.start_line - 1 <= start <= block.end_line), None)
+                if block:
+                    return [(start, end, self._reindent_block("".join(replacement), block.indent, newline))]
+            return []
+        code_lines = sum(block_end - block_start for _, block_start, block_end in overlaps)
+        # Masked lines remain in the physical document and already account for part of the replacement.
+        retained = max(len(replacement) - (end - start - code_lines), 0)
+        changes = []
+        for index, (block, block_start, block_end) in enumerate(overlaps):
+            content = "".join(replacement[:retained]) if index == 0 else ""
+            changes.append((block_start, block_end, self._reindent_block(content, block.indent, newline)))
+        return changes
 
     def format_block(self, model: File, resolved_config: ResolvedConfig) -> str | None:
         """

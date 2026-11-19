@@ -117,6 +117,91 @@ class TestLinter:
         )
         assert [issue.rule.rule_id for issue in issues] == ["DOC03"]
 
+    def test_spacing_ignores_markdown_prose_between_blocks(self, tmp_path):
+        source = tmp_path / "spacing.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\nOne\n    Log    one\n```\n"
+            "Prose\n```robot\n    Log    two\n```\n"
+            "Prose\n```robot\nTwo\n    Log    three\n```\n"
+            "Prose\n```robot\n*** Keywords ***\nKeyword\n    Log    value\n```\n",
+            encoding="utf-8",
+        )
+        issues = check_files(
+            sources=[source],
+            select=["SPC03", "SPC04", "SPC05", "SPC09", "SPC12"],
+            return_result=True,
+            cache=False,
+            ignore_file_config=True,
+        )
+        assert not issues
+
+    def test_spacing_still_reports_empty_code_lines(self, tmp_path):
+        source = tmp_path / "spacing.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\nOne\n    Log    one\n\n\n    Log    two\n```\n"
+            "Prose\n```robot\n    Log    three\n```\n",
+            encoding="utf-8",
+        )
+        issues = check_files(
+            sources=[source], select=["SPC12"], return_result=True, cache=False, ignore_file_config=True
+        )
+        assert [(issue.range.start.line, issue.range.end.line) for issue in issues] == [(5, 6)]
+
+    def test_spacing_checks_ignore_masked_lines_inside_syntax(self, tmp_path):
+        source = tmp_path / "spacing.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\n```\nProse\n```robot\n"
+            "Example\n    [Template]    Example Keyword\n    first\n```\nProse\n```robot\n"
+            "    second\n\nControl\n    IF    ${True}\n```\nProse\n```robot\n"
+            "        Log    value\n    END\n```\n",
+            encoding="utf-8",
+        )
+        issues = check_files(
+            sources=[source],
+            select=["SPC09", "SPC13", "SPC23", "SPC24"],
+            return_result=True,
+            cache=False,
+            ignore_file_config=True,
+        )
+        assert not issues
+
+    def test_spacing_between_tests_in_one_block_is_checked(self, tmp_path):
+        source = tmp_path / "spacing.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\nOne\n    Log    one\nTwo\n    Log    two\n```\n",
+            encoding="utf-8",
+        )
+        issues = check_files(
+            sources=[source], select=["SPC04"], return_result=True, cache=False, ignore_file_config=True
+        )
+        assert [issue.rule.rule_id for issue in issues] == ["SPC04"]
+
+    @pytest.mark.parametrize(("blank_lines", "expected"), [("", 0), ("\n", 1)])
+    def test_statement_spacing_ignores_only_masked_lines(self, tmp_path, blank_lines, expected):
+        source = tmp_path / "spacing.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\nExample\n"
+            f"    Log    value\n{blank_lines}```\nProse\n```robot\n    ...    more\n```\n",
+            encoding="utf-8",
+        )
+        issues = check_files(
+            sources=[source], select=["SPC13"], return_result=True, cache=False, ignore_file_config=True
+        )
+        assert len(issues) == expected
+
+    @pytest.mark.parametrize(
+        ("rule", "code", "line"),
+        [
+            ("SPC23", "*** Test Cases ***\nExample\n    [Template]    Keyword\n    first\n\n    second\n", 6),
+            ("SPC24", "*** Test Cases ***\nExample\n    IF    ${True}\n\n        Log    value\n    END\n", 5),
+        ],
+    )
+    def test_spacing_checks_real_blank_lines_in_embedded_code(self, tmp_path, rule, code, line):
+        source = tmp_path / "spacing.md"
+        source.write_text(f"```robot\n{code}```\n", encoding="utf-8")
+        issues = check_files(sources=[source], select=[rule], return_result=True, cache=False, ignore_file_config=True)
+        assert [(issue.rule.rule_id, issue.range.start.line) for issue in issues] == [(rule, line)]
+
     def test_markdown_continuation_keeps_keyword_indentation(self, tmp_path):
         source = tmp_path / "suite.md"
         source.write_text(
@@ -326,3 +411,47 @@ class TestFormatter:
             format_files(sources=[source], overwrite=True, cache=False, ignore_file_config=True)
         result = read(source)
         assert result == original.replace("  Log  ", "    Log    ")
+
+    @pytest.mark.parametrize("line_ending", ["\n", "\r\n"])
+    def test_format_removes_trailing_blank_code_lines_before_fence(self, tmp_path, line_ending):
+        source = tmp_path / "whitespace.md"
+        original = "Before\n```robot\n*** Test Cases ***\nExample\n    Log    value\n\n\n\n```\nAfter\n"
+        with open(source, "w", encoding="utf-8", newline="") as stream:
+            stream.write(original.replace("\n", line_ending))
+        with pytest.raises(typer.Exit):
+            format_files(
+                sources=[source],
+                select=["NormalizeNewLines"],
+                overwrite=True,
+                cache=False,
+                ignore_file_config=True,
+            )
+        assert read(source) == original.replace("\n\n\n\n```\n", "\n```\n").replace("\n", line_ending)
+
+    def test_format_applies_whitespace_with_other_changes(self, tmp_path):
+        source = tmp_path / "whitespace.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\nExample\n  Log  value\n\n\n\n```\nProse\n",
+            encoding="utf-8",
+            newline="",
+        )
+        with pytest.raises(typer.Exit):
+            format_files(sources=[source], overwrite=True, cache=False, ignore_file_config=True, reruns=1)
+        assert read(source) == "```robot\n*** Test Cases ***\nExample\n    Log    value\n```\nProse\n"
+
+    def test_format_blank_lines_around_prose_is_idempotent(self, tmp_path):
+        source = tmp_path / "whitespace.md"
+        source.write_text(
+            "```robot\n*** Test Cases ***\nExample\n    Log    one\n\n\n\n```\nProse\n"
+            "```robot\n\n\n    Log    two\n\n\n\n```\nAfter\n",
+            encoding="utf-8",
+            newline="",
+        )
+        with pytest.raises(typer.Exit):
+            format_files(sources=[source], overwrite=True, cache=False, ignore_file_config=True, reruns=1)
+        result = read(source)
+        assert "```\nProse\n```robot\n" in result
+        assert "    Log    two\n```\nAfter\n" in result
+        with pytest.raises(typer.Exit):
+            format_files(sources=[source], overwrite=True, cache=False, ignore_file_config=True, reruns=1)
+        assert read(source) == result

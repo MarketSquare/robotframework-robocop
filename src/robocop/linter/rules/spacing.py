@@ -897,7 +897,11 @@ class EmptyLineInTestTemplateRule(FixableRule):
                         self.report(node=empty_line, col=1)
                 template_data_row_seen = True
                 empty_lines = []
-            elif isinstance(statement, EmptyLine) and template_data_row_seen:
+            elif (
+                isinstance(statement, EmptyLine)
+                and template_data_row_seen
+                and self.checker.source_file.is_code_line(statement.lineno)
+            ):
                 empty_lines.append(statement)
             else:
                 template_data_row_seen = False

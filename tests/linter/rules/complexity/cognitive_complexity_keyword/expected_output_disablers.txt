@@ -1,0 +1,3 @@
+disablers.robot:2:1 [W] CPX01 Keyword 'Deep But Allowed' has too high cyclomatic complexity (12/10), decision points: 10 inline IF, 1 FOR
+
+Found 1 issue.

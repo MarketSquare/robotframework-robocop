@@ -3,10 +3,11 @@
 This is the complete list of all Robocop rules grouped by categories.
 If you want to learn more about the rules and their features, see [rules](linter/rules.md).
 
-There are over 190 rules available in Robocop and they are organized into the following categories:
+There are over 200 rules available in Robocop and they are organized into the following categories:
 
 * ARG: [Arguments](#arguments)
 * COM: [Comments](#comments)
+* CPX: [Complexity](#complexity)
 * DEPR: [Deprecated code](#deprecated-code)
 * DOC: [Documentation](#documentation)
 * DUP: [Duplications](#duplications)
@@ -1132,6 +1133,376 @@ Example of valid comments:
         [tool.robocop.lint]
         configure = [
             "commented-out-code.markers=todo,fixme"
+        ]
+        ```
+
+## Complexity
+
+Rules for complexity metrics of test cases and keywords.
+
+### CPX01: cyclomatic-complexity-keyword
+
+> Rule is disabled by default. Enable it by using ``--select cyclomatic-complexity-keyword`` option.
+
+Added: `v9.5.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{block_name}' has too high cyclomatic complexity ({complexity}/{allowed_complexity}), decision points: {contributors}`
+
+**Documentation**:
+
+Keyword has too high cyclomatic complexity.
+
+Cyclomatic complexity (McCabe) is ``1 +`` the number of decision points: ``IF``, ``ELSE IF``, ``FOR``,
+``WHILE``, each ``EXCEPT`` and each condition of a conditional BuiltIn keyword (``Run Keyword If``,
+``Run Keyword Unless``, ``Set Variable If``, ``Skip If``, ``Pass Execution If``, ``Return From Keyword If``,
+``Run Keyword And Return If``, ``Exit For Loop If``, ``Continue For Loop If``), also with a BDD prefix such as
+``Given``. ``ELSE``, ``TRY``, ``FINALLY``, ``GROUP`` and boolean operators are not counted.
+
+It approximates the number of paths through the code. A wide keyword with many flat branches scores high:
+
+    *** Keywords ***
+    Select Browser Options    # cyclomatic complexity 4
+        IF    $browser == 'chrome'
+            Set Chrome Options
+        ELSE IF    $browser == 'firefox'
+            Set Firefox Options
+        ELSE
+            Set Default Options
+        END
+        FOR    ${option}    IN    @{extra_options}
+            Add Option    ${option}
+        END
+
+The message lists the decision points by kind, for example ``3 IF, 2 ELSE IF, 1 FOR``. Split such keywords
+into smaller ones, or replace branching with data (for example a dictionary lookup). See
+``cognitive-complexity-keyword`` for a metric that also penalises nesting.
+
+Not analysed: keywords called from ``[Setup]`` / ``[Teardown]``, and run keywords nested inside conditional
+keywords (``Run Keyword If    $a    Run Keyword If    $b    ...``), where only the outer keyword counts.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_complexity` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_complexity` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cyclomatic-complexity-keyword.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cyclomatic-complexity-keyword.severity=W"
+        ]
+        ```
+
+??? example "max_complexity"
+
+    Allowed cyclomatic complexity
+
+    **Default value:** 10
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cyclomatic-complexity-keyword.max_complexity=10
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cyclomatic-complexity-keyword.max_complexity=10"
+        ]
+        ```
+
+---
+
+### CPX02: cyclomatic-complexity-test-case
+
+> Rule is disabled by default. Enable it by using ``--select cyclomatic-complexity-test-case`` option.
+
+Added: `v9.5.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Test case '{block_name}' has too high cyclomatic complexity ({complexity}/{allowed_complexity}), decision points: {contributors}`
+
+**Documentation**:
+
+Test case or task has too high cyclomatic complexity.
+
+Same metric as ``cyclomatic-complexity-keyword``, for test cases and tasks. Tests are usually flatter than
+keywords, so the default limit is lower. Move branching into keywords so the test reads as a scenario.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_complexity` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_complexity` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cyclomatic-complexity-test-case.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cyclomatic-complexity-test-case.severity=W"
+        ]
+        ```
+
+??? example "max_complexity"
+
+    Allowed cyclomatic complexity
+
+    **Default value:** 7
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cyclomatic-complexity-test-case.max_complexity=7
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cyclomatic-complexity-test-case.max_complexity=7"
+        ]
+        ```
+
+---
+
+### CPX03: cognitive-complexity-keyword
+
+> Rule is disabled by default. Enable it by using ``--select cognitive-complexity-keyword`` option.
+
+Added: `v9.5.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{block_name}' has too high cognitive complexity ({complexity}/{allowed_complexity}), main contributors: {contributors}`
+
+**Documentation**:
+
+Keyword has too high cognitive complexity.
+
+Cognitive complexity (SonarSource) measures how hard the code is to understand. Unlike cyclomatic complexity
+it penalises nesting:
+
+- ``IF`` (also inline), ``FOR``, ``WHILE``, ``EXCEPT`` and conditional BuiltIn keywords (``Run Keyword If``,
+  ``Set Variable If``, ``Skip If``, ...) cost ``1 +`` the current nesting level,
+- ``ELSE IF``, ``ELSE`` and the ``ELSE`` branch of ``TRY`` cost ``1``,
+- every sequence of like boolean operators in a condition of ``IF``, ``ELSE IF``, ``WHILE`` or a conditional
+  BuiltIn keyword costs ``1`` (``$a and $b`` is 1, ``$a and $b or $c`` is 2),
+- ``TRY``, ``FINALLY``, ``GROUP``, ``BREAK``, ``CONTINUE`` and ``RETURN`` cost nothing.
+
+Bodies of ``IF`` / ``ELSE IF`` / ``ELSE``, ``FOR``, ``WHILE``, ``EXCEPT`` and ``TRY ELSE`` are one nesting level
+deeper. Example:
+
+    *** Keywords ***
+    Process Items    # cognitive complexity 7
+        FOR    ${item}    IN    @{items}                  # +1
+            IF    $item.valid                             # +2 (nesting 1)
+                IF    $item.priority > 5 and $urgent      # +3 (nesting 2) +1 (and)
+                    Handle Urgent    ${item}
+                END
+            END
+        END
+
+The message lists the three lines that add the most, for example
+``line 5 +4 (IF at nesting 2, boolean operators)``. Flatten the code with early exits (``CONTINUE``,
+``RETURN``) or extract nested blocks into keywords.
+
+Not analysed: keywords called from ``[Setup]`` / ``[Teardown]``, and run keywords nested inside conditional
+keywords (``Run Keyword If    $a    Run Keyword If    $b    ...``), where only the outer keyword counts.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_complexity` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_complexity` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cognitive-complexity-keyword.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cognitive-complexity-keyword.severity=W"
+        ]
+        ```
+
+??? example "max_complexity"
+
+    Allowed cognitive complexity
+
+    **Default value:** 15
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cognitive-complexity-keyword.max_complexity=15
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cognitive-complexity-keyword.max_complexity=15"
+        ]
+        ```
+
+---
+
+### CPX04: cognitive-complexity-test-case
+
+> Rule is disabled by default. Enable it by using ``--select cognitive-complexity-test-case`` option.
+
+Added: `v9.5.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Test case '{block_name}' has too high cognitive complexity ({complexity}/{allowed_complexity}), main contributors: {contributors}`
+
+**Documentation**:
+
+Test case or task has too high cognitive complexity.
+
+Same metric as ``cognitive-complexity-keyword``, for test cases and tasks. Tests are usually flatter than
+keywords, so the default limit is lower. Move nested logic into keywords so the test reads as a scenario.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_complexity` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_complexity` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cognitive-complexity-test-case.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cognitive-complexity-test-case.severity=W"
+        ]
+        ```
+
+??? example "max_complexity"
+
+    Allowed cognitive complexity
+
+    **Default value:** 10
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure cognitive-complexity-test-case.max_complexity=10
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "cognitive-complexity-test-case.max_complexity=10"
         ]
         ```
 

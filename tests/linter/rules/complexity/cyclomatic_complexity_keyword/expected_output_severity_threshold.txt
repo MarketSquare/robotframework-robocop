@@ -1,0 +1,5 @@
+test.robot:31:1 [W] CPX01 Keyword 'Many Legacy Branches' has too high cyclomatic complexity (11/11), decision points: 10 Run Keyword If
+test.robot:43:1 [E] CPX01 Keyword 'Mixed Branches' has too high cyclomatic complexity (12/12), decision points: 3 inline IF, 2 ELSE IF, 2 EXCEPT, 1 IF, 1 FOR, 1 Skip If, 1 WHILE
+test.robot:70:1 [I] CPX01 Keyword 'Ten Decisions' has too high cyclomatic complexity (10/9), decision points: 8 inline IF, 1 FOR
+
+Found 3 issues.

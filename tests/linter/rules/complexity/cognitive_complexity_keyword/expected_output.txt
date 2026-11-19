@@ -1,0 +1,3 @@
+test.robot:59:1 [W] CPX03 Keyword 'Nested Control Flow' has too high cognitive complexity (19/15), main contributors: line 73 +4 (inline IF at nesting 3), line 63 +3 (IF at nesting 2), line 71 +3 (WHILE at nesting 2)
+
+Found 1 issue.

@@ -1,0 +1,4 @@
+test.robot:5:1 [W] CPX02 Test case 'Eight Branches Test' has too high cyclomatic complexity (8/7), decision points: 7 inline IF
+test.robot:14:1 [W] CPX02 Test case 'Many Branches Test' has too high cyclomatic complexity (11/7), decision points: 10 inline IF
+
+Found 2 issues.

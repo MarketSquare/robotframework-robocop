@@ -1,0 +1,4 @@
+test.robot:48:1 [I] CPX03 Keyword 'Moderate Keyword' has too high cognitive complexity (12/11), main contributors: line 51 +4 (IF at nesting 2, boolean operators), line 54 +4 (inline IF at nesting 3), line 50 +2 (IF at nesting 1)
+test.robot:59:1 [E] CPX03 Keyword 'Nested Control Flow' has too high cognitive complexity (19/19), main contributors: line 73 +4 (inline IF at nesting 3), line 63 +3 (IF at nesting 2), line 71 +3 (WHILE at nesting 2)
+
+Found 2 issues.

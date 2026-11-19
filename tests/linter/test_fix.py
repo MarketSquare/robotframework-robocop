@@ -99,8 +99,9 @@ def test_multi_line_edit(sample_source_file):
     assert sample_source_file.modified is True
     assert "Single line replacement" in sample_source_file.source_lines[6]
     # Original 3 lines replaced with 1, so total lines should be 2 less
-    original_line_count = 14
+    original_line_count = 15
     assert len(sample_source_file.source_lines) == original_line_count - 2
+    assert sample_source_file.source_lines[7] == "    Log    Goodbye\n"
     assert applier.fix_stats.by_file[sample_source_file.path][("W002", "simplify-test")] == 1
 
 

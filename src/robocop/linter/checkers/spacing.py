@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from itertools import takewhile
+from itertools import islice, takewhile
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -79,6 +79,11 @@ class EmptyLinesChecker(VisitorChecker):
         data_found = check_leading
         for line in lines:
             if isinstance(line, EmptyLine):
+                if not self.source_file.is_code_line(line.lineno):
+                    empty_lines = 0
+                    last_empty_line = None
+                    data_found = check_leading
+                    continue
                 if not data_found:
                     continue
                 empty_lines += 1
@@ -133,7 +138,7 @@ class EmptyLinesChecker(VisitorChecker):
     def visit_Statement(self, node: Statement) -> None:  # noqa: N802
         prev_token = None
         for token in node.tokens:
-            if token.type == Token.EOL:
+            if token.type == Token.EOL and self.source_file.is_code_line(token.lineno):
                 if prev_token:
                     self.report(self.empty_lines_in_statement, node=token)
                 prev_token = token
@@ -157,6 +162,24 @@ class EmptyLinesChecker(VisitorChecker):
                 continue
             empty_lines = self.check_empty_lines_in_keyword_test(child)
             if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
+                if self.source_file.is_embedded:
+                    next_node = next(
+                        (item for item in islice(node.body, index + 1, None) if isinstance(item, node_type)), None
+                    )
+                    last_line = self.source_file.last_code_line(child.lineno, child.end_lineno)
+                    if next_node is None:
+                        next_node = next(
+                            (
+                                item
+                                for item in islice(node.body, index + 1, None)
+                                if self.source_file.is_code_line(item.lineno)
+                            ),
+                            None,
+                        )
+                        if next_node is None:
+                            continue
+                    if not self.source_file.same_code_block(last_line, next_node.lineno):
+                        continue
                 lineno = min(child.end_lineno - empty_lines + 1, child.end_lineno)
                 self.report(
                     rule,
@@ -195,12 +218,13 @@ class EmptyLinesChecker(VisitorChecker):
         body = node.body
         if not body:
             return
-        leading = list(takewhile(lambda line: isinstance(line, EmptyLine), body))
+        is_code_empty = lambda line: isinstance(line, EmptyLine) and self.source_file.is_code_line(line.lineno)  # noqa: E731
+        leading = list(takewhile(is_code_empty, body))
         all_empty = len(leading) == len(body)
         if len(leading) > allowed:
             self.report_empty_lines_inside_block(leading, "after block header")
         if not all_empty:
-            trailing = list(takewhile(lambda line: isinstance(line, EmptyLine), reversed(body)))
+            trailing = list(takewhile(is_code_empty, reversed(body)))
             if len(trailing) > allowed:
                 trailing.reverse()
                 self.report_empty_lines_inside_block(trailing, "before block end")
@@ -222,8 +246,11 @@ class EmptyLinesChecker(VisitorChecker):
     def visit_File(self, node: File) -> None:  # noqa: N802
         for section in node.sections:
             self.check_empty_lines_after_section(section)
-        for section in node.sections[:-1]:
+        for section, next_section in zip(node.sections, node.sections[1:], strict=False):
             if not section.header:  # for comment section
+                continue
+            last_line = self.source_file.last_code_line(section.lineno, section.end_lineno)
+            if not self.source_file.same_code_block(last_line, next_section.lineno):
                 continue
             empty_lines = 0
             child = section  # workaround for empty sections when reporting issue
@@ -253,7 +280,7 @@ class EmptyLinesChecker(VisitorChecker):
     def check_empty_lines_after_section(self, section: Section) -> None:
         empty_lines = []
         for child in section.body:
-            if not isinstance(child, EmptyLine):
+            if not isinstance(child, EmptyLine) or not self.source_file.is_code_line(child.lineno):
                 break
             empty_lines.append(child)
         else:

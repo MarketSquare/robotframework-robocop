@@ -13,14 +13,13 @@ code blocks tagged with ``robotframework`` (or ``robot``)::
 The same convention is used to embed runnable examples in Python docstrings (see Robot Framework's own
 ``Collections`` library). Robocop supports both sources.
 
-Unlike Robot Framework -- which concatenates every block and throws away line positions -- Robocop needs to keep
-the exact physical position (line and column) of each block so that reported issues and applied fixes point at the
-right place in the original file. This module extracts blocks while preserving that information.
+Robocop keeps the exact physical position (line and column) of each block so that reported issues and applied fixes
+point at the right place in the original file. This module extracts blocks while preserving that information.
 
 The extraction is intentionally line based (it does not parse Python syntax). A fenced ``robotframework`` block is
 recognized wherever it appears, which covers both Markdown prose and Python docstrings. Blocks nested inside
 indented docstrings keep their common indentation, which is stripped when the block is turned into a Robot model
-and re-applied when the file is written back.
+and re-applied when the file is written back. Markdown blocks instead use the indentation of the opening fence.
 """
 
 from __future__ import annotations
@@ -29,7 +28,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from robot.api.parsing import ModelVisitor
+from robot.api.parsing import ModelVisitor, Token
 
 if TYPE_CHECKING:
     from robot.parsing.model import File
@@ -56,8 +55,8 @@ class RobotCodeBlock:
         start_line: 1-indexed physical line number of the first code line (line just after the opening fence).
         end_line: 1-indexed physical line number of the last code line (inclusive). For an empty block this is
             ``start_line - 1`` so that ``range(start_line, end_line + 1)`` is empty.
-        indent: Common leading whitespace shared by every non-blank code line. It is stripped when building the
-            Robot model and re-applied when writing changes back to the file.
+        indent: Indentation stripped when building the Robot model and re-applied when writing changes back.
+            This is the opening fence indentation in Markdown, or the common code indentation in Python.
         fence_open_line: 1-indexed physical line number of the opening fence.
         fence_close_line: 1-indexed physical line number of the closing fence, or ``None`` if the block is closed
             implicitly by the end of the file.
@@ -111,12 +110,13 @@ def _common_indent(lines: list[str]) -> str:
     return common or ""
 
 
-def extract_robot_blocks(lines: list[str]) -> list[RobotCodeBlock]:
+def extract_robot_blocks(lines: list[str], *, markdown: bool = False) -> list[RobotCodeBlock]:
     """
     Find all embedded Robot Framework code blocks in the given file lines.
 
     Args:
         lines: The physical file lines, including line endings (as returned by ``file.readlines()``).
+        markdown: Strip at most the fence indentation, as Robot Framework's Markdown parser does.
 
     Returns:
         List of :class:`RobotCodeBlock`, in file order. Empty if the file has no Robot code blocks.
@@ -147,7 +147,7 @@ def extract_robot_blocks(lines: list[str]) -> list[RobotCodeBlock]:
             RobotCodeBlock(
                 start_line=start_line,
                 end_line=end_line,
-                indent=_common_indent(code_lines),
+                indent=match.group("indent") if markdown else _common_indent(code_lines),
                 fence_open_line=fence_open_line,
                 fence_close_line=fence_close_line,
             )
@@ -167,17 +167,17 @@ def strip_indent(line: str, indent: str) -> str:
     return keep + stripped
 
 
-def reconstruct_source(lines: list[str], blocks: list[RobotCodeBlock]) -> str:
+def reconstruct_source(lines: list[str], blocks: list[RobotCodeBlock], *, markdown: bool = False) -> str:
     """
     Build a Robot Framework source string that preserves physical line numbers.
 
     Non-code lines (prose, fences, Python code) are replaced with blank lines and code lines are dedented by their
-    block indentation. The resulting model therefore has line numbers matching the original file, while section
-    headers and statements start at column 0 as Robot Framework requires.
+    block indentation. The resulting model has line numbers matching the original file.
 
     Args:
         lines: The physical file lines, including line endings.
         blocks: Blocks extracted from ``lines`` via :func:`extract_robot_blocks`.
+        markdown: Preserve whitespace-only lines as Robot Framework's Markdown parser does.
 
     Returns:
         Robot Framework source text with one entry per physical line.
@@ -187,6 +187,9 @@ def reconstruct_source(lines: list[str], blocks: list[RobotCodeBlock]) -> str:
     for block in blocks:
         for lineno in range(block.start_line, block.end_line + 1):
             original = lines[lineno - 1]
+            if markdown and not original.strip():
+                reconstructed[lineno - 1] = original
+                continue
             newline = _line_ending(original)
             reconstructed[lineno - 1] = strip_indent(original.rstrip("\r\n"), block.indent) + newline
     return "".join(reconstructed)
@@ -218,3 +221,18 @@ def shift_model_lines(model: File, offset: int) -> File:
     if offset:
         _LineShifter(offset).visit(model)
     return model
+
+
+class ModelContentCollector(ModelVisitor):  # type: ignore[misc]
+    """Collect parsed non-whitespace tokens to check that masked lines do not change the model."""
+
+    def __init__(self, model: File) -> None:
+        self.tokens: list[tuple[str, str]] = []
+        self.visit(model)
+
+    def visit_Statement(self, node: Statement) -> None:  # noqa: N802
+        self.tokens.extend(
+            (token.type, token.value)
+            for token in node.tokens
+            if token.type not in (Token.SEPARATOR, Token.EOL, Token.EOS) and token.value.strip()
+        )

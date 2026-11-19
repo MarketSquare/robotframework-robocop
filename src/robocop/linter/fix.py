@@ -307,6 +307,7 @@ class FixApplier:
             fix
             for fix in fixes
             if fix
+            and source_file.supports_fix(fix)
             and (
                 fix.applicability == FixApplicability.SAFE
                 or (fix.applicability == FixApplicability.UNSAFE and allow_unsafe)

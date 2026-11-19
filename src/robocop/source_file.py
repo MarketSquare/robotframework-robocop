@@ -13,7 +13,7 @@ try:
 except ImportError:
     Languages = None
 
-from robocop.embedded import extract_robot_blocks, reconstruct_source, shift_model_lines
+from robocop.embedded import MARKDOWN_EXTENSIONS, extract_robot_blocks, reconstruct_source, shift_model_lines
 from robocop.files import path_relative_to_cwd, resolve_path
 from robocop.version_handling import LANG_SUPPORTED, ROBOT_VERSION, Version
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from robocop.config.schema import Config
     from robocop.embedded import RobotCodeBlock
     from robocop.linter.diagnostics import Range
-    from robocop.linter.fix import TextEdit
+    from robocop.linter.fix import Fix, TextEdit
 
 
 @dataclass
@@ -238,6 +238,10 @@ class SourceFile:
         """Translate fix edits from model coordinates to physical file coordinates."""
         return edits
 
+    def supports_fix(self, fix: Fix) -> bool:  # noqa: ARG002
+        """Return whether a fix can safely be applied to this source."""
+        return True
+
 
 class EmbeddedSourceFile(SourceFile):
     """
@@ -246,11 +250,8 @@ class EmbeddedSourceFile(SourceFile):
     The physical file (``source_lines``) keeps prose, fences and the original indentation untouched, so writing it
     back is a verbatim round-trip.
 
-    Every code block is parsed into its own model whose line numbers are shifted to match the physical file, so AST
-    checkers see each block independently (via :attr:`models`) and no false positives are produced by the prose
-    between blocks. A combined model (:attr:`model`), where non-code lines are blanked out and code lines are
-    dedented, is kept for consumers that need a single model spanning the whole file (disablers, documentation
-    lines, templated-suite detection).
+    Markdown blocks share a model; Python blocks are parsed independently. The combined model (:attr:`model`)
+    blanks out non-code lines and dedents code lines while preserving physical line numbers.
 
     Column positions differ between the model space and the physical file by the block indentation, so diagnostics
     and fixes generated against a model are translated back to physical coordinates before they are displayed or
@@ -268,15 +269,21 @@ class EmbeddedSourceFile(SourceFile):
     def _load_model(self, path_or_text: Path | str) -> File:
         text = self._physical_text(path_or_text)
         lines = text.splitlines(keepends=True)
-        self._blocks = extract_robot_blocks(lines)
-        reconstructed = reconstruct_source(lines, self._blocks)
+        markdown = self.path.suffix.lower() in MARKDOWN_EXTENSIONS
+        self._blocks = extract_robot_blocks(lines, markdown=markdown)
+        reconstructed = reconstruct_source(lines, self._blocks, markdown=markdown)
         self._model_lines = reconstructed.splitlines(keepends=True)
-        self._models = [
-            self._build_block_model(block, self._model_lines) for block in self._blocks if not block.is_empty
-        ]
-        return self._build_model(reconstructed)
+        model = self.build_embedded_model(reconstructed)
+        if self.path.suffix.lower() in MARKDOWN_EXTENSIONS:
+            self._models = [model] if any(not block.is_empty for block in self._blocks) else []
+        else:
+            self._models = [
+                self._build_block_model(block, self._model_lines) for block in self._blocks if not block.is_empty
+            ]
+        return model
 
-    def _build_model(self, source: str) -> File:
+    def build_embedded_model(self, source: str) -> File:
+        """Parse reconstructed Robot code using this file's languages and source path."""
         from robot.api import get_model as _get_model  # noqa: PLC0415
 
         if LANG_SUPPORTED:
@@ -288,7 +295,7 @@ class EmbeddedSourceFile(SourceFile):
 
     def _build_block_model(self, block: RobotCodeBlock, model_lines: list[str]) -> File:
         source = "".join(model_lines[block.start_line - 1 : block.end_line])
-        model = self._build_model(source)
+        model = self.build_embedded_model(source)
         return shift_model_lines(model, block.start_line - 1)
 
     def format_blocks(self) -> list[tuple[RobotCodeBlock, File]]:
@@ -303,7 +310,7 @@ class EmbeddedSourceFile(SourceFile):
             if block.is_empty:
                 continue
             source = "".join(self.model_lines[block.start_line - 1 : block.end_line])
-            blocks.append((block, self._build_model(source)))
+            blocks.append((block, self.build_embedded_model(source)))
         return blocks
 
     def _physical_text(self, path_or_text: Path | str) -> str:
@@ -349,7 +356,10 @@ class EmbeddedSourceFile(SourceFile):
         """Return the block indentation (number of columns) for the given physical line, or 0 outside any block."""
         for block in self.blocks:
             if block.contains(lineno):
-                return len(block.indent)
+                line = self.source_lines[lineno - 1]
+                if self.path.suffix.lower() in MARKDOWN_EXTENSIONS and not line.strip():
+                    return 0
+                return min(len(block.indent), len(line) - len(line.lstrip(" \t")))
         return 0
 
     def offset_range(self, diag_range: Range) -> None:
@@ -363,19 +373,30 @@ class EmbeddedSourceFile(SourceFile):
 
         for edit in edits:
             indent = self.base_indent(edit.start_line)
-            if not indent:
-                continue
             if edit.kind == TextEditKind.REPLACEMENT:
                 edit.start_col += indent
                 edit.end_col += indent
             elif edit.kind in (TextEditKind.REPLACEMENT_LINES, TextEditKind.INSERTION):
-                edit.replacement = self._reindent(edit.replacement, indent)
+                block = next((block for block in self.blocks if block.contains(edit.start_line)), None)
+                if block:
+                    edit.replacement = self._reindent(edit.replacement, block.indent)
         return edits
 
+    def supports_fix(self, fix: Fix) -> bool:
+        from robocop.linter.fix import TextEditKind  # noqa: PLC0415
+
+        return all(
+            any(
+                block.contains(edit.start_line)
+                and (edit.kind == TextEditKind.INSERTION or block.contains(edit.end_line))
+                for block in self.blocks
+            )
+            for edit in fix.edits
+        )
+
     @staticmethod
-    def _reindent(text: str, indent: int) -> str:
-        prefix = " " * indent
-        return "".join(f"{prefix}{line}" if line.strip() else line for line in text.splitlines(keepends=True))
+    def _reindent(text: str, indent: str) -> str:
+        return "".join(f"{indent}{line}" if line.strip() else line for line in text.splitlines(keepends=True))
 
 
 def build_source_file(path: Path, config: Config) -> SourceFile:

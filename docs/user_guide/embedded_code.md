@@ -9,8 +9,10 @@ Robocop can lint and format Robot Framework code that is embedded in other files
 This mirrors the embedded execution support that Robot Framework added in version 7.5, but Robocop does its own
 parsing, so it works regardless of the installed Robot Framework version.
 
-A single file may contain zero, one, or many code blocks. **Each block is treated as an independent suite** – it is
-linted and formatted on its own, and the surrounding prose, fences and indentation are left untouched.
+A single file may contain zero, one, or many code blocks. In Markdown, all Robot blocks are linted and formatted
+as **one suite**, matching Robot Framework: a block can continue a section or test started in an earlier block.
+This changes the previous behavior, which treated each Markdown block as an independent suite. Python blocks
+continue to be treated independently. Surrounding prose, fences and indentation are left untouched.
 
 ````markdown
 # Example
@@ -54,9 +56,13 @@ Reported issues point at the **exact physical line and column** of the code insi
 position within an extracted block. Automatic fixes (`--fix`) and formatting are written back in place, preserving
 the block indentation (for example the indentation of a fenced block inside a Python docstring) and the file's line
 endings.
+For Markdown, formatter `--start-line` and `--end-line` refer to physical file lines.
 
 ## Notes
 
-- Because every block is an independent suite, suite-level rules (such as *missing documentation in suite*) are
-  reported once per block.
+- Suite-level rules (such as *missing documentation in suite*) are reported once per Markdown file, or once per
+  Python block.
+- Formatting can move Robot code between Markdown blocks when a formatter rearranges the combined suite. If a change
+  cannot be mapped back to blocks without losing code, that formatter's change is skipped.
+- Automatic fixes that would edit prose or fences are not applied.
 - Blocks tagged with any language other than `robotframework`/`robot` are ignored.

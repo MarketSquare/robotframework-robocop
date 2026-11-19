@@ -1,0 +1,3 @@
+group_and_templates.robot:17:25 [W] CPX06 Test case 'Group In Test Case' is nested too deeply (4/3), nesting path: FOR > IF > WHILE > TRY
+
+Found 1 issue.

@@ -1,0 +1,4 @@
+invalid.robot:18:17 [W] CPX05 Keyword 'Deep After Errors' is nested too deeply (5/3), nesting path: FOR > IF > IF > IF > IF
+invalid.robot:31:17 [W] CPX05 Keyword 'Empty Blocks' is nested too deeply (4/3), nesting path: FOR > IF > WHILE > TRY
+
+Found 2 issues.

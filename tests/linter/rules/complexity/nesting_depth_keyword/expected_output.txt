@@ -1,0 +1,6 @@
+test.robot:33:21 [W] CPX05 Keyword 'Too Deep' is nested too deeply (5/4), nesting path: FOR > IF > TRY > IF > WHILE
+test.robot:48:21 [W] CPX05 Keyword 'Deeper Inside Reported Block Is Not Reported Again' is nested too deeply (6/4), nesting path: FOR > FOR > FOR > FOR > FOR > FOR
+test.robot:63:21 [W] CPX05 Keyword 'Two Deep Blocks' is nested too deeply (5/4), nesting path: IF > IF > IF > IF > IF
+test.robot:74:21 [W] CPX05 Keyword 'Two Deep Blocks' is nested too deeply (5/4), nesting path: FOR > WHILE > TRY > WHILE > IF
+
+Found 4 issues.

@@ -1,0 +1,4 @@
+test.robot:23:17 [W] CPX06 Test case 'Too Deep' is nested too deeply (5/3), nesting path: FOR > IF > WHILE > TRY > IF
+test.robot:49:17 [W] CPX06 Test case 'Second Section Test Case' is nested too deeply (4/3), nesting path: TRY > FOR > IF > TRY
+
+Found 2 issues.

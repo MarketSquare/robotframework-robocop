@@ -1,0 +1,4 @@
+groups.robot:7:21 [W] CPX05 Keyword 'Group Is Transparent' is nested too deeply (4/2), nesting path: FOR > IF > FOR > IF
+groups.robot:40:21 [W] CPX05 Keyword 'Groups Between Blocks' is nested too deeply (3/2), nesting path: IF > FOR > IF
+
+Found 2 issues.

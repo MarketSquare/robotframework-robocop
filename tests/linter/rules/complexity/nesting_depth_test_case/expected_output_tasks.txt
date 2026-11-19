@@ -1,0 +1,3 @@
+tasks.robot:6:17 [W] CPX06 Test case 'Process Inbox' is nested too deeply (4/3), nesting path: FOR > TRY > IF > WHILE
+
+Found 1 issue.

@@ -66,6 +66,18 @@ class ProjectFile:
         return not self.collected.is_suite and not self.collected.is_init_file
 
     @property
+    def has_suite_namespace(self) -> bool:
+        """
+        Check if Robot Framework runs the file as a suite or a suite initialization file, with its own namespace.
+
+        Like in Robot Framework, an initialization file has exactly the ``__init__`` name and it is not a resource
+        file, so for example ``__init__.resource`` or ``my__init__.robot`` without tests are not suites.
+        """
+        if self.collected.is_suite:
+            return True
+        return self.path.stem.lower() == "__init__" and self.path.suffix.lower() != ".resource"
+
+    @property
     def keywords(self) -> list[KeywordDefinition]:
         return self.collected.keywords
 
@@ -259,7 +271,7 @@ class ProjectContext:
         return [
             project_file
             for project_file in self.importers(path)
-            if not project_file.is_resource and project_file.resolved_path != resolved
+            if project_file.has_suite_namespace and project_file.resolved_path != resolved
         ]
 
     def visible_keywords(self, path: Path) -> KeywordIndex:

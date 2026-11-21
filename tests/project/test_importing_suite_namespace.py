@@ -104,3 +104,33 @@ def test_importing_suite_with_unresolved_import_is_not_checked(tmp_path):
         "*** Test Cases ***\nOrder Flow\n    Open Order\n"
     )
     assert reported(run(project)) == []
+
+
+INIT_DEFINING_LOG_STEP = """\
+*** Settings ***
+Resource    orders.resource
+Suite Setup    Open Order
+
+
+*** Keywords ***
+Log Step
+    [Arguments]    ${message}
+    Log    ${message}
+"""
+
+
+def test_keyword_defined_in_importing_suite_initialization_file(tmp_path):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "orders.resource").write_text(ORDERS_RESOURCE)
+    (project / "__init__.robot").write_text(INIT_DEFINING_LOG_STEP)
+    assert reported(run(project)) == ["project/orders.resource:4"]
+
+
+def test_resource_file_named_like_initialization_file_is_not_suite(tmp_path):
+    """``__init__.resource`` is an ordinary resource file, Robot Framework never runs it as a suite."""
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "orders.resource").write_text(ORDERS_RESOURCE)
+    (project / "__init__.resource").write_text(INIT_DEFINING_LOG_STEP.replace("Suite Setup    Open Order\n", ""))
+    assert reported(run(project)) == ["project/orders.resource:3", "project/orders.resource:4"]

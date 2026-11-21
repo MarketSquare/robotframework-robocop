@@ -1,0 +1,45 @@
+test.robot:33:21 CPX05 Keyword 'Too Deep' is nested too deeply (5/4), nesting path: FOR > IF > TRY > IF > WHILE
+    |
+ 31 |             TRY
+ 32 |                 IF    $order.priority
+ 33 |                     WHILE    $order.open
+    |                     ^^^^^ CPX05
+ 34 |                         Escalate    ${order}
+ 35 |                     END
+    | Suggestion: Flatten the block with guard clauses or extract it into a keyword.
+    |
+
+test.robot:48:21 CPX05 Keyword 'Deeper Inside Reported Block Is Not Reported Again' is nested too deeply (6/4), nesting path: FOR > FOR > FOR > FOR > FOR > FOR
+    |
+ 46 |             FOR    ${c}    IN    1
+ 47 |                 FOR    ${d}    IN    1
+ 48 |                     FOR    ${e}    IN    1
+    |                     ^^^ CPX05
+ 49 |                         FOR    ${f}    IN    1
+ 50 |                             Log    deep
+    | Suggestion: Flatten the block with guard clauses or extract it into a keyword.
+    |
+
+test.robot:63:21 CPX05 Keyword 'Two Deep Blocks' is nested too deeply (5/4), nesting path: IF > IF > IF > IF > IF
+    |
+ 61 |             IF    $c
+ 62 |                 IF    $d
+ 63 |                     IF    $e
+    |                     ^^ CPX05
+ 64 |                         Log    first
+ 65 |                     END
+    | Suggestion: Flatten the block with guard clauses or extract it into a keyword.
+    |
+
+test.robot:74:21 CPX05 Keyword 'Two Deep Blocks' is nested too deeply (5/4), nesting path: FOR > WHILE > TRY > WHILE > IF
+    |
+ 72 |             TRY
+ 73 |                 WHILE    $y
+ 74 |                     IF    $z
+    |                     ^^ CPX05
+ 75 |                         Log    second
+ 76 |                     END
+    | Suggestion: Flatten the block with guard clauses or extract it into a keyword.
+    |
+
+Found 4 issues.

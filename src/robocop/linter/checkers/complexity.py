@@ -18,10 +18,13 @@ class ComplexityChecker(VisitorChecker):
     cyclomatic_complexity_test_case: complexity.CyclomaticComplexityTestCaseRule
     cognitive_complexity_keyword: complexity.CognitiveComplexityKeywordRule
     cognitive_complexity_test_case: complexity.CognitiveComplexityTestCaseRule
+    nesting_depth_keyword: complexity.NestingDepthKeywordRule
+    nesting_depth_test_case: complexity.NestingDepthTestCaseRule
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         if node.name.lstrip().startswith("#"):
             return
+        self.nesting_depth_keyword.check(node)
         if not (self.cyclomatic_complexity_keyword.enabled or self.cognitive_complexity_keyword.enabled):
             return
         result = compute_complexity(node)
@@ -29,6 +32,7 @@ class ComplexityChecker(VisitorChecker):
         self.cognitive_complexity_keyword.check(node, result)
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
+        self.nesting_depth_test_case.check(node)
         if not (self.cyclomatic_complexity_test_case.enabled or self.cognitive_complexity_test_case.enabled):
             return
         result = compute_complexity(node)

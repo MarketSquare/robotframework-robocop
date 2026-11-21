@@ -1,0 +1,3 @@
+keywords.resource:7:21 [W] CPX05 Keyword 'Resource Keyword' is nested too deeply (5/4), nesting path: FOR > IF > WHILE > TRY > IF
+
+Found 1 issue.

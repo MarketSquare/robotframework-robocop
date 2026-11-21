@@ -1366,7 +1366,8 @@ deeper. Example:
 
 The message lists the three lines that add the most, for example
 ``line 5 +4 (IF at nesting 2, boolean operators)``. Flatten the code with early exits (``CONTINUE``,
-``RETURN``) or extract nested blocks into keywords.
+``RETURN``) or extract nested blocks into keywords. To limit the nesting depth directly, see
+``nesting-depth-keyword``.
 
 Not analysed: keywords called from ``[Setup]`` / ``[Teardown]``, and run keywords nested inside conditional
 keywords (``Run Keyword If    $a    Run Keyword If    $b    ...``), where only the outer keyword counts.
@@ -1503,6 +1504,188 @@ keywords, so the default limit is lower. Move nested logic into keywords so the 
         [tool.robocop.lint]
         configure = [
             "cognitive-complexity-test-case.max_complexity=10"
+        ]
+        ```
+
+---
+
+### CPX05: nesting-depth-keyword
+
+Added: `v9.5.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Keyword '{block_name}' is nested too deeply ({depth}/{max_depth}), nesting path: {path}`
+
+**Documentation**:
+
+Keyword has too deeply nested control flow.
+
+Reports the outermost ``IF``, ``FOR``, ``WHILE`` or ``TRY`` block that is nested deeper than ``max_depth``
+levels. The first block in a keyword is level 1:
+
+    *** Keywords ***
+    Process Orders
+        FOR    ${order}    IN    @{orders}               # level 1
+            IF    $order.pending                          # level 2
+                TRY                                       # level 3
+                    IF    $order.priority                 # level 4 - reported when max_depth=3
+                        Escalate    ${order}
+                    END
+                EXCEPT
+                    Log    Failed
+                END
+            END
+        END
+
+The message shows the path to the deepest level, for example ``FOR > IF > TRY > IF``. The depth comes from the
+structure of the code, not from the indentation, and:
+
+- ``ELSE IF``, ``ELSE``, ``EXCEPT``, ``TRY ELSE`` and ``FINALLY`` are branches of their block and stay on its
+  level, so an ``IF`` with ten ``ELSE IF`` branches has depth 1,
+- inline ``IF`` (``IF    $x    RETURN``) and conditional keywords such as ``Run Keyword If`` and ``Skip If`` do
+  not add a level. They hold a single statement and are the usual way to flatten nesting with guard clauses,
+- ``GROUP`` does not add a level, but blocks inside it are counted (see ``nested-group`` to limit groups),
+- keyword calls are not followed: the depth is measured inside a single keyword.
+
+Blocks nested inside a reported block are not reported again. Extract the reported block into a keyword or use
+guard clauses (``IF    ...    RETURN`` / ``CONTINUE``) to flatten it. See ``cognitive-complexity-keyword`` for a
+metric that sums up nesting instead of limiting it.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_depth` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_depth` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure nesting-depth-keyword.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "nesting-depth-keyword.severity=W"
+        ]
+        ```
+
+??? example "max_depth"
+
+    Allowed nesting depth of if, for, while and try blocks
+
+    **Default value:** 4
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure nesting-depth-keyword.max_depth=4
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "nesting-depth-keyword.max_depth=4"
+        ]
+        ```
+
+---
+
+### CPX06: nesting-depth-test-case
+
+Added: `v9.5.0`
+
+Supported RF version `All`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Test case '{block_name}' is nested too deeply ({depth}/{max_depth}), nesting path: {path}`
+
+**Documentation**:
+
+Test case or task has too deeply nested control flow.
+
+Same metric as ``nesting-depth-keyword``, for test cases and tasks. Tests are usually flatter than keywords, so
+the default limit is lower. Move nested logic into keywords so the test reads as a scenario.
+
+> **Note: Severity thresholds**
+>
+> This rule supports dynamic severity configurable using thresholds ([severity-threshold](linter/rules.md#severity-threshold)).
+> Parameter `max_depth` will be used to determine issue severity depending on the thresholds.
+>
+> When configuring thresholds remember to also set `max_depth` - its value should be lower or
+> equal to the lowest value in the threshold.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** W
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure nesting-depth-test-case.severity=W
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "nesting-depth-test-case.severity=W"
+        ]
+        ```
+
+??? example "max_depth"
+
+    Allowed nesting depth of if, for, while and try blocks
+
+    **Default value:** 3
+
+    **Type:** int
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure nesting-depth-test-case.max_depth=3
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "nesting-depth-test-case.max_depth=3"
         ]
         ```
 

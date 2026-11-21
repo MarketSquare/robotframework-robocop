@@ -1,0 +1,12 @@
+test.robot:21:17 [I] CPX05 Keyword 'At Limit' is nested too deeply (4/4), nesting path: FOR > IF > FOR > WHILE
+test.robot:32:17 [W] CPX05 Keyword 'Too Deep' is nested too deeply (5/5), nesting path: FOR > IF > TRY > IF > WHILE
+test.robot:47:17 [E] CPX05 Keyword 'Deeper Inside Reported Block Is Not Reported Again' is nested too deeply (6/6), nesting path: FOR > FOR > FOR > FOR > FOR > FOR
+test.robot:62:17 [W] CPX05 Keyword 'Two Deep Blocks' is nested too deeply (5/5), nesting path: IF > IF > IF > IF > IF
+test.robot:73:17 [W] CPX05 Keyword 'Two Deep Blocks' is nested too deeply (5/5), nesting path: FOR > WHILE > TRY > WHILE > IF
+test.robot:90:17 [I] CPX05 Keyword 'Else If Branch Nesting Is Not Cumulative' is nested too deeply (4/4), nesting path: IF > FOR > IF > TRY
+test.robot:107:17 [I] CPX05 Keyword 'Except And Try Else Branches' is nested too deeply (4/4), nesting path: TRY > FOR > IF > WHILE
+test.robot:115:17 [I] CPX05 Keyword 'Except And Try Else Branches' is nested too deeply (4/4), nesting path: TRY > IF > IF > IF
+test.robot:128:17 [I] CPX05 Keyword 'Inline If Is A Guard Clause' is nested too deeply (4/4), nesting path: FOR > IF > FOR > IF
+test.robot:141:17 [I] CPX05 Keyword 'Inline If Split Over Lines' is nested too deeply (4/4), nesting path: FOR > IF > IF > IF
+
+Found 10 issues.

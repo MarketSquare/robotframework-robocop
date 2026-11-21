@@ -170,7 +170,7 @@ class KeywordUsageChecker(ProjectChecker):
         """
         if keyword_usage.name_contains_variable or keyword_usage.is_template:
             return None
-        name = keyword_usage.names_to_check()[-1]
+        name = keyword_usage.name_without_bdd_prefix
         if "." in name:
             return None  # already prefixed, or the name contains a dot and cannot be prefixed safely
         definitions = context.resolve_keyword(keyword_usage)
@@ -351,7 +351,7 @@ def _bdd_prefix_offset(keyword_usage: KeywordUsage) -> int:
     """
     if keyword_usage.bdd_prefix is None:
         return 0
-    return len(keyword_usage.name) - len(keyword_usage.names_to_check()[-1])
+    return len(keyword_usage.name) - len(keyword_usage.name_without_bdd_prefix)
 
 
 class UnusedKeywords(ProjectChecker):

@@ -1,4 +1,8 @@
-test.robot:8:5 [W] KW06 Keyword 'Login' matches keywords from multiple sources: resources${/}first.resource, resources${/}second.resource
+embedded_match.robot:9:5 [W] KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+embedded_match.robot:12:5 [W] KW06 Keyword 'Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+libraries${/}two_custom.robot:9:16 [W] KW06 Keyword 'Copy List' matches keywords from multiple sources: Collections, CopyOne, CopyTwo
+resources${/}c${/}util.resource:11:5 [W] KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}c${/}util.resource, resources${/}a${/}util.resource, resources${/}b${/}util.resource
 same_resource_name.robot:8:5 [W] KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+test.robot:8:5 [W] KW06 Keyword 'Login' matches keywords from multiple sources: resources${/}first.resource, resources${/}second.resource
 
-Found 2 issues.
+Found 6 issues.

@@ -5271,11 +5271,14 @@ Robot Framework resolves conflicts using the following order, which the rule fol
 
 - a keyword defined in the file containing the call is always used,
 - keywords from resource files are used before keywords from libraries,
-- a keyword from a custom library is used before a keyword from a standard library.
+- a keyword from a custom library is used before a keyword from a standard library, if only these two match,
+- a keyword without embedded arguments is used before keywords with embedded arguments matching the name.
 
 Calls using the full name of the keyword (``login.Login``) are not reported, since the prefix already
 selects the keyword, unless several imported resource files share the same name, for example
-``a/login.resource`` and ``b/login.resource``. Calls with a name built from a variable are not reported either.
+``a/login.resource`` and ``b/login.resource``. Such prefixed calls are reported even when one of the files
+contains the call, since Robot Framework does not prefer it. Calls with a name built from a variable are not
+reported either.
 
 Keywords defined twice in the same file are reported by the ``duplicated-keyword-name`` rule instead.
 

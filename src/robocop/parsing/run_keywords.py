@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import TYPE_CHECKING
@@ -106,8 +107,17 @@ def bdd_prefixes_for(languages: Languages | None) -> frozenset[str]:
 
 
 @lru_cache(maxsize=32)
-def _longest_first(bdd_prefixes: frozenset[str]) -> tuple[str, ...]:
-    return tuple(sorted({prefix.lower() for prefix in bdd_prefixes}, key=len, reverse=True))
+def _bdd_prefix_pattern(bdd_prefixes: frozenset[str]) -> re.Pattern[str]:
+    """
+    Build an alternation of the prefixes, the same way Robot Framework builds ``Languages.bdd_prefix_regexp``.
+
+    Prefixes are tried from the longest one, words of a prefix are separated by any whitespace character and the case
+    is compared with Unicode case folding rules of ``re.IGNORECASE``. Converting the name with ``str.lower`` or
+    ``str.title`` instead is not equivalent: for example lowercase ``İ`` in Turkish ``DİYELİM Kİ`` is two characters.
+    """
+    prefixes = sorted(bdd_prefixes, key=len, reverse=True)
+    alternatives = "|".join(re.escape(prefix).replace(r"\ ", r"\s") for prefix in prefixes)
+    return re.compile(f"({alternatives})", re.IGNORECASE)
 
 
 def get_bdd_prefix(name: str, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> str | None:
@@ -121,12 +131,21 @@ def get_bdd_prefix(name: str, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> st
         The prefix as written in the name, or None if the name does not start with a BDD prefix.
 
     """
-    lowered = name.lower()
-    for prefix in _longest_first(bdd_prefixes):
-        length = len(prefix)
-        if lowered.startswith(prefix) and len(name) > length and name[length].isspace():
-            return name[:length]
-    return None
+    match = _bdd_prefix_pattern(bdd_prefixes).match(name)
+    if match is None or match.end() == len(name) or not name[match.end()].isspace():
+        return None
+    return match.group(1)
+
+
+def is_bdd_prefix(name: str, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> bool:
+    """
+    Check if the whole name is a BDD prefix, for example a ``Given`` call without the keyword name.
+
+    Returns:
+        True if the name, with normalized whitespace, is one of the prefixes.
+
+    """
+    return _bdd_prefix_pattern(bdd_prefixes).fullmatch(" ".join(name.split())) is not None
 
 
 def remove_bdd_prefix(name: str, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> str:

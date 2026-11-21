@@ -9,6 +9,7 @@ from robocop.parsing.run_keywords import (
     BDD_PREFIXES,
     bdd_prefixes_for,
     get_bdd_prefix,
+    is_bdd_prefix,
     iterate_keyword_calls,
     remove_bdd_prefix,
 )
@@ -58,6 +59,27 @@ class TestGetBddPrefix:
     )
     def test_longest_prefix_wins(self, name, expected):
         assert get_bdd_prefix(name, FRENCH) == expected
+
+    def test_any_whitespace_between_prefix_words(self):
+        assert get_bdd_prefix("Et\u00a0que User Is Ready", FRENCH) == "Et\u00a0que"
+        assert get_bdd_prefix("Et\tque User Is Ready", FRENCH) == "Et\tque"
+
+    @requires_languages
+    @pytest.mark.parametrize("prefix", ["Diyelim ki", "diyelim ki", "DİYELİM Kİ", "DIYELIM KI"])
+    def test_unicode_case_variants(self, prefix):
+        """Robot Framework matches prefixes with ``re.IGNORECASE``, ``str.lower`` changes the length of ``İ``."""
+        turkish = bdd_prefixes_for(Languages(["tr"]))
+        if not turkish & {"Diyelim Ki"}:
+            pytest.skip("Turkish 'Diyelim ki' prefix is not available in this Robot Framework version")
+        assert get_bdd_prefix(f"{prefix} User Is Ready", turkish) == prefix
+        assert is_bdd_prefix(prefix, turkish)
+
+    @pytest.mark.parametrize(
+        ("name", "expected"),
+        [("Given", True), ("GIVEN", True), ("Et  que", True), ("Et\u00a0que", True), ("Et que x", False), ("", False)],
+    )
+    def test_is_bdd_prefix(self, name, expected):
+        assert is_bdd_prefix(name, FRENCH | BDD_PREFIXES) is expected
 
     def test_remove_multi_word_prefix(self):
         assert remove_bdd_prefix("Et que User Is Ready", FRENCH) == "User Is Ready"
@@ -194,6 +216,30 @@ def test_bdd_without_keyword_call_localized(tmp_path):
         "de.robot:5 bdd-without-keyword-call",
         "de.robot:6 bdd-without-keyword-call",
     ]
+
+
+@requires_languages
+def test_bdd_without_keyword_call_unicode_case(tmp_path):
+    if "Diyelim Ki" not in bdd_prefixes_for(Languages(["tr"])):
+        pytest.skip("Turkish 'Diyelim ki' prefix is not available in this Robot Framework version")
+    (tmp_path / "tr.robot").write_text(
+        "Language: tr\n\n*** Test Cases ***\nLogin\n    D\u0130YEL\u0130M K\u0130\n", encoding="utf-8"
+    )
+    assert reported(run(tmp_path, ["bdd-without-keyword-call"], project=False)) == [
+        "tr.robot:5 bdd-without-keyword-call"
+    ]
+
+
+@requires_languages
+def test_project_rules_with_unicode_prefix_variants(tmp_path):
+    if "Et Que" not in bdd_prefixes_for(Languages(["fr"])):
+        pytest.skip("French 'que' prefixes are not available in this Robot Framework version")
+    (tmp_path / "fr.robot").write_text(
+        "Language: fr\n\n*** Unités de test ***\nLogin\n    Et\u00a0que User Is Ready\n\n"
+        "*** Mots-cl\u00e9s ***\nUser Is Ready\n    No Operation\n",
+        encoding="utf-8",
+    )
+    assert reported(run(tmp_path, ["keyword-not-found", "unused-keyword"])) == []
 
 
 @requires_languages

@@ -12,7 +12,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
 from robocop.linter.utils import misc as utils
-from robocop.parsing.run_keywords import BDD_PREFIXES
+from robocop.parsing.run_keywords import BDD_PREFIXES, is_bdd_prefix
 from robocop.parsing.string_operations import StringPart, get_unmasked_string, map_string_to_mask
 from robocop.version_handling import ROBOT_VERSION
 
@@ -896,7 +896,7 @@ class BddWithoutKeywordCallRule(Rule):
     deprecated_names = ("0318",)
 
     def check(self, keyword_name: str | None, node: Node, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> None:
-        if not keyword_name or " ".join(keyword_name.split()).title() not in bdd_prefixes:
+        if not keyword_name or not is_bdd_prefix(keyword_name, bdd_prefixes):
             return
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""

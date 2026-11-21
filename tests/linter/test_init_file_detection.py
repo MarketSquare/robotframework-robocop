@@ -1,6 +1,9 @@
 """Files are treated as suite initialization files only when Robot Framework does so (issue #2006)."""
 
+import pytest
+
 from robocop.run import check_files
+from robocop.version_handling import ROBOT_VERSION
 
 SUITE = "*** Test Cases ***\nLogin Works\n    Log    ok\n"
 
@@ -26,6 +29,9 @@ def test_suite_with_init_inside_name_is_ordinary_suite(tmp_path):
     assert reported(run(tmp_path, ["invalid-section", "empty-section"])) == []
 
 
+@pytest.mark.skipif(
+    ROBOT_VERSION.major < 6, reason="Robot Framework 5 parses test cases in initialization files as a comment section"
+)
 def test_init_file_with_test_cases_is_still_reported(tmp_path):
     (tmp_path / "__init__.robot").write_text(SUITE, encoding="utf-8")
     assert reported(run(tmp_path, ["invalid-section"])) == ["__init__.robot:1 invalid-section"]

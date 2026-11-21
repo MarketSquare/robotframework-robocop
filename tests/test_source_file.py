@@ -52,16 +52,18 @@ SUITE_SOURCE = "*** Test Cases ***\nLogin Works\n    Log    ok\n"
 
 
 @pytest.mark.parametrize(
-    ("name", "section_type"),
+    ("name", "is_suite_model"),
     [
-        ("login__init__flow.robot", "TestCaseSection"),  # an ordinary suite with __init__ inside the name
-        ("__init__.robot", "InvalidSection"),  # test cases are not allowed in suite initialization files
+        ("login__init__flow.robot", True),  # an ordinary suite with __init__ inside the name
+        # test cases are not allowed in initialization files: the init model turns the section into an invalid
+        # section (RF 6+) or a comment section (RF 5)
+        ("__init__.robot", False),
     ],
 )
-def test_model_type_depends_on_exact_init_file_name(tmp_path, config, name, section_type):
+def test_model_type_depends_on_exact_init_file_name(tmp_path, config, name, is_suite_model):
     path = tmp_path / name
     path.write_text(SUITE_SOURCE, encoding="utf-8")
 
     model = SourceFile(path=path, config=config).model
 
-    assert type(model.sections[0]).__name__ == section_type
+    assert (type(model.sections[0]).__name__ == "TestCaseSection") is is_suite_model

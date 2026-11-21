@@ -1,5 +1,20 @@
 # Release notes
 
+## [9.5.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.4.0...v9.5.0) (2026-11-21)
+
+
+### Features
+
+* add cyclomatic and cognitive complexity rules ([#1987](https://github.com/MarketSquare/robotframework-robocop/issues/1987)) ([7a1bafc](https://github.com/MarketSquare/robotframework-robocop/commit/7a1bafcf6b19e237e565cca150a12e60ae9d6efe)), closes [#537](https://github.com/MarketSquare/robotframework-robocop/issues/537)
+* add too-many-required-arguments and too-many-optional-arguments rules ([#1933](https://github.com/MarketSquare/robotframework-robocop/issues/1933)) ([613bda2](https://github.com/MarketSquare/robotframework-robocop/commit/613bda2e5c071b77cebdf605694dc6b9daedbae3))
+* process markdown blocks as one suite ([#1988](https://github.com/MarketSquare/robotframework-robocop/issues/1988)) ([02ef03a](https://github.com/MarketSquare/robotframework-robocop/commit/02ef03af00858ac353ecfbea48054ecccc89b16b))
+
+
+### Bug Fixes
+
+* bypass formatter cache for line ranges ([#1985](https://github.com/MarketSquare/robotframework-robocop/issues/1985)) ([0616595](https://github.com/MarketSquare/robotframework-robocop/commit/0616595f9ffb8ed5536cadd48702ec3ed93c9e54))
+* resolve BDD calls without the prefix first on Robot Framework 7.1+ ([#2000](https://github.com/MarketSquare/robotframework-robocop/issues/2000)) ([af8356a](https://github.com/MarketSquare/robotframework-robocop/commit/af8356a0a09622b3981dc9b6508e89cdb5f82e81)), closes [#1994](https://github.com/MarketSquare/robotframework-robocop/issues/1994)
+
 ## [9.4.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.3.0...v9.4.0) (2026-11-09)
 
 

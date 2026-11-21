@@ -112,6 +112,20 @@ class ProjectFile:
                 yield imported
 
 
+def split_owner_name(name: str) -> list[tuple[str, str]]:
+    """
+    Split the name into the resource or library prefix and the keyword name, at every dot.
+
+    For example ``a.b.Keyword`` gives ``("a", "b.Keyword")`` and ``("a.b", "Keyword")``.
+
+    Returns:
+        List of ``(prefix, keyword name)`` pairs. Empty if the name does not contain a dot.
+
+    """
+    parts = name.split(".")
+    return [(".".join(parts[:index]), ".".join(parts[index:])) for index in range(1, len(parts))]
+
+
 class KeywordIndex:
     """Index of keyword definitions in the whole project, allowing lookup by name."""
 
@@ -130,7 +144,9 @@ class KeywordIndex:
         Find all definitions that can be called using given name.
 
         Names prefixed with a resource or library name (``Resource.Keyword``) are looked up using the name without
-        the prefix, but only definitions coming from the matching resource file or library are returned.
+        the prefix, but only definitions coming from the matching resource file or library are returned. Like in
+        Robot Framework, the name is split at every dot, since both the prefix (``module.Library``) and the keyword
+        name (``Go To example.com``) can contain dots. Matches from all splits are returned.
 
         Returns:
             List of matching keyword definitions. Empty if no definition matches.
@@ -139,8 +155,14 @@ class KeywordIndex:
         matches = self._find_by_name(name)
         if matches or "." not in name:
             return matches
-        prefix, _, without_prefix = name.rpartition(".")
-        return [keyword for keyword in self._find_by_name(without_prefix) if keyword.matches_owner(prefix)]
+        found: list[KeywordDefinition] = []
+        for prefix, without_prefix in split_owner_name(name):
+            found.extend(
+                keyword
+                for keyword in self._find_by_name(without_prefix)
+                if keyword.matches_owner(prefix) and not any(keyword is other for other in found)
+            )
+        return found
 
     def _find_by_name(self, name: str) -> list[KeywordDefinition]:
         """

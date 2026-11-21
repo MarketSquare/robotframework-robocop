@@ -9,7 +9,7 @@ from robot.libraries import STDLIBS
 from robocop.files import path_relative_to_cwd
 from robocop.linter.rules import ProjectChecker, usage
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.project.context import BUILTIN_LIBRARY
+from robocop.project.context import BUILTIN_LIBRARY, split_owner_name
 from robocop.project.definitions import ImportStatus, ImportType, usage_name_pattern
 from robocop.source_file import SourceFile
 
@@ -41,8 +41,8 @@ class UsedKeywordNames:
             return
         self.names.append(name)
         self.normalized.add(normalize_robot_name(name))
-        if "." in name:
-            _, _, without_prefix = name.rpartition(".")
+        # the prefix is not known yet, so every possible keyword name is recorded
+        for _, without_prefix in split_owner_name(name):
             self.normalized.add(normalize_robot_name(without_prefix))
             self.names.append(without_prefix)
 
@@ -270,10 +270,10 @@ class KeywordUsageChecker(ProjectChecker):
             matches = index.find(name)
             if not matches:
                 continue
-            # names matched only after removing the resource or library prefix are explicit already
             direct = [definition for definition in matches if definition.matches(name)]
             if not direct:
-                return []
+                # matched only after removing the resource or library prefix, which does not have to be unique
+                return _same_owner_name(context, _unique(matches))
             return _same_priority(_unique(direct), keyword_usage.location.source)
         return []
 
@@ -301,7 +301,11 @@ def _unique(definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
 
 def _same_priority(definitions: list[KeywordDefinition], source: Path) -> list[KeywordDefinition]:
     """
-    Return definitions Robot Framework cannot choose between.
+    Return definitions Robot Framework cannot choose between when the call has no resource or library prefix.
+
+    Mirrors the order of Robot Framework's lookup: keywords from the file with the call win, then keywords from
+    resource files, then keywords from libraries (a custom library keyword before a standard library one). Inside
+    each group, normal keywords win over keywords with embedded arguments.
 
     Returns:
         List of definitions with the same priority, or an empty list if one of them wins.
@@ -309,18 +313,57 @@ def _same_priority(definitions: list[KeywordDefinition], source: Path) -> list[K
     """
     if len(definitions) < 2:
         return []
-    if any(definition.has_embedded_arguments for definition in definitions):
-        return []  # Robot Framework prefers the most specific match
-    own_file = [definition for definition in definitions if definition.location.source == source]
-    if own_file:
+    if any(definition.location.source == source for definition in definitions):
         return []  # keyword from the same file wins, duplicates in a single file are reported by another rule
     user_keywords = [definition for definition in definitions if not definition.is_from_library]
     if user_keywords:
-        return user_keywords if len(user_keywords) > 1 else []
-    custom_libraries = [definition for definition in definitions if definition.library_name not in STDLIBS]
-    if custom_libraries:
-        return custom_libraries if len(custom_libraries) > 1 else []
-    return definitions
+        return _best_matches(user_keywords)
+    best = _best_matches(definitions)
+    if len(best) == 2 and sum(definition.library_name in STDLIBS for definition in best) == 1:
+        return []  # the custom library keyword wins over the standard library one
+    return best
+
+
+def _same_owner_name(context: ProjectContext, definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
+    """
+    Return definitions a prefixed call cannot choose between.
+
+    The prefix is the name of the library or the resource file without the extension, so two resource files with
+    the same name in different directories share it. Robot Framework does not prioritize any source for prefixed
+    calls, not even the resource file with the call, it only prefers normal keywords over keywords with embedded
+    arguments. Keywords of suite files cannot be called with a prefix, so they are not candidates.
+
+    Returns:
+        List of matching definitions, or an empty list if the call is not ambiguous.
+
+    """
+    candidates = _best_matches([definition for definition in definitions if _prefixable(context, definition)])
+    if len({definition.location.source for definition in candidates}) < 2:
+        return []  # duplicates in a single file are reported by another rule
+    return candidates
+
+
+def _prefixable(context: ProjectContext, definition: KeywordDefinition) -> bool:
+    """Check if the keyword comes from a library or a resource file, which are the owners a prefix can point to."""
+    if definition.is_from_library:
+        return True
+    project_file = context.get_file(definition.location.source)
+    return project_file is None or project_file.is_resource
+
+
+def _best_matches(definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
+    """
+    Return definitions Robot Framework cannot choose between using the keyword names.
+
+    Normal keywords win over keywords with embedded arguments. If all matches have embedded arguments, Robot Framework
+    picks the most specific one, which is not emulated, so such calls are treated as unambiguous.
+
+    Returns:
+        Normal keywords if there are more than one of them, otherwise an empty list.
+
+    """
+    normal = [definition for definition in definitions if not definition.has_embedded_arguments]
+    return normal if len(normal) > 1 else []
 
 
 def _describe_sources(definitions: list[KeywordDefinition]) -> str:

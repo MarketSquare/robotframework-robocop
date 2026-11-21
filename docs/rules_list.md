@@ -5088,10 +5088,20 @@ Robot Framework resolves conflicts using the following order, which the rule fol
 
 - a keyword defined in the file containing the call is always used,
 - keywords from resource files are used before keywords from libraries,
-- a keyword from a custom library is used before a keyword from a standard library.
+- a keyword from a custom library is used before a keyword from a standard library, if only these two match,
+- a keyword without embedded arguments is used before keywords with embedded arguments matching the name.
 
 Calls using the full name of the keyword (``login.Login``) are not reported, since the prefix already
-selects the keyword. Calls with a name built from a variable are not reported either.
+selects the keyword, unless several imported resource files share the same name, for example
+``a/login.resource`` and ``b/login.resource``. Such prefixed calls are reported even when one of the files
+contains the call, since Robot Framework does not prefer it. Calls with a name built from a variable are not
+reported either.
+
+The order can also be set at runtime with the ``Set Library Search Order`` keyword. It stays active until the
+end of the suite, and its value cannot always be known statically, so the rule does not report calls in a suite
+where the keyword is called: by the suite file itself or by any resource file it imports. The search order is not
+inherited by child suites, so setting it in ``__init__.robot`` does not affect calls in the child suites. It does
+not affect calls using the full name of the keyword either, so such calls are still reported.
 
 Keywords defined twice in the same file are reported by the ``duplicated-keyword-name`` rule instead.
 

@@ -1,3 +1,59 @@
+embedded_match.robot:9:5 KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+   |
+ 7 | *** Test Cases ***
+ 8 | Ambiguous Prefixed Call Despite Embedded Match
+ 9 |     util.Shared Keyword
+   |     ^^^^^^^^^^^^^^^^^^^ KW06
+   |
+
+embedded_match.robot:12:5 KW06 Keyword 'Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+    |
+ 10 |
+ 11 | Ambiguous Call Despite Embedded Match
+ 12 |     Shared Keyword
+    |     ^^^^^^^^^^^^^^ KW06
+    |
+
+libraries${/}two_custom.robot:9:16 KW06 Keyword 'Copy List' matches keywords from multiple sources: Collections, CopyOne, CopyTwo
+   |
+ 7 | *** Test Cases ***
+ 8 | Two Custom Libraries And Standard Library
+ 9 |     ${copy}    Copy List    ${{[]}}
+   |                ^^^^^^^^^ KW06
+   |
+
+resources${/}c${/}util.resource:11:5 KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}c${/}util.resource, resources${/}a${/}util.resource, resources${/}b${/}util.resource
+    |
+  9 |
+ 10 | Call Shared From Resource
+ 11 |     util.Shared Keyword
+    |     ^^^^^^^^^^^^^^^^^^^ KW06
+    |
+
+same_resource_name.robot:8:5 KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+   |
+ 6 | *** Test Cases ***
+ 7 | Ambiguous Prefixed Call
+ 8 |     util.Shared Keyword
+   |     ^^^^^^^^^^^^^^^^^^^ KW06
+   |
+
+search_order${/}child${/}suite.robot:8:5 KW06 Keyword 'Click Thing' matches keywords from multiple sources: LibOne, LibTwo
+   |
+ 6 | *** Test Cases ***
+ 7 | Search Order Is Not Inherited From The Parent Suite
+ 8 |     Click Thing
+   |     ^^^^^^^^^^^ KW06
+   |
+
+search_order${/}prefixed.robot:9:5 KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+   |
+ 7 | Search Order Does Not Resolve Prefixed Calls
+ 8 |     Set Library Search Order    util
+ 9 |     util.Shared Keyword
+   |     ^^^^^^^^^^^^^^^^^^^ KW06
+   |
+
 test.robot:8:5 KW06 Keyword 'Login' matches keywords from multiple sources: resources${/}first.resource, resources${/}second.resource
    |
  6 | *** Test Cases ***
@@ -6,4 +62,4 @@ test.robot:8:5 KW06 Keyword 'Login' matches keywords from multiple sources: reso
    |     ^^^^^ KW06
    |
 
-Found 1 issue.
+Found 8 issues.

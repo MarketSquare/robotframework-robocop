@@ -68,6 +68,9 @@ DYNAMIC_IMPORT_KEYWORDS = frozenset({"importlibrary", "importresource"})
 RESERVED_KEYWORD_NAMES = frozenset({"none"})
 """Values used in place of a keyword name that do not refer to any keyword."""
 
+SEARCH_ORDER_KEYWORDS = frozenset({"setlibrarysearchorder", "builtin.setlibrarysearchorder"})
+"""Keywords changing at runtime which library or resource file is used when a keyword name matches several."""
+
 
 class KeywordUsageChecker(ProjectChecker):
     """Checker for rules validated against every keyword call in the project."""
@@ -88,11 +91,13 @@ class KeywordUsageChecker(ProjectChecker):
         check_ambiguous = self.ambiguous_keyword_name.enabled
         check_prefix = self.missing_keyword_prefix.enabled
         can_check: dict[Path, bool] = {}
+        search_order_files = _files_using_search_order(context) if check_ambiguous else set()
         for project_file, keyword_usage in context.iter_usages():
             if check_not_found:
                 self._check_not_found(context, project_file, keyword_usage, project_source_file, can_check)
             if check_ambiguous:
-                self._check_ambiguous(context, project_file, keyword_usage, project_source_file)
+                search_order = project_file.resolved_path in search_order_files
+                self._check_ambiguous(context, project_file, keyword_usage, project_source_file, search_order)
             if check_prefix:
                 self._check_prefix(context, project_file, keyword_usage, project_source_file)
         return self.issues
@@ -123,8 +128,9 @@ class KeywordUsageChecker(ProjectChecker):
         project_file: ProjectFile,
         keyword_usage: KeywordUsage,
         project_source_file: SourceFile | VirtualSourceFile,
+        search_order: bool,
     ) -> None:
-        candidates = self._ambiguous_definitions(context, keyword_usage)
+        candidates = self._ambiguous_definitions(context, keyword_usage, search_order)
         if not candidates:
             return
         self.report(
@@ -255,9 +261,17 @@ class KeywordUsageChecker(ProjectChecker):
         return spec is not None and spec.loaded
 
     @staticmethod
-    def _ambiguous_definitions(context: ProjectContext, keyword_usage: KeywordUsage) -> list[KeywordDefinition]:
+    def _ambiguous_definitions(
+        context: ProjectContext, keyword_usage: KeywordUsage, search_order: bool = False
+    ) -> list[KeywordDefinition]:
         """
         Find definitions the call can refer to, if there is more than one to choose from.
+
+        Args:
+            context: Project context.
+            keyword_usage: Checked keyword call.
+            search_order: ``Set Library Search Order`` may be active for the call. It only resolves calls without
+                the resource or library prefix, so such calls are not reported.
 
         Returns:
             List of definitions with the same priority, or an empty list if the call is not ambiguous.
@@ -270,12 +284,47 @@ class KeywordUsageChecker(ProjectChecker):
             matches = index.find(name)
             if not matches:
                 continue
-            # names matched only after removing the resource or library prefix are explicit already
             direct = [definition for definition in matches if definition.matches(name)]
             if not direct:
+                # matched only after removing the resource or library prefix, which does not have to be unique
+                return _same_owner_name(context, _unique(matches))
+            if search_order:
                 return []
             return _same_priority(_unique(direct), keyword_usage.location.source)
         return []
+
+
+def _sets_search_order(keyword_usage: KeywordUsage) -> bool:
+    return any(normalize_robot_name(name) in SEARCH_ORDER_KEYWORDS for name in keyword_usage.names_to_check())
+
+
+def _files_using_search_order(context: ProjectContext) -> set[Path]:
+    """
+    Find files whose keyword calls can be resolved by ``Set Library Search Order``.
+
+    The search order is set at runtime and stays active until the end of the suite, but it is not inherited by child
+    suites. Its value can come from a variable, so the order itself is not emulated. Instead, if the suite file or any
+    resource it imports calls the keyword, all files of that suite are treated as using the search order.
+
+    Returns:
+        Resolved paths of the files using the search order.
+
+    """
+    calling = {
+        project_file.resolved_path
+        for project_file in context.iter_files()
+        if any(_sets_search_order(keyword_usage) for keyword_usage in project_file.usages)
+    }
+    if not calling:
+        return set()
+    affected = set(calling)
+    for project_file in context.iter_files():
+        if project_file.is_resource:
+            continue
+        suite_files = context.imported_files(project_file.path)
+        if any(suite_file.resolved_path in calling for suite_file in suite_files):
+            affected.update(suite_file.resolved_path for suite_file in suite_files)
+    return affected
 
 
 def _unique(definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
@@ -301,7 +350,11 @@ def _unique(definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
 
 def _same_priority(definitions: list[KeywordDefinition], source: Path) -> list[KeywordDefinition]:
     """
-    Return definitions Robot Framework cannot choose between.
+    Return definitions Robot Framework cannot choose between when the call has no resource or library prefix.
+
+    Mirrors the order of Robot Framework's lookup: keywords from the file with the call win, then keywords from
+    resource files, then keywords from libraries (a custom library keyword before a standard library one). Inside
+    each group, normal keywords win over keywords with embedded arguments.
 
     Returns:
         List of definitions with the same priority, or an empty list if one of them wins.
@@ -309,18 +362,57 @@ def _same_priority(definitions: list[KeywordDefinition], source: Path) -> list[K
     """
     if len(definitions) < 2:
         return []
-    if any(definition.has_embedded_arguments for definition in definitions):
-        return []  # Robot Framework prefers the most specific match
-    own_file = [definition for definition in definitions if definition.location.source == source]
-    if own_file:
+    if any(definition.location.source == source for definition in definitions):
         return []  # keyword from the same file wins, duplicates in a single file are reported by another rule
     user_keywords = [definition for definition in definitions if not definition.is_from_library]
     if user_keywords:
-        return user_keywords if len(user_keywords) > 1 else []
-    custom_libraries = [definition for definition in definitions if definition.library_name not in STDLIBS]
-    if custom_libraries:
-        return custom_libraries if len(custom_libraries) > 1 else []
-    return definitions
+        return _best_matches(user_keywords)
+    best = _best_matches(definitions)
+    if len(best) == 2 and sum(definition.library_name in STDLIBS for definition in best) == 1:
+        return []  # the custom library keyword wins over the standard library one
+    return best
+
+
+def _same_owner_name(context: ProjectContext, definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
+    """
+    Return definitions a prefixed call cannot choose between.
+
+    The prefix is the name of the library or the resource file without the extension, so two resource files with
+    the same name in different directories share it. Robot Framework does not prioritize any source for prefixed
+    calls, not even the resource file with the call, it only prefers normal keywords over keywords with embedded
+    arguments. Keywords of suite files cannot be called with a prefix, so they are not candidates.
+
+    Returns:
+        List of matching definitions, or an empty list if the call is not ambiguous.
+
+    """
+    candidates = _best_matches([definition for definition in definitions if _prefixable(context, definition)])
+    if len({definition.location.source for definition in candidates}) < 2:
+        return []  # duplicates in a single file are reported by another rule
+    return candidates
+
+
+def _prefixable(context: ProjectContext, definition: KeywordDefinition) -> bool:
+    """Check if the keyword comes from a library or a resource file, which are the owners a prefix can point to."""
+    if definition.is_from_library:
+        return True
+    project_file = context.get_file(definition.location.source)
+    return project_file is None or project_file.is_resource
+
+
+def _best_matches(definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:
+    """
+    Return definitions Robot Framework cannot choose between using the keyword names.
+
+    Normal keywords win over keywords with embedded arguments. If all matches have embedded arguments, Robot Framework
+    picks the most specific one, which is not emulated, so such calls are treated as unambiguous.
+
+    Returns:
+        Normal keywords if there are more than one of them, otherwise an empty list.
+
+    """
+    normal = [definition for definition in definitions if not definition.has_embedded_arguments]
+    return normal if len(normal) > 1 else []
 
 
 def _describe_sources(definitions: list[KeywordDefinition]) -> str:

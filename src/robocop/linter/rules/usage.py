@@ -127,7 +127,8 @@ class AmbiguousKeywordNameRule(Rule):
     - a keyword from a custom library is used before a keyword from a standard library.
 
     Calls using the full name of the keyword (``login.Login``) are not reported, since the prefix already
-    selects the keyword. Calls with a name built from a variable are not reported either.
+    selects the keyword, unless several imported resource files share the same name, for example
+    ``a/login.resource`` and ``b/login.resource``. Calls with a name built from a variable are not reported either.
 
     Keywords defined twice in the same file are reported by the ``duplicated-keyword-name`` rule instead.
 

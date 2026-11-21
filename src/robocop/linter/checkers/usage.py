@@ -270,10 +270,10 @@ class KeywordUsageChecker(ProjectChecker):
             matches = index.find(name)
             if not matches:
                 continue
-            # names matched only after removing the resource or library prefix are explicit already
             direct = [definition for definition in matches if definition.matches(name)]
             if not direct:
-                return []
+                # matched only after removing the resource or library prefix, which does not have to be unique
+                return _same_owner_name(_unique(matches), keyword_usage.location.source)
             return _same_priority(_unique(direct), keyword_usage.location.source)
         return []
 
@@ -320,6 +320,27 @@ def _same_priority(definitions: list[KeywordDefinition], source: Path) -> list[K
     custom_libraries = [definition for definition in definitions if definition.library_name not in STDLIBS]
     if custom_libraries:
         return custom_libraries if len(custom_libraries) > 1 else []
+    return definitions
+
+
+def _same_owner_name(definitions: list[KeywordDefinition], source: Path) -> list[KeywordDefinition]:
+    """
+    Return definitions a prefixed call cannot choose between.
+
+    The prefix is the name of the library or the resource file without the extension, so two resource files with
+    the same name in different directories share it. Robot Framework does not prioritize any source for prefixed
+    calls, it only prefers normal keywords over keywords with embedded arguments.
+
+    Returns:
+        List of matching definitions, or an empty list if the call is not ambiguous.
+
+    """
+    if len(definitions) < 2:
+        return []
+    if any(definition.has_embedded_arguments for definition in definitions):
+        return []  # Robot Framework prefers the most specific match
+    if any(definition.location.source == source for definition in definitions):
+        return []  # keywords from the file itself are not called with a prefix, duplicates are reported elsewhere
     return definitions
 
 

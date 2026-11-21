@@ -71,12 +71,13 @@ class ProjectFile:
         """
         Check if Robot Framework runs the file as a suite or a suite initialization file, with its own namespace.
 
-        Like in Robot Framework, an initialization file has exactly the ``__init__`` name and it is not a resource
-        file, so for example ``__init__.resource`` or ``my__init__.robot`` without tests are not suites.
+        Like in Robot Framework, an initialization file has exactly the ``__init__`` name (with any extension), so
+        for example ``my__init__.resource`` or ``my__init__.robot`` without tests are not suites. Other checks still
+        treat any name containing ``__init__`` as an initialization file, see #2006.
         """
         if self.collected.is_suite:
             return True
-        return self.path.stem.lower() == "__init__" and self.path.suffix.lower() != ".resource"
+        return self.path.stem.lower() == "__init__"
 
     @property
     def keywords(self) -> list[KeywordDefinition]:

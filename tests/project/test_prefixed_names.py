@@ -59,3 +59,24 @@ def test_prefixed_call_with_dots_validates_arguments(tmp_path):
         "*** Test Cases ***\nTest\n    util.Go To example.com    extra\n"
     )
     assert reported(run(tmp_path, ["invalid-argument-count"])) == ["suite.robot:7 invalid-argument-count"]
+
+
+def test_call_matching_several_prefix_splits_is_ambiguous(tmp_path):
+    """``a.b.Keyword`` matches both ``b.Keyword`` in ``a.resource`` and ``Keyword`` in ``a.b.resource``."""
+    (tmp_path / "a.resource").write_text("*** Keywords ***\nb.Keyword\n    No Operation\n")
+    (tmp_path / "a.b.resource").write_text("*** Keywords ***\nKeyword\n    No Operation\n")
+    (tmp_path / "suite.robot").write_text(
+        "*** Settings ***\nResource    a.resource\nResource    a.b.resource\n\n\n"
+        "*** Test Cases ***\nTest\n    a.b.Keyword\n"
+    )
+    assert reported(run(tmp_path, ["ambiguous-keyword-name"])) == ["suite.robot:8 ambiguous-keyword-name"]
+
+
+def test_call_matching_single_prefix_split_is_not_ambiguous(tmp_path):
+    (tmp_path / "a.resource").write_text("*** Keywords ***\nb.Keyword\n    No Operation\n")
+    (tmp_path / "a.b.resource").write_text("*** Keywords ***\nOther\n    No Operation\n")
+    (tmp_path / "suite.robot").write_text(
+        "*** Settings ***\nResource    a.resource\nResource    a.b.resource\n\n\n"
+        "*** Test Cases ***\nTest\n    a.b.Keyword\n    a.b.Other\n"
+    )
+    assert reported(run(tmp_path, ["ambiguous-keyword-name", "keyword-not-found"])) == []

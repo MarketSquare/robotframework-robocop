@@ -107,6 +107,12 @@ class KeywordUsageChecker(ProjectChecker):
     ) -> None:
         if self._is_known(context, keyword_usage) or not self._can_be_checked(context, project_file, can_check):
             return
+        # Robot Framework resolves the call in the namespace of the executed suite, which can provide the keyword
+        for suite in context.importing_suites(project_file.path):
+            if not self._can_be_checked(context, suite, can_check) or context.resolve_keyword(
+                keyword_usage, namespace=suite.path
+            ):
+                return
         self.report(
             self.keyword_not_found,
             source=SourceFile(path=project_file.path, config=project_source_file.config),

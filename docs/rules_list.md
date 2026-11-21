@@ -4995,6 +4995,11 @@ Keyword is not defined anywhere.
 Reports keyword calls that do not match any keyword defined in the file, in the imported resource files or in
 the imported libraries. Robot Framework fails such call with the ``No keyword with name 'X' found`` error.
 
+Robot Framework resolves keywords in the namespace of the executed suite. A keyword called from a resource file
+is therefore also found when it is defined in, or imported by, a suite that imports the resource file (directly
+or through other resource files). Such calls are not reported, as long as at least one of the importing suites
+provides the keyword.
+
 Example of rule violation:
 
     *** Settings ***

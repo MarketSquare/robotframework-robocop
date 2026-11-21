@@ -15,7 +15,7 @@ from robot.parsing.model.statements import Arguments, Statement, Tags
 from robot.variables.search import search_variable
 
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import BDD_PREFIXES, iterate_keyword_calls
+from robocop.parsing.run_keywords import BDD_PREFIXES, get_bdd_prefix, iterate_keyword_calls
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 from robocop.project.definitions import (
     ArgumentsSpec,
@@ -255,7 +255,7 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
         self.collected.used_variables.update(normalize_robot_name(name) for name in _python_names(base))
 
     def _add_usages(self, node: Statement, name_token_type: str) -> None:
-        for call in iterate_keyword_calls(node, name_token_type):
+        for call in iterate_keyword_calls(node, name_token_type, self.bdd_prefixes):
             self._add_usage(call.name, list(call.arguments))
 
     def _add_usage(self, token: Token, arguments: list[Token], is_template: bool = False) -> None:
@@ -278,16 +278,10 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
                     (argument.lineno, argument.col_offset + 1, argument.end_col_offset + 1) for argument in arguments
                 ),
                 name_contains_variable=bool(match.base),
-                bdd_prefix=self._bdd_prefix(token.value),
+                bdd_prefix=get_bdd_prefix(token.value, self.bdd_prefixes),
                 is_template=is_template,
             )
         )
-
-    def _bdd_prefix(self, name: str) -> str | None:
-        first_word, separator, _rest = name.partition(" ")
-        if not separator:
-            return None
-        return first_word if first_word.title() in self.bdd_prefixes else None
 
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self._add_usages(node, Token.KEYWORD)

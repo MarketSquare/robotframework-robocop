@@ -1511,8 +1511,6 @@ keywords, so the default limit is lower. Move nested logic into keywords so the 
 
 ### CPX05: nesting-depth-keyword
 
-> Rule is disabled by default. Enable it by using ``--select nesting-depth-keyword`` option.
-
 Added: `v9.5.0`
 
 Supported RF version `All`
@@ -1617,8 +1615,6 @@ metric that sums up nesting instead of limiting it.
 ---
 
 ### CPX06: nesting-depth-test-case
-
-> Rule is disabled by default. Enable it by using ``--select nesting-depth-test-case`` option.
 
 Added: `v9.5.0`
 

@@ -284,7 +284,6 @@ class NestingDepthKeywordRule(Rule):
     rule_id = "CPX05"
     message = "Keyword '{block_name}' is nested too deeply ({depth}/{max_depth}), nesting path: {path}"
     severity = RuleSeverity.WARNING
-    enabled = False
     parameters = [
         RuleParam(
             name="max_depth",
@@ -315,7 +314,6 @@ class NestingDepthTestCaseRule(Rule):
     rule_id = "CPX06"
     message = "Test case '{block_name}' is nested too deeply ({depth}/{max_depth}), nesting path: {path}"
     severity = RuleSeverity.WARNING
-    enabled = False
     parameters = [
         RuleParam(
             name="max_depth",

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 
+from robocop.files import is_init_file
 from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
@@ -947,7 +948,7 @@ class NotAllowedCharInFilenameRule(Rule):
         if not self.enabled:
             return
         suite_name = source_path.stem
-        if "__init__" in suite_name:
+        if is_init_file(source_path):
             suite_name = source_path.parent.name
         for match in self.pattern.finditer(suite_name):
             self.report(

@@ -60,3 +60,20 @@ def test_resolve_relative_path_after_changing_directory(tmp_path, monkeypatch):
     assert files.resolve_path(Path("dir", "first.robot")) == (tmp_path / "first" / "dir" / "first.robot").resolve()
     monkeypatch.chdir(tmp_path / "second")
     assert files.resolve_path(Path("dir", "second.robot")) == (tmp_path / "second" / "dir" / "second.robot").resolve()
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("__init__.robot", True),
+        ("__INIT__.robot", True),
+        ("__init__.txt", True),
+        ("__init__.resource", True),
+        ("login__init__flow.robot", False),
+        ("__init__flow.robot", False),
+        ("my__init__.resource", False),
+        ("suite.robot", False),
+    ],
+)
+def test_is_init_file(name, expected):
+    assert files.is_init_file(Path("project", name)) is expected

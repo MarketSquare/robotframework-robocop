@@ -26,6 +26,7 @@ try:  # RF 7+
 except ImportError:
     Var = None
 
+from robocop.files import is_init_file
 from robocop.formatter.utils.inline_if import InlineIfConverter
 from robocop.linter import sonar_qube
 from robocop.linter.fix import (
@@ -513,7 +514,7 @@ class CanBeResourceFileRule(Rule):
         file_name = Path(source).stem
         if (
             ".resource" not in extension
-            and "__init__" not in file_name
+            and not is_init_file(Path(source))
             and node.sections
             and not any(isinstance(section, TestCaseSection) for section in node.sections)
         ):

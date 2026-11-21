@@ -13,11 +13,18 @@ from robot.variables.search import search_variable
 
 from robocop.files import resolve_path
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.version_handling import ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION, Version
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+
+BDD_PREFIX_REMOVED_FIRST = Version("7.1") <= ROBOT_VERSION
+"""
+Robot Framework 7.1+ looks for the keyword without the BDD prefix first, older versions look for the full name first.
+
+The order matters only when keywords exist both with and without the prefix, for example ``Given Ready`` and ``Ready``.
+"""
 
 
 def parse_embedded_arguments(name: str) -> EmbeddedArguments | None:
@@ -366,6 +373,13 @@ class KeywordUsage:
         """
         return any(_is_expanded_argument(argument) for argument in self.arguments)
 
+    @property
+    def name_without_bdd_prefix(self) -> str:
+        """Name of the called keyword without the BDD prefix, or the full name if there is no prefix."""
+        if self.bdd_prefix is None:
+            return self.name
+        return self.name[len(self.bdd_prefix) :].lstrip()
+
     def names_to_check(self) -> tuple[str, ...]:
         """
         Names this call may refer to.
@@ -373,12 +387,15 @@ class KeywordUsage:
         A call using a BDD prefix may refer both to the keyword with the prefix and to the one without it.
 
         Returns:
-            Tuple of names, most specific first.
+            Tuple of names in the order Robot Framework looks for them: the name without the BDD prefix first in
+            Robot Framework 7.1 and newer, the full name first in older versions.
 
         """
         if self.bdd_prefix is None:
             return (self.name,)
-        return (self.name, self.name[len(self.bdd_prefix) :].lstrip())
+        if BDD_PREFIX_REMOVED_FIRST:
+            return (self.name_without_bdd_prefix, self.name)
+        return (self.name, self.name_without_bdd_prefix)
 
 
 def _is_expanded_argument(argument: str) -> bool:

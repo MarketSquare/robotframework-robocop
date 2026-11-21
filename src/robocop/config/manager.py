@@ -259,6 +259,7 @@ class ConfigManager:
         # TODO: what if we provide the same path twice - tests
         if not self.resolved_paths:
             self.resolve_paths(self.sources, ignore_file_filters=self.ignore_file_filters)
+            self.resolved_paths = True
         yield from self._paths.values()
 
     @property

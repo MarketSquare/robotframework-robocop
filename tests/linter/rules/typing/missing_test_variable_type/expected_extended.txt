@@ -1,0 +1,60 @@
+test.robot:7:12 ANN06 Variable '${test_local}' is missing type annotation
+   |
+ 5 | *** Test Cases ***
+ 6 | Test With VAR
+ 7 |     VAR    ${test_local}    value
+   |            ^^^^^^^^^^^^^ ANN06
+ 8 |     VAR    ${typed_test_local: str}    value
+ 9 |     VAR    ${_ignored}    value
+   |
+
+test.robot:14:12 ANN06 Variable '${test_multiline}' is missing type annotation
+    |
+ 12 | Test With Multiline VAR
+ 13 |     VAR
+ 14 |     ...    ${test_multiline}
+    |            ^^^^^^^^^^^^^^^^^ ANN06
+ 15 |     ...    value
+ 16 |     Log    ${test_multiline}
+    |
+
+test.robot:19:5 ANN06 Variable '${test_result}' is missing type annotation
+    |
+ 17 |
+ 18 | Test With Assignment
+ 19 |     ${test_result} =    Set Variable    value
+    |     ^^^^^^^^^^^^^^^^ ANN06
+ 20 |     ${first}    ${second: int}    Set Variable    1    2
+ 21 |     ${typed_result: list} =    Create List    one    two
+    |
+
+test.robot:20:5 ANN06 Variable '${first}' is missing type annotation
+    |
+ 18 | Test With Assignment
+ 19 |     ${test_result} =    Set Variable    value
+ 20 |     ${first}    ${second: int}    Set Variable    1    2
+    |     ^^^^^^^^ ANN06
+ 21 |     ${typed_result: list} =    Create List    one    two
+ 22 |     ${_ignored} =    Set Variable    value
+    |
+
+tasks.robot:3:12 ANN06 Variable '${task_local}' is missing type annotation
+   |
+ 1 | *** Tasks ***
+ 2 | Task With VAR
+ 3 |     VAR    ${task_local}    value
+   |            ^^^^^^^^^^^^^ ANN06
+ 4 |     ${task_result} =    Set Variable    value
+ 5 |     VAR    ${typed_task_local: str}    value
+   |
+
+tasks.robot:4:5 ANN06 Variable '${task_result}' is missing type annotation
+   |
+ 2 | Task With VAR
+ 3 |     VAR    ${task_local}    value
+ 4 |     ${task_result} =    Set Variable    value
+   |     ^^^^^^^^^^^^^^^^ ANN06
+ 5 |     VAR    ${typed_task_local: str}    value
+   |
+
+Found 6 issues.

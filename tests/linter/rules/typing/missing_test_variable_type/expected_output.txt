@@ -1,0 +1,8 @@
+tasks.robot:3:12 [I] ANN06 Variable '${task_local}' is missing type annotation
+tasks.robot:4:5 [I] ANN06 Variable '${task_result}' is missing type annotation
+test.robot:14:12 [I] ANN06 Variable '${test_multiline}' is missing type annotation
+test.robot:19:5 [I] ANN06 Variable '${test_result}' is missing type annotation
+test.robot:20:5 [I] ANN06 Variable '${first}' is missing type annotation
+test.robot:7:12 [I] ANN06 Variable '${test_local}' is missing type annotation
+
+Found 6 issues.

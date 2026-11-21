@@ -42,6 +42,20 @@ def should_report_missing_type(var_name: str) -> bool:
     return bool(var_match.base) and not has_type_annotation(var_match.base) and not is_ignore_variable(var_match.base)
 
 
+def report_missing_variable_type(rule: Rule, node: Node, token: Token) -> None:
+    """Report ``rule`` if the variable in ``token`` is missing type annotation."""
+    if not rule.enabled or not should_report_missing_type(token.value):
+        return
+    var_match = search_variable(token.value, ignore_errors=True)
+    rule.report(
+        variable_name=var_match.match,
+        node=node,
+        lineno=token.lineno,
+        col=token.col_offset + 1,
+        end_col=token.end_col_offset + 1,
+    )
+
+
 class MissingSectionVariableTypeRule(Rule):
     """
     Section variable without type annotation.
@@ -50,28 +64,18 @@ class MissingSectionVariableTypeRule(Rule):
     enforces that variables in the ``*** Variables ***`` section have explicit
     type annotations for better code clarity and automatic type conversion.
 
-    This rule also checks ``VAR`` statements and assignment expressions
-    (``${var} = Keyword``).
+    Variables defined in keywords and tests are checked by the separate
+    ``missing-keyword-variable-type`` and ``missing-test-variable-type`` rules.
 
     Incorrect code example (when rule is enabled):
 
         *** Variables ***
         ${NUMBER}    42
 
-        *** Keywords ***
-        Example
-            VAR    ${local}    value
-            ${result} =    Some Keyword
-
     Correct code:
 
         *** Variables ***
         ${NUMBER: int}    42
-
-        *** Keywords ***
-        Example
-            VAR    ${local: str}    value
-            ${result: list} =    Some Keyword
 
     This rule is disabled by default.
 
@@ -89,17 +93,94 @@ class MissingSectionVariableTypeRule(Rule):
     )
 
     def check(self, node: Node, token: Token) -> None:
-        """Check a variable name token from the variables section, a ``VAR`` statement or an assignment."""
-        if not self.enabled or not should_report_missing_type(token.value):
-            return
-        var_match = search_variable(token.value, ignore_errors=True)
-        self.report(
-            variable_name=var_match.match,
-            node=node,
-            lineno=token.lineno,
-            col=token.col_offset + 1,
-            end_col=token.end_col_offset + 1,
-        )
+        """Check a variable name token from the variables section."""
+        report_missing_variable_type(self, node, token)
+
+
+class MissingKeywordVariableTypeRule(Rule):
+    """
+    Keyword variable without type annotation.
+
+    Robot Framework 7.3 introduced type conversion for variables. This rule
+    enforces that variables created inside keywords with ``VAR`` statements and
+    assignment expressions (``${var} =    Keyword``) have explicit type annotations
+    for better code clarity and automatic type conversion.
+
+    Incorrect code example (when rule is enabled):
+
+        *** Keywords ***
+        Example
+            VAR    ${local}    value
+            ${result} =    Some Keyword
+
+    Correct code:
+
+        *** Keywords ***
+        Example
+            VAR    ${local: str}    value
+            ${result: list} =    Some Keyword
+
+    This rule is disabled by default.
+
+    """
+
+    name = "missing-keyword-variable-type"
+    rule_id = "ANN05"
+    message = "Variable '{variable_name}' is missing type annotation"
+    severity = RuleSeverity.INFO
+    version = ">=7.3"
+    enabled = False
+    added_in_version = "9.5.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Node, token: Token) -> None:
+        """Check a variable name token from a ``VAR`` statement or an assignment inside a keyword."""
+        report_missing_variable_type(self, node, token)
+
+
+class MissingTestVariableTypeRule(Rule):
+    """
+    Test variable without type annotation.
+
+    Robot Framework 7.3 introduced type conversion for variables. This rule
+    enforces that variables created inside tests or tasks with ``VAR`` statements and
+    assignment expressions (``${var} =    Keyword``) have explicit type annotations
+    for better code clarity and automatic type conversion.
+
+    Incorrect code example (when rule is enabled):
+
+        *** Test Cases ***
+        Example
+            VAR    ${local}    value
+            ${result} =    Some Keyword
+
+    Correct code:
+
+        *** Test Cases ***
+        Example
+            VAR    ${local: str}    value
+            ${result: list} =    Some Keyword
+
+    This rule is disabled by default.
+
+    """
+
+    name = "missing-test-variable-type"
+    rule_id = "ANN06"
+    message = "Variable '{variable_name}' is missing type annotation"
+    severity = RuleSeverity.INFO
+    version = ">=7.3"
+    enabled = False
+    added_in_version = "9.5.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Node, token: Token) -> None:
+        """Check a variable name token from a ``VAR`` statement or an assignment inside a test or task."""
+        report_missing_variable_type(self, node, token)
 
 
 class MissingArgumentTypeRule(Rule):

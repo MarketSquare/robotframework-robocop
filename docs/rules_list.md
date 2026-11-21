@@ -9685,7 +9685,8 @@ Fix availability: There is no automatic fix.
 BDD keyword isn't followed by any keyword.
 
 When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
-the name of the keyword to run.
+the name of the keyword to run. BDD prefixes of other languages, enabled with the ``language`` option or the
+``Language:`` header of the file, are recognized as well.
 
 Incorrect code example:
 

@@ -10,7 +10,7 @@ from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, naming, variables
 from robocop.linter.utils import misc as utils
-from robocop.parsing.run_keywords import iterate_keyword_names
+from robocop.parsing.run_keywords import BDD_PREFIXES, bdd_prefixes_for, iterate_keyword_names
 
 if TYPE_CHECKING:
     from robot.parsing.model.blocks import If, Keyword
@@ -39,10 +39,12 @@ class NamesChecker(VisitorChecker):
 
     def __init__(self) -> None:
         self.inside_if_block = False
+        self.bdd_prefixes = BDD_PREFIXES
         super().__init__()
 
     def visit_File(self, node: Node) -> None:  # noqa: N802
         self.inside_if_block = False
+        self.bdd_prefixes = bdd_prefixes_for(self.source_file.languages)
         self.generic_visit(node)
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
@@ -53,7 +55,7 @@ class NamesChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Setup(self, node: Setup) -> None:  # noqa: N802
-        self.bdd_without_keyword_call.check(node.name, node)
+        self.bdd_without_keyword_call.check(node.name, node, self.bdd_prefixes)
         self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
@@ -69,7 +71,7 @@ class NamesChecker(VisitorChecker):
         if self.inside_if_block:
             self.else_not_upper_case.check(node)
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
-        self.bdd_without_keyword_call.check(node.keyword, node)
+        self.bdd_without_keyword_call.check(node.keyword, node, self.bdd_prefixes)
         for token in node.get_tokens(Token.ASSIGN):
             self.check_for_reserved_naming_or_hyphen(token, "Variable")
         self.check_set_variable_keyword(node)
@@ -108,7 +110,7 @@ class NamesChecker(VisitorChecker):
             self.check_for_reserved_naming_or_hyphen(arg, "Argument")
 
     def check_keyword_naming_with_subkeywords(self, node: Setup | KeywordCall, name_token_type: str) -> None:
-        for keyword in iterate_keyword_names(node, name_token_type):
+        for keyword in iterate_keyword_names(node, name_token_type, self.bdd_prefixes):
             self.check_keyword_naming(keyword.value, keyword)
 
     def check_keyword_naming(self, keyword_name: str, node: Node, is_keyword_definition: bool = False) -> None:

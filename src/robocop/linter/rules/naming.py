@@ -12,6 +12,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
 from robocop.linter.utils import misc as utils
+from robocop.parsing.run_keywords import BDD_PREFIXES, is_bdd_prefix
 from robocop.parsing.string_operations import StringPart, get_unmasked_string, map_string_to_mask
 from robocop.version_handling import ROBOT_VERSION
 
@@ -34,7 +35,6 @@ if TYPE_CHECKING:
 SECTION_NAME_PATTERN = re.compile(r"\*\*\*\s.+\s\*\*\*")
 LETTER_PATTERN = re.compile(r"[^\w()-]|_", re.UNICODE)
 ELSE_STATEMENTS = frozenset({"else", "else if"})
-BDD_KEYWORDS = frozenset({"given", "when", "and", "but", "then"})
 # reserved word followed by the RF version when it was introduced
 RESERVED_WORDS = {
     "for": 3,
@@ -862,7 +862,8 @@ class BddWithoutKeywordCallRule(Rule):
     BDD keyword isn't followed by any keyword.
 
     When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
-    the name of the keyword to run.
+    the name of the keyword to run. BDD prefixes of other languages, enabled with the ``language`` option or the
+    ``Language:`` header of the file, are recognized as well.
 
     Incorrect code example:
 
@@ -894,8 +895,8 @@ class BddWithoutKeywordCallRule(Rule):
     )
     deprecated_names = ("0318",)
 
-    def check(self, keyword_name: str | None, node: Node) -> None:
-        if not keyword_name or keyword_name.lower() not in BDD_KEYWORDS:
+    def check(self, keyword_name: str | None, node: Node, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> None:
+        if not keyword_name or not is_bdd_prefix(keyword_name, bdd_prefixes):
             return
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""

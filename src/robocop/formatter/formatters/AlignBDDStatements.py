@@ -7,7 +7,7 @@ from robot.parsing.model.statements import KeywordCall
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.parsing.run_keywords import BDD_PREFIXES
+from robocop.parsing.run_keywords import BDD_PREFIXES, bdd_prefixes_for, get_bdd_prefix
 
 if TYPE_CHECKING:
     from robot.parsing.model.blocks import File, TestCase, TestCaseSection
@@ -49,10 +49,7 @@ class AlignBDDStatements(Formatter):
 
     def get_bdd_prefixes(self) -> frozenset[str]:
         """Get BDD prefixes for languages configured for the source file."""
-        prefixes = getattr(self.languages, "bdd_prefixes", None)  # RF 6.0+
-        if not prefixes:
-            return BDD_PREFIXES
-        return frozenset(prefix.title() for prefix in prefixes)
+        return bdd_prefixes_for(self.languages)
 
     @skip_section_if_disabled
     def visit_TestCaseSection(self, node: TestCaseSection) -> TestCaseSection:  # noqa: N802
@@ -70,8 +67,7 @@ class AlignBDDStatements(Formatter):
         name = node.get_token(Token.KEYWORD)
         if not name or not name.value:
             return None
-        prefix = name.value.split(maxsplit=1)[0]
-        return prefix if prefix.title() in self.bdd_prefixes else None
+        return get_bdd_prefix(name.value, self.bdd_prefixes)
 
     def align_block(self, block: object, indent: int) -> None:
         """Align the body of the block and any of its branches (such as ELSE or EXCEPT)."""

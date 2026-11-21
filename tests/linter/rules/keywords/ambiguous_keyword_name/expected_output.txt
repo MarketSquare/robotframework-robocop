@@ -1,3 +1,4 @@
 test.robot:8:5 [W] KW06 Keyword 'Login' matches keywords from multiple sources: resources${/}first.resource, resources${/}second.resource
+same_resource_name.robot:8:5 [W] KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
 
-Found 1 issue.
+Found 2 issues.

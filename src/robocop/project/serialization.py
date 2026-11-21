@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
-SERIALIZATION_VERSION = 2
+SERIALIZATION_VERSION = 3
 """Version of the format used to store the collected data. Bump it whenever the format changes."""
 
 

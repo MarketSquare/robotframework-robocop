@@ -8,6 +8,7 @@ from robot.api import Token
 
 from robocop.linter.rules import VisitorChecker, arguments, deprecated, errors, keywords, lengths, whitespace
 from robocop.linter.utils.misc import normalize_robot_name
+from robocop.parsing.run_keywords import BDD_PREFIXES, bdd_prefixes_for
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -33,10 +34,12 @@ class KeywordCallChecker(VisitorChecker):
 
     def __init__(self) -> None:
         self.loops = 0
+        self.bdd_prefixes = BDD_PREFIXES
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
         self.loops = 0
+        self.bdd_prefixes = bdd_prefixes_for(self.source_file.languages)
         self.generic_visit(node)
 
     def visit_For(self, node: For) -> None:  # noqa: N802
@@ -50,7 +53,7 @@ class KeywordCallChecker(VisitorChecker):
         self.missing_keyword_name.check(node)
         self.undefined_argument_value.check(node)
         # not allowed keyword is also checked for nested run keywords, even if the keyword name is empty
-        self.not_allowed_keyword.check(node, Token.KEYWORD)
+        self.not_allowed_keyword.check(node, Token.KEYWORD, self.bdd_prefixes)
         if not node.keyword:  # keyword name can be empty if the syntax is invalid
             return
         self.not_enough_whitespace_after_setting.check(node)
@@ -63,7 +66,7 @@ class KeywordCallChecker(VisitorChecker):
         self.check_keyword_can_be_replaced_with_var(node.keyword, node, normalized_name)
 
     def visit_Setup(self, node: Setup) -> None:  # noqa: N802
-        self.not_allowed_keyword.check(node, Token.NAME)
+        self.not_allowed_keyword.check(node, Token.NAME, self.bdd_prefixes)
         if node.name:
             self.check_if_keyword_is_deprecated(
                 node.name, node, normalize_robot_name(node.name, remove_prefix="builtin.")

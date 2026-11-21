@@ -13,7 +13,7 @@ from robot.parsing.model.statements import KeywordCall, Statement
 from robocop.linter.rules import VisitorChecker, tags
 from robocop.linter.rules.tags import CONTINUE_ON_FAILURE_TAGS, TagNode, new_tag_token, split_tag_on_variables
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import remove_bdd_prefix
+from robocop.parsing.run_keywords import BDD_PREFIXES, bdd_prefixes_for, remove_bdd_prefix
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -63,6 +63,7 @@ class TagsChecker(VisitorChecker):
         self.test_cases_count = 0
         self.keywords_count = 0
         self.suite_default_tags = False
+        self.bdd_prefixes = BDD_PREFIXES
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -76,6 +77,7 @@ class TagsChecker(VisitorChecker):
         self.test_cases_count = 0
         self.keywords_count = 0
         self.suite_default_tags = self.has_default_tags(node)
+        self.bdd_prefixes = bdd_prefixes_for(self.source_file.languages)
         super().visit_File(node)
         self.check_common_test_tags(node)
         self.check_common_keyword_tags(node)
@@ -174,12 +176,11 @@ class TagsChecker(VisitorChecker):
             if isinstance(child, KeywordCall):
                 yield child
 
-    @staticmethod
-    def is_continue_on_failure_call(node: KeywordCall) -> bool:
+    def is_continue_on_failure_call(self, node: KeywordCall) -> bool:
         name_token = node.get_token(Token.KEYWORD)
         if name_token is None:
             return False
-        name = normalize_robot_name(remove_bdd_prefix(name_token.value))
+        name = normalize_robot_name(remove_bdd_prefix(name_token.value, self.bdd_prefixes))
         return name in CONTINUE_ON_FAILURE_KEYWORDS
 
     def check_continue_on_failure(

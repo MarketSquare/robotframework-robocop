@@ -9,7 +9,7 @@ from robot.libraries import STDLIBS
 from robocop.files import path_relative_to_cwd
 from robocop.linter.rules import ProjectChecker, usage
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.project.context import BUILTIN_LIBRARY
+from robocop.project.context import BUILTIN_LIBRARY, split_owner_name
 from robocop.project.definitions import ImportStatus, ImportType, usage_name_pattern
 from robocop.source_file import SourceFile
 
@@ -41,8 +41,8 @@ class UsedKeywordNames:
             return
         self.names.append(name)
         self.normalized.add(normalize_robot_name(name))
-        if "." in name:
-            _, _, without_prefix = name.rpartition(".")
+        # the prefix is not known yet, so every possible keyword name is recorded
+        for _, without_prefix in split_owner_name(name):
             self.normalized.add(normalize_robot_name(without_prefix))
             self.names.append(without_prefix)
 

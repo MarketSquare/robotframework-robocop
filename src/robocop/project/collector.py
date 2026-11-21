@@ -14,6 +14,7 @@ from robot.api.parsing import ModelVisitor
 from robot.parsing.model.statements import Arguments, Statement, Tags
 from robot.variables.search import search_variable
 
+from robocop.files import is_init_file
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import BDD_PREFIXES, get_bdd_prefix, iterate_keyword_calls
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
@@ -105,7 +106,7 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
     """
 
     def __init__(self, path: Path, bdd_prefixes: frozenset[str] | None = None) -> None:
-        self.collected = CollectedFile(path=path, is_init_file="__init__" in path.name)
+        self.collected = CollectedFile(path=path, is_init_file=is_init_file(path))
         self.bdd_prefixes = bdd_prefixes if bdd_prefixes is not None else DEFAULT_BDD_PREFIXES
 
     def collect(self, model: File) -> CollectedFile:

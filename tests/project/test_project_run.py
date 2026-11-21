@@ -75,3 +75,26 @@ class TestProjectRulesInCheck:
             silent=True,
         )
         assert len(diagnostics) == 2
+
+
+class TestFilesPassedDirectly:
+    """Files passed on the command line are linted even if file filters do not include them."""
+
+    def test_markdown_file_passed_directly_is_part_of_project(self, tmp_path):
+        (tmp_path / "orders.robot.md").write_text(
+            "# Order tests\n\n```robotframework\n*** Settings ***\nResource    steps.resource\n\n"
+            "*** Test Cases ***\nMarkdown Test\n    Fast Path\n    Slow Path\n```\n"
+        )
+        (tmp_path / "steps.resource").write_text(
+            "*** Keywords ***\nFast Path\n    No Operation\n\nSlow Path\n    No Operation\n"
+        )
+        diagnostics = check_files(
+            sources=[tmp_path / "orders.robot.md", tmp_path / "steps.resource"],
+            select=["unused-keyword"],
+            root=tmp_path,
+            ignore_file_config=True,
+            return_result=True,
+            cache=False,
+            silent=True,
+        )
+        assert diagnostics == []

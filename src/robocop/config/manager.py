@@ -269,10 +269,15 @@ class ConfigManager:
         Project level checks need to know the whole project - for example a keyword defined in the linted file
         can be used by a file outside the linted paths. Source files that were already resolved are reused, so
         their models are only parsed once.
+
+        Files passed directly on the command line are linted even if the file filters do not include them (for
+        example Markdown files with embedded code), so they are part of the project as well.
         """
         if self._project_paths is None:
             self._project_paths = {}
             self.resolve_paths([self.root], target=self._project_paths)
+            for source_file in self.paths:
+                self._project_paths.setdefault(source_file.resolved_path, source_file)
         yield from self._project_paths.values()
 
     def get_default_config(self, config_path: Path | None, sources: list[str] | None) -> Config:

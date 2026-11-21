@@ -46,3 +46,24 @@ def test_model_of_not_utf8_file_raises_data_error(tmp_path, config):
 
     with pytest.raises(DataError):
         _ = source_file.model
+
+
+SUITE_SOURCE = "*** Test Cases ***\nLogin Works\n    Log    ok\n"
+
+
+@pytest.mark.parametrize(
+    ("name", "is_suite_model"),
+    [
+        ("login__init__flow.robot", True),  # an ordinary suite with __init__ inside the name
+        # test cases are not allowed in initialization files: the init model turns the section into an invalid
+        # section (RF 6+) or a comment section (RF 5)
+        ("__init__.robot", False),
+    ],
+)
+def test_model_type_depends_on_exact_init_file_name(tmp_path, config, name, is_suite_model):
+    path = tmp_path / name
+    path.write_text(SUITE_SOURCE, encoding="utf-8")
+
+    model = SourceFile(path=path, config=config).model
+
+    assert (type(model.sections[0]).__name__ == "TestCaseSection") is is_suite_model

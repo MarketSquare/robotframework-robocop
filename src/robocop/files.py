@@ -124,3 +124,21 @@ def get_common_parent_dirs(sources: list[Path]) -> list[Path]:
         key=lambda path: path.parts,
     )
     return [common_base, *common_base.parents]
+
+
+def is_init_file(path: Path) -> bool:
+    """
+    Check if the file is a suite initialization file.
+
+    Like in Robot Framework, the name without the extension must be exactly ``__init__`` (case-insensitive). Names
+    that only contain ``__init__``, such as ``login__init__flow.robot``, are ordinary suite or resource files.
+
+    The extension is not checked. Robot Framework runs an initialization file with any extension enabled for
+    suites, which may include ``resource`` (``--extension robot:resource``), and it never imports an ``__init__``
+    file as a resource file, so ``__init__.resource`` can only be used as an initialization file.
+
+    Returns:
+        True if the file is a suite initialization file.
+
+    """
+    return path.stem.lower() == "__init__"

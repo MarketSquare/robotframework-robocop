@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 
+from robocop.files import is_init_file
 from robocop.linter.rules import Rule, VisitorChecker, arguments, errors, whitespace
 from robocop.linter.utils.misc import find_robot_vars
 from robocop.version_handling import ROBOT_VERSION, TEST_METADATA_SUPPORTED
@@ -340,7 +341,7 @@ class ParsingErrorChecker(VisitorChecker):
         return col_offset + len(value) + 1
 
     def handle_unsupported_settings_in_init_file(self, node: Node) -> None:
-        if ROBOT_VERSION.major < 6 and "__init__" not in self.source_file.path.name:
+        if ROBOT_VERSION.major < 6 and not is_init_file(self.source_file.path):
             return  # handle bug where Robot reports invalid setting as not allowed in suite init file
         setting_node = node.data_tokens[0]
         setting_name = setting_node.value

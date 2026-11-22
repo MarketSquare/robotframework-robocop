@@ -6,6 +6,7 @@ import pytest
 import typer
 
 from robocop import exceptions
+from robocop.config import manager
 from robocop.config import schema as config_model
 from robocop.config.builder import ConfigBuilder
 from robocop.config.manager import ConfigManager
@@ -742,3 +743,21 @@ class TestCacheConfigOverride:
 
         # Assert - should use config file setting
         assert config_manager.default_config.cache.enabled is False
+
+
+def test_paths_are_resolved_once(tmp_path, monkeypatch):
+    """Directories passed as sources are scanned once, even if the paths are read again for the project context."""
+    (tmp_path / "suite.robot").write_text("*** Test Cases ***\nTest\n    No Operation\n")
+    scanned = []
+    scan_directory = manager._scan_directory  # noqa: SLF001
+
+    def counting_scan(directory):
+        scanned.append(directory)
+        return scan_directory(directory)
+
+    monkeypatch.setattr(manager, "_scan_directory", counting_scan)
+    config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+    assert [source.path.name for source in config_manager.paths] == ["suite.robot"]
+    assert [source.path.name for source in config_manager.paths] == ["suite.robot"]
+    assert [source.path.name for source in config_manager.project_paths] == ["suite.robot"]
+    assert len(scanned) == 2  # linted sources and project root, each once

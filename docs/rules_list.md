@@ -13916,9 +13916,6 @@ Robot Framework 7.3 introduced type conversion for variables. This rule
 enforces that variables in the ``*** Variables ***`` section have explicit
 type annotations for better code clarity and automatic type conversion.
 
-Variables defined in keywords and tests are checked by the separate
-``missing-keyword-variable-type`` and ``missing-test-variable-type`` rules.
-
 Incorrect code example (when rule is enabled):
 
     *** Variables ***

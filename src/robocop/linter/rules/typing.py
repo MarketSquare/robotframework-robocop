@@ -8,7 +8,11 @@ from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
-from robocop.linter.utils.misc import remove_variable_type_conversion, split_argument_default_value
+from robocop.linter.utils.misc import (
+    remove_variable_type_conversion,
+    split_argument_default_value,
+    strip_equals_from_assignment,
+)
 
 if TYPE_CHECKING:
     from robot.parsing.model.blocks import For, KeywordCall
@@ -52,7 +56,7 @@ def report_missing_variable_type(rule: Rule, node: Node, token: Token) -> None:
         node=node,
         lineno=token.lineno,
         col=token.col_offset + 1,
-        end_col=token.end_col_offset + 1,
+        end_col=token.col_offset + len(strip_equals_from_assignment(token.value)) + 1,
     )
 
 
@@ -63,9 +67,6 @@ class MissingSectionVariableTypeRule(Rule):
     Robot Framework 7.3 introduced type conversion for variables. This rule
     enforces that variables in the ``*** Variables ***`` section have explicit
     type annotations for better code clarity and automatic type conversion.
-
-    Variables defined in keywords and tests are checked by the separate
-    ``missing-keyword-variable-type`` and ``missing-test-variable-type`` rules.
 
     Incorrect code example (when rule is enabled):
 

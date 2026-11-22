@@ -23,7 +23,7 @@ test.robot:19:5 ANN06 Variable '${test_result}' is missing type annotation
  17 |
  18 | Test With Assignment
  19 |     ${test_result} =    Set Variable    value
-    |     ^^^^^^^^^^^^^^^^ ANN06
+    |     ^^^^^^^^^^^^^^ ANN06
  20 |     ${first}    ${second: int}    Set Variable    1    2
  21 |     ${typed_result: list} =    Create List    one    two
     |
@@ -53,7 +53,7 @@ tasks.robot:4:5 ANN06 Variable '${task_result}' is missing type annotation
  2 | Task With VAR
  3 |     VAR    ${task_local}    value
  4 |     ${task_result} =    Set Variable    value
-   |     ^^^^^^^^^^^^^^^^ ANN06
+   |     ^^^^^^^^^^^^^^ ANN06
  5 |     VAR    ${typed_task_local: str}    value
    |
 

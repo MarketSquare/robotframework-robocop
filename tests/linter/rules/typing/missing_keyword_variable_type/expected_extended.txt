@@ -23,7 +23,7 @@ test.robot:43:5 ANN05 Variable '${result}' is missing type annotation
  41 |
  42 | Keyword With Assignment
  43 |     ${result} =    Set Variable    value
-    |     ^^^^^^^^^^^ ANN05
+    |     ^^^^^^^^^ ANN05
  44 |     ${typed_result: list} =    Create List    one    two
  45 |     ${_ignored} =    Set Variable    value
     |
@@ -43,7 +43,7 @@ test.robot:53:9 ANN05 Variable '${in_for}' is missing type annotation
  51 |     END
  52 |     FOR    ${item: str}    IN    a    b
  53 |         ${in_for} =    Set Variable    ${item}
-    |         ^^^^^^^^^^^ ANN05
+    |         ^^^^^^^^^ ANN05
  54 |     END
     |
 

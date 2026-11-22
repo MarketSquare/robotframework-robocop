@@ -68,6 +68,9 @@ DYNAMIC_IMPORT_KEYWORDS = frozenset({"importlibrary", "importresource"})
 RESERVED_KEYWORD_NAMES = frozenset({"none"})
 """Values used in place of a keyword name that do not refer to any keyword."""
 
+SEARCH_ORDER_KEYWORDS = frozenset({"setlibrarysearchorder", "builtin.setlibrarysearchorder"})
+"""Keywords changing at runtime which library or resource file is used when a keyword name matches several."""
+
 
 class KeywordUsageChecker(ProjectChecker):
     """Checker for rules validated against every keyword call in the project."""
@@ -88,11 +91,13 @@ class KeywordUsageChecker(ProjectChecker):
         check_ambiguous = self.ambiguous_keyword_name.enabled
         check_prefix = self.missing_keyword_prefix.enabled
         can_check: dict[Path, bool] = {}
+        search_order_files = _files_using_search_order(context) if check_ambiguous else set()
         for project_file, keyword_usage in context.iter_usages():
             if check_not_found:
                 self._check_not_found(context, project_file, keyword_usage, project_source_file, can_check)
             if check_ambiguous:
-                self._check_ambiguous(context, project_file, keyword_usage, project_source_file)
+                search_order = project_file.resolved_path in search_order_files
+                self._check_ambiguous(context, project_file, keyword_usage, project_source_file, search_order)
             if check_prefix:
                 self._check_prefix(context, project_file, keyword_usage, project_source_file)
         return self.issues
@@ -129,8 +134,9 @@ class KeywordUsageChecker(ProjectChecker):
         project_file: ProjectFile,
         keyword_usage: KeywordUsage,
         project_source_file: SourceFile | VirtualSourceFile,
+        search_order: bool,
     ) -> None:
-        candidates = self._ambiguous_definitions(context, keyword_usage)
+        candidates = self._ambiguous_definitions(context, keyword_usage, search_order)
         if not candidates:
             return
         self.report(
@@ -261,9 +267,17 @@ class KeywordUsageChecker(ProjectChecker):
         return spec is not None and spec.loaded
 
     @staticmethod
-    def _ambiguous_definitions(context: ProjectContext, keyword_usage: KeywordUsage) -> list[KeywordDefinition]:
+    def _ambiguous_definitions(
+        context: ProjectContext, keyword_usage: KeywordUsage, search_order: bool = False
+    ) -> list[KeywordDefinition]:
         """
         Find definitions the call can refer to, if there is more than one to choose from.
+
+        Args:
+            context: Project context.
+            keyword_usage: Checked keyword call.
+            search_order: ``Set Library Search Order`` may be active for the call. It only resolves calls without
+                the resource or library prefix, so such calls are not reported.
 
         Returns:
             List of definitions with the same priority, or an empty list if the call is not ambiguous.
@@ -280,8 +294,43 @@ class KeywordUsageChecker(ProjectChecker):
             if not direct:
                 # matched only after removing the resource or library prefix, which does not have to be unique
                 return _same_owner_name(context, _unique(matches))
+            if search_order:
+                return []
             return _same_priority(_unique(direct), keyword_usage.location.source)
         return []
+
+
+def _sets_search_order(keyword_usage: KeywordUsage) -> bool:
+    return any(normalize_robot_name(name) in SEARCH_ORDER_KEYWORDS for name in keyword_usage.names_to_check())
+
+
+def _files_using_search_order(context: ProjectContext) -> set[Path]:
+    """
+    Find files whose keyword calls can be resolved by ``Set Library Search Order``.
+
+    The search order is set at runtime and stays active until the end of the suite, but it is not inherited by child
+    suites. Its value can come from a variable, so the order itself is not emulated. Instead, if the suite file or any
+    resource it imports calls the keyword, all files of that suite are treated as using the search order.
+
+    Returns:
+        Resolved paths of the files using the search order.
+
+    """
+    calling = {
+        project_file.resolved_path
+        for project_file in context.iter_files()
+        if any(_sets_search_order(keyword_usage) for keyword_usage in project_file.usages)
+    }
+    if not calling:
+        return set()
+    affected = set(calling)
+    for project_file in context.iter_files():
+        if project_file.is_resource:
+            continue
+        suite_files = context.imported_files(project_file.path)
+        if any(suite_file.resolved_path in calling for suite_file in suite_files):
+            affected.update(suite_file.resolved_path for suite_file in suite_files)
+    return affected
 
 
 def _unique(definitions: list[KeywordDefinition]) -> list[KeywordDefinition]:

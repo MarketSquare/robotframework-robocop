@@ -1,0 +1,3 @@
+disablers.robot:32:17 [W] CPX05 Keyword 'Other Rule Disabled' is nested too deeply (5/3), nesting path: FOR > IF > FOR > IF > FOR
+
+Found 1 issue.

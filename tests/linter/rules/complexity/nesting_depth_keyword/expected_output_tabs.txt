@@ -1,0 +1,4 @@
+tabs.robot:6:5 [W] CPX05 Keyword 'Tabs' is nested too deeply (4/3), nesting path: FOR > IF > FOR > IF
+tabs.robot:17:2 [W] CPX05 Keyword 'Mixed Separators' is nested too deeply (4/3), nesting path: FOR > IF > FOR > IF
+
+Found 2 issues.

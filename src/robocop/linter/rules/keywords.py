@@ -9,7 +9,7 @@ from robot.utils.robottime import timestr_to_secs
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import iterate_keyword_names
+from robocop.parsing.run_keywords import BDD_PREFIXES, iterate_keyword_names
 
 if TYPE_CHECKING:
     from robot.model import Keyword
@@ -135,11 +135,13 @@ class NotAllowedKeywordRule(Rule):
     )
     deprecated_names = ("10002",)
 
-    def check(self, node: KeywordCall | Setup, name_token_type: str) -> None:
+    def check(
+        self, node: KeywordCall | Setup, name_token_type: str, bdd_prefixes: frozenset[str] = BDD_PREFIXES
+    ) -> None:
         """Check the keyword name together with the names of the nested run keywords."""
         if not self.enabled:
             return
-        for keyword in iterate_keyword_names(node, name_token_type):
+        for keyword in iterate_keyword_names(node, name_token_type, bdd_prefixes):
             self.check_keyword_name(keyword.value, keyword)
 
     def check_keyword_name(self, name: str, keyword: Token) -> None:

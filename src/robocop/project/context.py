@@ -15,6 +15,7 @@ from robot.errors import DataError
 
 from robocop.files import resolve_path
 from robocop.linter.utils.misc import normalize_robot_name
+from robocop.parsing.run_keywords import bdd_prefixes_for
 from robocop.project.collector import ProjectFileCollector
 from robocop.project.definitions import ImportStatus, ImportType, KeywordDefinition
 from robocop.project.imports import ImportResolver, build_search_paths
@@ -365,7 +366,9 @@ def collect_file(source_file: SourceFile, cache: RobocopCache | None, config_has
             collected = collected_file_from_dict(cached, source_file.path)
             if collected is not None:
                 return collected
-    collected = ProjectFileCollector(source_file.path).collect(source_file.model)
+    model = source_file.model  # parsing adds languages from the ``Language:`` header to the file languages
+    bdd_prefixes = bdd_prefixes_for(source_file.languages)
+    collected = ProjectFileCollector(source_file.path, bdd_prefixes=bdd_prefixes).collect(model)
     if cache is not None:
         cache.set_project_entry(source_file.path, config_hash, collected_file_to_dict(collected))
     return collected
@@ -398,9 +401,14 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
     global_scope = VariableScope()
     global_scope.add_variable_files(config.variable_files, search_paths)
     global_scope.add_command_line(config.variables)
-    config_hash = collection_hash(config.languages)
+    # files can use different configuration files, each with its own languages
+    config_hashes: dict[int, str] = {}
 
     for source_file in config_manager.project_paths:
+        file_languages = source_file.config.languages
+        config_hash = config_hashes.get(id(file_languages))
+        if config_hash is None:
+            config_hash = config_hashes.setdefault(id(file_languages), collection_hash(file_languages))
         try:
             collected = collect_file(source_file, cache, config_hash)
         except DataError as error:

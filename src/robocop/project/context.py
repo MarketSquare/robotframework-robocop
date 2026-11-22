@@ -67,6 +67,19 @@ class ProjectFile:
         return not self.collected.is_suite and not self.collected.is_init_file
 
     @property
+    def has_suite_namespace(self) -> bool:
+        """
+        Check if Robot Framework runs the file as a suite or a suite initialization file, with its own namespace.
+
+        Like in Robot Framework, an initialization file has exactly the ``__init__`` name (with any extension), so
+        for example ``my__init__.resource`` or ``my__init__.robot`` without tests are not suites. Other checks still
+        treat any name containing ``__init__`` as an initialization file, see #2006.
+        """
+        if self.collected.is_suite:
+            return True
+        return self.path.stem.lower() == "__init__"
+
+    @property
     def keywords(self) -> list[KeywordDefinition]:
         return self.collected.keywords
 
@@ -180,6 +193,7 @@ class ProjectContext:
     library_loader: LibraryLoader | None = None
     _visible_keywords: dict[Path, KeywordIndex] = field(default_factory=dict, repr=False)
     _library_keywords: dict[Path, list[KeywordDefinition]] = field(default_factory=dict, repr=False)
+    _importers: dict[Path, list[ProjectFile]] | None = field(default=None, repr=False)
 
     def get_file(self, path: Path) -> ProjectFile | None:
         """
@@ -223,6 +237,44 @@ class ProjectContext:
                 visible.append(imported_file)
                 queue.append(imported_file)
         return visible
+
+    def importers(self, path: Path) -> list[ProjectFile]:
+        """
+        Return files that see given file through resource imports, directly or through other resource files.
+
+        It is the reverse of :meth:`imported_files`. The map is built once, on the first call.
+
+        Returns:
+            List of project files importing the file, including the file itself. Empty if the file is not part of
+            the project.
+
+        """
+        if self._importers is None:
+            importers: dict[Path, list[ProjectFile]] = {}
+            for project_file in self.files.values():
+                for visible in self.imported_files(project_file.path):
+                    importers.setdefault(visible.resolved_path, []).append(project_file)
+            self._importers = importers
+        return self._importers.get(resolve_path(path), [])
+
+    def importing_suites(self, path: Path) -> list[ProjectFile]:
+        """
+        Return suite files that import given file, directly or through other resource files.
+
+        Robot Framework resolves keyword calls in the namespace of the executed suite, so a keyword called from
+        a resource file can be provided by any suite importing it. Suite initialization files (``__init__.robot``)
+        are suites with their own namespace as well.
+
+        Returns:
+            List of suite and suite initialization files importing the file, without the file itself.
+
+        """
+        resolved = resolve_path(path)
+        return [
+            project_file
+            for project_file in self.importers(path)
+            if project_file.has_suite_namespace and project_file.resolved_path != resolved
+        ]
 
     def visible_keywords(self, path: Path) -> KeywordIndex:
         """
@@ -279,9 +331,14 @@ class ProjectContext:
         self._library_keywords[resolved] = keywords
         return keywords
 
-    def resolve_keyword(self, usage: KeywordUsage) -> list[KeywordDefinition]:
+    def resolve_keyword(self, usage: KeywordUsage, namespace: Path | None = None) -> list[KeywordDefinition]:
         """
         Find definitions matching the keyword usage, using imports of the file the usage comes from.
+
+        Args:
+            usage: Keyword call to resolve.
+            namespace: File whose keywords and imports are used instead of the file with the call, for example
+                the suite importing the resource file with the call.
 
         Returns:
             List of matching definitions. Empty when the keyword is not defined in the project, for example when it
@@ -290,7 +347,7 @@ class ProjectContext:
         """
         if usage.name_contains_variable:
             return []
-        index = self.visible_keywords(usage.location.source)
+        index = self.visible_keywords(namespace or usage.location.source)
         for name in usage.names_to_check():
             matches = index.find(name)
             if matches:

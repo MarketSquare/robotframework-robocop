@@ -119,10 +119,6 @@ class UnusedImportsChecker(ProjectChecker):
     unused_resource_import: imports.UnusedResourceImportRule
     unused_library_import: imports.UnusedLibraryImportRule
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._importers: dict[Path, list[ProjectFile]] | None = None
-
     def scan_project(
         self,
         project_source_file: SourceFile | VirtualSourceFile,
@@ -130,7 +126,6 @@ class UnusedImportsChecker(ProjectChecker):
         context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
-        self._importers = None
         for project_file in context.iter_files():
             self._check_file(project_file, project_source_file, context)
         return self.issues
@@ -214,9 +209,7 @@ class UnusedImportsChecker(ProjectChecker):
             return [other for other in context.iter_files() if str(other.resolved_path).startswith(directory)]
         if project_file.is_suite:
             return [project_file]
-        if self._importers is None:
-            self._importers = _build_importers(context)
-        return self._importers.get(project_file.resolved_path, [project_file])
+        return context.importers(project_file.path) or [project_file]
 
 
 class CircularImports(ProjectChecker):
@@ -282,21 +275,6 @@ def _path_back_to(context: ProjectContext, start: Path, target: Path) -> list[Pa
             seen.add(next_path)
             queue.append((next_path, [*chain, next_path]))
     return None
-
-
-def _build_importers(context: ProjectContext) -> dict[Path, list[ProjectFile]]:
-    """
-    Map every file to the files that see it through transitive resource imports.
-
-    Returns:
-        Dictionary of resolved path to the list of files importing it, each including the file itself.
-
-    """
-    importers: dict[Path, list[ProjectFile]] = {}
-    for project_file in context.iter_files():
-        for visible in context.imported_files(project_file.path):
-            importers.setdefault(visible.resolved_path, []).append(project_file)
-    return importers
 
 
 def _collect_usage(files: list[ProjectFile]) -> tuple[set[str], set[str]]:

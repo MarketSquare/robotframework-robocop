@@ -1,0 +1,13 @@
+assignment_ranges.robot:2:1:2:11 [I] ANN01 Variable '${SECTION}' is missing type annotation
+assignment_ranges.robot:3:1:3:18 [I] ANN01 Variable '${SPACED_SECTION}' is missing type annotation
+assignment_ranges.robot:7:12:7:18 [I] ANN06 Variable '${var}' is missing type annotation
+assignment_ranges.robot:8:5:8:14 [I] ANN06 Variable '${spaced}' is missing type annotation
+assignment_ranges.robot:9:5:9:16 [I] ANN06 Variable '${unspaced}' is missing type annotation
+assignment_ranges.robot:10:5:10:15 [I] ANN06 Variable '${without}' is missing type annotation
+assignment_ranges.robot:14:12:14:18 [I] ANN05 Variable '${var}' is missing type annotation
+assignment_ranges.robot:15:5:15:14 [I] ANN05 Variable '${spaced}' is missing type annotation
+assignment_ranges.robot:16:5:16:16 [I] ANN05 Variable '${unspaced}' is missing type annotation
+assignment_ranges.robot:17:5:17:15 [I] ANN05 Variable '${without}' is missing type annotation
+assignment_ranges.robot:18:5:18:16 [I] ANN05 Variable '${items}[0]' is missing type annotation
+
+Found 11 issues.

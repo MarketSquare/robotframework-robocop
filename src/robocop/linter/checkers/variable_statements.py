@@ -11,7 +11,7 @@ from robocop.linter.utils import misc as utils
 
 if TYPE_CHECKING:
     from robot.parsing.model import File
-    from robot.parsing.model.blocks import For, KeywordSection, VariableSection
+    from robot.parsing.model.blocks import For, KeywordSection, TestCaseSection, VariableSection
     from robot.parsing.model.statements import Arguments, KeywordCall, Var, Variable
 
 
@@ -24,6 +24,8 @@ class VariablesChecker(VisitorChecker):
     no_test_variable: variables.NoTestVariableRule
     set_keyword_with_type: typing.SetKeywordWithTypeRule
     missing_section_variable_type: typing.MissingSectionVariableTypeRule
+    missing_keyword_variable_type: typing.MissingKeywordVariableTypeRule
+    missing_test_variable_type: typing.MissingTestVariableTypeRule
     missing_argument_type: typing.MissingArgumentTypeRule
     missing_for_loop_variable_type: typing.MissingForLoopVariableTypeRule
     inconsistent_assignment: misc.InconsistentAssignmentRule
@@ -41,10 +43,14 @@ class VariablesChecker(VisitorChecker):
         self.keyword_expected_sign_type: str | None = None
         self.variables_expected_sign_type: str | None = None
         self.check_empty_variable = True
+        self.missing_body_variable_type: (
+            typing.MissingKeywordVariableTypeRule | typing.MissingTestVariableTypeRule | None
+        ) = None
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
         self.check_empty_variable = True
+        self.missing_body_variable_type = None
         self.detect_assignment_sign(node)
         self.generic_visit(node)
 
@@ -70,12 +76,26 @@ class VariablesChecker(VisitorChecker):
         self.check_empty_variable = True
 
     def visit_KeywordSection(self, node: KeywordSection) -> None:  # noqa: N802
+        self.visit_body_section(node, self.missing_keyword_variable_type)
+
+    def visit_TestCaseSection(self, node: TestCaseSection) -> None:  # noqa: N802
+        self.visit_body_section(node, self.missing_test_variable_type)
+
+    def visit_body_section(
+        self,
+        node: KeywordSection | TestCaseSection,
+        missing_type_rule: typing.MissingKeywordVariableTypeRule | typing.MissingTestVariableTypeRule,
+    ) -> None:
         # ``empty-variable`` is only reported here when the VAR syntax is one of its configured sources
         self.check_empty_variable = "var" in self.empty_variable.variable_source
+        self.missing_body_variable_type = missing_type_rule
         self.generic_visit(node)
         self.check_empty_variable = True
+        self.missing_body_variable_type = None
 
-    visit_TestCaseSection = visit_KeywordSection  # noqa: N815
+    def check_body_variable_type(self, node: Var | KeywordCall, token: Token) -> None:
+        if self.missing_body_variable_type is not None:
+            self.missing_body_variable_type.check(node, token)
 
     def visit_Variable(self, node: Variable) -> None:  # noqa: N802
         if self.check_empty_variable:
@@ -93,7 +113,7 @@ class VariablesChecker(VisitorChecker):
             return
         variable = node.get_token(Token.VARIABLE)
         if variable:
-            self.missing_section_variable_type.check(node, variable)
+            self.check_body_variable_type(node, variable)
             self.check_var_assignment_sign(variable)
 
     def check_var_assignment_sign(self, variable: Token) -> None:
@@ -119,7 +139,7 @@ class VariablesChecker(VisitorChecker):
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self.check_assignment_sign(node)
         for token in node.get_tokens(Token.ASSIGN):
-            self.missing_section_variable_type.check(node, token)
+            self.check_body_variable_type(node, token)
         self.check_set_variable_keyword(node)
 
     def check_assignment_sign(self, node: KeywordCall) -> None:

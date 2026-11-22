@@ -13916,28 +13916,15 @@ Robot Framework 7.3 introduced type conversion for variables. This rule
 enforces that variables in the ``*** Variables ***`` section have explicit
 type annotations for better code clarity and automatic type conversion.
 
-This rule also checks ``VAR`` statements and assignment expressions
-(``${var} = Keyword``).
-
 Incorrect code example (when rule is enabled):
 
     *** Variables ***
     ${NUMBER}    42
 
-    *** Keywords ***
-    Example
-        VAR    ${local}    value
-        ${result} =    Some Keyword
-
 Correct code:
 
     *** Variables ***
     ${NUMBER: int}    42
-
-    *** Keywords ***
-    Example
-        VAR    ${local: str}    value
-        ${result: list} =    Some Keyword
 
 This rule is disabled by default.
 
@@ -14158,5 +14145,137 @@ The VAR syntax needs to be used instead:
         [tool.robocop.lint]
         configure = [
             "set-keyword-with-type.severity=E"
+        ]
+        ```
+
+---
+
+### ANN05: missing-keyword-variable-type
+
+> Rule is disabled by default. Enable it by using ``--select missing-keyword-variable-type`` option.
+
+Added: `v9.5.0`
+
+Supported RF version `>=7.3`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Variable '{variable_name}' is missing type annotation`
+
+**Documentation**:
+
+Keyword variable without type annotation.
+
+Robot Framework 7.3 introduced type conversion for variables. This rule
+enforces that variables created inside keywords with ``VAR`` statements and
+assignment expressions (``${var} =    Keyword``) have explicit type annotations
+for better code clarity and automatic type conversion.
+
+Incorrect code example (when rule is enabled):
+
+    *** Keywords ***
+    Example
+        VAR    ${local}    value
+        ${result} =    Some Keyword
+
+Correct code:
+
+    *** Keywords ***
+    Example
+        VAR    ${local: str}    value
+        ${result: list} =    Some Keyword
+
+This rule is disabled by default.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-keyword-variable-type.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-keyword-variable-type.severity=I"
+        ]
+        ```
+
+---
+
+### ANN06: missing-test-variable-type
+
+> Rule is disabled by default. Enable it by using ``--select missing-test-variable-type`` option.
+
+Added: `v9.5.0`
+
+Supported RF version `>=7.3`
+
+Fix availability: There is no automatic fix.
+
+**Message**:
+
+`Variable '{variable_name}' is missing type annotation`
+
+**Documentation**:
+
+Test variable without type annotation.
+
+Robot Framework 7.3 introduced type conversion for variables. This rule
+enforces that variables created inside tests or tasks with ``VAR`` statements and
+assignment expressions (``${var} =    Keyword``) have explicit type annotations
+for better code clarity and automatic type conversion.
+
+Incorrect code example (when rule is enabled):
+
+    *** Test Cases ***
+    Example
+        VAR    ${local}    value
+        ${result} =    Some Keyword
+
+Correct code:
+
+    *** Test Cases ***
+    Example
+        VAR    ${local: str}    value
+        ${result: list} =    Some Keyword
+
+This rule is disabled by default.
+
+**Parameters**:
+
+??? example "severity"
+
+    Rule severity (e = error, w = warning, i = info)
+
+    **Default value:** I
+
+    **Type:** severity
+
+    === ":octicons-command-palette-24: cli"
+
+        ``` bash
+        robocop check --configure missing-test-variable-type.severity=I
+        ```
+
+    === ":material-file-cog-outline: toml"
+
+        ``` toml
+        [tool.robocop.lint]
+        configure = [
+            "missing-test-variable-type.severity=I"
         ]
         ```

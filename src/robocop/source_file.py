@@ -14,7 +14,7 @@ except ImportError:
     Languages = None
 
 from robocop.embedded import MARKDOWN_EXTENSIONS, extract_robot_blocks, reconstruct_source, shift_model_lines
-from robocop.files import path_relative_to_cwd, resolve_path
+from robocop.files import is_init_file, path_relative_to_cwd, resolve_path
 from robocop.version_handling import LANG_SUPPORTED, ROBOT_VERSION, Version
 
 if TYPE_CHECKING:
@@ -153,7 +153,7 @@ class SourceFile:
 
     def _load_model(self, path_or_text: Path | str) -> File:
         """Determine the correct model loader based on the file type and loads it."""
-        if "__init__" in self.path.name:
+        if is_init_file(self.path):
             loader: Callable[..., File] = get_init_model
         elif self.path.suffix == ".resource":
             loader = get_resource_model

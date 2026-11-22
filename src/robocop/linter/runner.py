@@ -10,7 +10,7 @@ from robot.errors import DataError
 
 from robocop import exceptions
 from robocop.cache import restore_diagnostic, restore_diagnostics
-from robocop.files import resolve_path
+from robocop.files import is_init_file, resolve_path
 from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics, RunStatistic
 from robocop.linter.fix import FixApplier
@@ -114,7 +114,7 @@ class RobocopLinter:
     def get_model_for_file_type(self, source: Path, language: list[str] | None) -> File:
         """Recognize model type of the file and load the model."""
         # TODO: decide to migrate file type recognition based on imports from robocop
-        if "__init__" in source.name:
+        if is_init_file(source):
             return get_resource_with_lang(get_init_model, source, language)
         if source.suffix == ".resource":
             return get_resource_with_lang(get_resource_model, source, language)

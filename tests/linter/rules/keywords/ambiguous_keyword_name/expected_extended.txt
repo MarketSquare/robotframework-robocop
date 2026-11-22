@@ -38,6 +38,22 @@ same_resource_name.robot:8:5 KW06 Keyword 'util.Shared Keyword' matches keywords
    |     ^^^^^^^^^^^^^^^^^^^ KW06
    |
 
+search_order${/}child${/}suite.robot:8:5 KW06 Keyword 'Click Thing' matches keywords from multiple sources: LibOne, LibTwo
+   |
+ 6 | *** Test Cases ***
+ 7 | Search Order Is Not Inherited From The Parent Suite
+ 8 |     Click Thing
+   |     ^^^^^^^^^^^ KW06
+   |
+
+search_order${/}prefixed.robot:9:5 KW06 Keyword 'util.Shared Keyword' matches keywords from multiple sources: resources${/}a${/}util.resource, resources${/}b${/}util.resource
+   |
+ 7 | Search Order Does Not Resolve Prefixed Calls
+ 8 |     Set Library Search Order    util
+ 9 |     util.Shared Keyword
+   |     ^^^^^^^^^^^^^^^^^^^ KW06
+   |
+
 test.robot:8:5 KW06 Keyword 'Login' matches keywords from multiple sources: resources${/}first.resource, resources${/}second.resource
    |
  6 | *** Test Cases ***
@@ -46,4 +62,4 @@ test.robot:8:5 KW06 Keyword 'Login' matches keywords from multiple sources: reso
    |     ^^^^^ KW06
    |
 
-Found 6 issues.
+Found 8 issues.

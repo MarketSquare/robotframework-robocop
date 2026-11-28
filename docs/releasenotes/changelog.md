@@ -1,5 +1,29 @@
 # Release notes
 
+## [9.5.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.4.0...v9.5.0) (2026-11-28)
+
+
+### Features
+
+* add cyclomatic and cognitive complexity rules ([#1987](https://github.com/MarketSquare/robotframework-robocop/issues/1987)) ([7a1bafc](https://github.com/MarketSquare/robotframework-robocop/commit/7a1bafcf6b19e237e565cca150a12e60ae9d6efe)), closes [#537](https://github.com/MarketSquare/robotframework-robocop/issues/537)
+* add nesting depth rules for keywords and test cases ([#1989](https://github.com/MarketSquare/robotframework-robocop/issues/1989)) ([d6e8d7d](https://github.com/MarketSquare/robotframework-robocop/commit/d6e8d7d46452be2ca2ec99ba9a207379ab5f02ec))
+* add too-many-required-arguments and too-many-optional-arguments rules ([#1933](https://github.com/MarketSquare/robotframework-robocop/issues/1933)) ([613bda2](https://github.com/MarketSquare/robotframework-robocop/commit/613bda2e5c071b77cebdf605694dc6b9daedbae3))
+* process markdown blocks as one suite ([#1988](https://github.com/MarketSquare/robotframework-robocop/issues/1988)) ([02ef03a](https://github.com/MarketSquare/robotframework-robocop/commit/02ef03af00858ac353ecfbea48054ecccc89b16b))
+* split missing-section-variable-type into keyword and test variable rules ([#1982](https://github.com/MarketSquare/robotframework-robocop/issues/1982)) ([36d5f79](https://github.com/MarketSquare/robotframework-robocop/commit/36d5f79cbb153677651f456f88362875095c9e44))
+
+
+### Bug Fixes
+
+* bypass formatter cache for line ranges ([#1985](https://github.com/MarketSquare/robotframework-robocop/issues/1985)) ([0616595](https://github.com/MarketSquare/robotframework-robocop/commit/0616595f9ffb8ed5536cadd48702ec3ed93c9e54))
+* detect suite initialization files by the exact file name ([#2007](https://github.com/MarketSquare/robotframework-robocop/issues/2007)) ([f01337e](https://github.com/MarketSquare/robotframework-robocop/commit/f01337e73c626139cd625178513a85df7dae8dd9))
+* do not report calls resolved by Set Library Search Order ([#2002](https://github.com/MarketSquare/robotframework-robocop/issues/2002)) ([0ae6d19](https://github.com/MarketSquare/robotframework-robocop/commit/0ae6d192df6d6e91fb1e7081aa465efa6606123e)), closes [#1993](https://github.com/MarketSquare/robotframework-robocop/issues/1993)
+* find keywords provided by the suites importing a resource file ([#2003](https://github.com/MarketSquare/robotframework-robocop/issues/2003)) ([fe128c1](https://github.com/MarketSquare/robotframework-robocop/commit/fe128c1dd73dbbea0fbad6e736aa69f0adb6d896))
+* include files passed on the command line in the project context ([#2004](https://github.com/MarketSquare/robotframework-robocop/issues/2004)) ([71c513c](https://github.com/MarketSquare/robotframework-robocop/commit/71c513c066ee95f56b61cb155081db68b2b279bc))
+* recognize localized and multi-word BDD prefixes ([#1999](https://github.com/MarketSquare/robotframework-robocop/issues/1999)) ([ccb8225](https://github.com/MarketSquare/robotframework-robocop/commit/ccb8225aed0619a6263362c85030207b940c0285))
+* report prefixed calls matching resource files with the same name ([#2001](https://github.com/MarketSquare/robotframework-robocop/issues/2001)) ([dc6da38](https://github.com/MarketSquare/robotframework-robocop/commit/dc6da388de4d6735fb449de57d208a679e142dd8))
+* resolve BDD calls without the prefix first on Robot Framework 7.1+ ([#2000](https://github.com/MarketSquare/robotframework-robocop/issues/2000)) ([af8356a](https://github.com/MarketSquare/robotframework-robocop/commit/af8356a0a09622b3981dc9b6508e89cdb5f82e81)), closes [#1994](https://github.com/MarketSquare/robotframework-robocop/issues/1994)
+* resolve prefixed calls to keywords with dots in the name ([#2005](https://github.com/MarketSquare/robotframework-robocop/issues/2005)) ([f68379d](https://github.com/MarketSquare/robotframework-robocop/commit/f68379de8b00c6d85a32ef5a7372e655e0dcf07c))
+
 ## [9.4.0](https://github.com/MarketSquare/robotframework-robocop/compare/v9.3.0...v9.4.0) (2026-11-09)
 
 
